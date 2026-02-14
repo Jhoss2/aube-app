@@ -23,10 +23,6 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -62,4 +58,6 @@ try {
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
