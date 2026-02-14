@@ -1,0 +1,17 @@
+workflows:
+  android-workflow:
+    name: Aube App Android Build
+    max_build_duration: 60
+    environment:
+      node: 24.13.0
+    scripts:
+      - name: Install dependencies
+        script: npm install
+      - name: Capacitor Sync
+        script: npx cap sync android
+      - name: Build Android APK
+        script: |
+          cd android
+          ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/apk/**/*.apk
