@@ -8,6 +8,9 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.1'
         classpath 'com.google.gms:google-services:4.4.0'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in individual module build.gradle files
     }
 }
 
@@ -16,12 +19,24 @@ allprojects {
         google()
         mavenCentral()
     }
-    
-    // Force Java 17 sur absolument TOUS les modules (fix pour l'erreur release 21)
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+}
+
+// FORCE JAVA 17 SUR TOUS LES MODULES (CAPACITOR INCLUS)
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            sourceCompatibility = '17'
+            targetCompatibility = '17'
+        }
     }
 }
 
