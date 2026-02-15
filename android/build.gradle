@@ -1,45 +1,38 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+[span_32](start_span)// Top-level build file where you can add configuration options common to all sub-projects/modules.[span_32](end_span)
 
 buildscript {
     repositories {
-        google()
-        mavenCentral()
+        [span_33](start_span)google()[span_33](end_span)
+        [span_34](start_span)mavenCentral()[span_34](end_span)
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
-        classpath 'com.google.gms:google-services:4.4.0'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in individual module build.gradle files
+        [span_35](start_span)classpath 'com.android.tools.build:gradle:8.2.1'[span_35](end_span)
+        [span_36](start_span)classpath 'com.google.gms:google-services:4.4.4'[span_36](end_span)
     }
 }
+
+[span_37](start_span)apply from: "variables.gradle"[span_37](end_span)
 
 allprojects {
     repositories {
-        google()
-        mavenCentral()
+        [span_38](start_span)google()[span_38](end_span)
+        [span_39](start_span)mavenCentral()[span_39](end_span)
     }
 }
 
-// FORCE JAVA 17 SUR TOUS LES MODULES (CAPACITOR INCLUS)
 subprojects {
     afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            android {
+        [span_40](start_span)if (project.hasProperty('android')) {[span_40](end_span)
+            project.android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
+                    [span_41](start_span)sourceCompatibility JavaVersion.VERSION_17[span_41](end_span)
+                    [span_42](start_span)targetCompatibility JavaVersion.VERSION_17[span_42](end_span)
                 }
             }
-        }
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-            sourceCompatibility = '17'
-            targetCompatibility = '17'
         }
     }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+    [span_43](start_span)delete rootProject.buildDir[span_43](end_span)
 }
