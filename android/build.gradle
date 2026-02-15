@@ -1,32 +1,32 @@
-[span_32](start_span)// Top-level build file where you can add configuration options common to all sub-projects/modules.[span_32](end_span)
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {
-        [span_33](start_span)google()[span_33](end_span)
-        [span_34](start_span)mavenCentral()[span_34](end_span)
+        google()
+        mavenCentral()
     }
     dependencies {
-        [span_35](start_span)classpath 'com.android.tools.build:gradle:8.2.1'[span_35](end_span)
-        [span_36](start_span)classpath 'com.google.gms:google-services:4.4.4'[span_36](end_span)
+        classpath 'com.android.tools.build:gradle:8.2.1'
+        classpath 'com.google.gms:google-services:4.4.4'
     }
 }
 
-[span_37](start_span)apply from: "variables.gradle"[span_37](end_span)
+apply from: "variables.gradle"
 
 allprojects {
     repositories {
-        [span_38](start_span)google()[span_38](end_span)
-        [span_39](start_span)mavenCentral()[span_39](end_span)
+        google()
+        mavenCentral()
     }
 }
 
 subprojects {
     afterEvaluate { project ->
-        [span_40](start_span)if (project.hasProperty('android')) {[span_40](end_span)
-            project.android {
+        if (project.hasProperty('android')) {
+            android {
                 compileOptions {
-                    [span_41](start_span)sourceCompatibility JavaVersion.VERSION_17[span_41](end_span)
-                    [span_42](start_span)targetCompatibility JavaVersion.VERSION_17[span_42](end_span)
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
                 }
             }
         }
@@ -34,5 +34,5 @@ subprojects {
 }
 
 task clean(type: Delete) {
-    [span_43](start_span)delete rootProject.buildDir[span_43](end_span)
+    delete rootProject.buildDir
 }
