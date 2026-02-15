@@ -1,9 +1,10 @@
 workflows:
   android-workflow:
-    name: Aube App Final Build
+    name: Aube App Final Build - J21
     max_build_duration: 60
     environment:
-      java: 17
+      java: 21 # On passe enfin sur la version attendue par Capacitor
+      node: 20.x
     scripts:
       - name: Install dependencies
         script: |
@@ -14,27 +15,12 @@ workflows:
           rm -rf android
           npx cap add android
           npx cap sync android
-      - name: Force Java 17 and SDK 35 (Deep Patch)
+      - name: Patch SDK for Vanilla Ice Cream
         script: |
-          # 1. Créer un gradle.properties global pour forcer le JDK
-          echo "org.gradle.java.home=$JAVA_HOME_17" >> android/gradle.properties
-          echo "android.useAndroidX=true" >> android/gradle.properties
-          echo "android.enableJetifier=true" >> android/gradle.properties
-
-          # 2. Forcer le SDK 35 (pour l'erreur VANILLA_ICE_CREAM)
+          # On garde le SDK 35 car Capacitor en a besoin pour compiler les SystemBars
           find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
-          find android -name "build.gradle" -exec sed -i '' 's/targetSdk 34/targetSdk 34/g' {} +
-          
-          # 3. Écraser TOUTE mention de Java 21 par Java 17
-          find android -name "build.gradle" -exec sed -i '' 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
-          find android -name "build.gradle" -exec sed -i '' 's/sourceCompatibility 21/sourceCompatibility 17/g' {} +
-          find android -name "build.gradle" -exec sed -i '' 's/targetCompatibility 21/targetCompatibility 17/g' {} +
-          find android -name "build.gradle" -exec sed -i '' 's/sourceCompatibility = 21/sourceCompatibility = 17/g' {} +
-          find android -name "build.gradle" -exec sed -i '' 's/targetCompatibility = 21/targetCompatibility = 17/g' {} +
-
       - name: Build Android APK
         script: |
-          export JAVA_HOME=$JAVA_HOME_17
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
