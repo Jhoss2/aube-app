@@ -1,5 +1,9 @@
 {
-  "appId": "com.uauben.inventory",
-  "appName": "U-AUBEN INVENTORY APP",
-  "webDir": "www"
+  "appId": "com.universite.aubenouvelle",
+  "appName": "U-A Logistique",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
 }
