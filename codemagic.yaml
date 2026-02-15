@@ -3,24 +3,23 @@ workflows:
     name: Aube App Final Build
     max_build_duration: 60
     environment:
-      node: 20.x
       java: 17
     scripts:
       - name: Install dependencies
         script: |
           npm install
-          npm install @capacitor/android
+          npm install @capacitor/android @capacitor/core @capacitor/cli
       - name: Rebuild Android Platform
         script: |
-          # Recréation propre du dossier android
+          # Suppression de sécurité si le dossier existe encore
+          rm -rf android
+          # Création et synchronisation
           npx cap add android
-          npx cap copy android
           npx cap sync android
       - name: Patch Gradle for Java 17/SDK 35
         script: |
-          # Ce script modifie les fichiers générés pour forcer la compatibilité
+          # Correction des versions de SDK dans le fichier généré
           sed -i '' 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
-          sed -i '' 's/targetSdkVersion 34/targetSdkVersion 34/g' android/app/build.gradle
           sed -i '' 's/minSdkVersion 22/minSdkVersion 24/g' android/app/build.gradle
       - name: Build Android APK
         script: |
