@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">U-AUBEN INVENTORY APP</string>
-    <string name="title_activity_main">U-AUBEN INVENTORY APP</string>
-    <string name="package_name">com.uauben.inventory</string>
-    <string name="custom_url_scheme">com.uauben.inventory</string>
-</resources>
