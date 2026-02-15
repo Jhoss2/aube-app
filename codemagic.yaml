@@ -1,23 +1,23 @@
 workflows:
   android-workflow:
-    name: Aube App Final Build - J21
+    name: Aube App Build Success
     max_build_duration: 60
     environment:
-      java: 21 # On passe enfin sur la version attendue par Capacitor
-      node: 20.x
+      java: 21
     scripts:
       - name: Install dependencies
         script: |
           npm install
           npm install @capacitor/android @capacitor/core @capacitor/cli
-      - name: Rebuild Android Platform
+      - name: Clean and Rebuild Platform
         script: |
+          # On s'assure de repartir à zéro
           rm -rf android
           npx cap add android
           npx cap sync android
-      - name: Patch SDK for Vanilla Ice Cream
+      - name: Patch SDK and Vanilla Ice Cream
         script: |
-          # On garde le SDK 35 car Capacitor en a besoin pour compiler les SystemBars
+          # Correction du SDK pour Capacitor 6+
           find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
       - name: Build Android APK
         script: |
