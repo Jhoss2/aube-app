@@ -1,29 +1,48 @@
 workflows:
   android-workflow:
-    name: Aube App Build Success
+    name: U-AUBEN INVENTORY APP Build
     max_build_duration: 60
+    instance_type: mac_mini_m1
     environment:
+      android_signing:
+        - keystore_reference
+      groups:
+        - google_play
+      vars:
+        PACKAGE_NAME: "com.uauben.inventory"
+      node: v20.11.0
       java: 21
+      
     scripts:
+      - name: Set up local properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+          
       - name: Install dependencies
         script: |
           npm install
-          npm install @capacitor/android @capacitor/core @capacitor/cli
-      - name: Clean and Rebuild Platform
+          
+      - name: Download assets
         script: |
-          # On s'assure de repartir à zéro
-          rm -rf android
-          npx cap add android
+          npm run copy-assets
+          
+      - name: Setup Capacitor
+        script: |
           npx cap sync android
-      - name: Patch SDK and Vanilla Ice Cream
-        script: |
-          # Correction du SDK pour Capacitor 6+
-          find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
+          
       - name: Build Android APK
         script: |
           cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease
+          
     artifacts:
-      - android/app/build/outputs/apk/**/*.apk
+      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/**/*.aab
       
+    publishing:
+      email:
+        recipients:
+          - dev@uauben.com
+        notify:
+          success: true
+          failure: true
