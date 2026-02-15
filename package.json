@@ -1,18 +1,27 @@
 {
-  "name": "aube-app",
+  "name": "u-auben-inventory-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "U-AUBEN INVENTORY APP - Native Offline Inventory Management",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run copy-assets && npx cap sync android",
+    "copy-assets": "npm run download-tailwind && npm run download-lucide && npm run download-fonts && npm run download-marked",
+    "download-tailwind": "curl -o www/tailwind.min.css https://cdn.tailwindcss.com",
+    "download-lucide": "curl -o www/lucide.min.js https://unpkg.com/lucide@latest/dist/umd/lucide.min.js",
+    "download-marked": "curl -o www/marked.min.js https://cdn.jsdelivr.net/npm/marked/marked.min.js",
+    "download-fonts": "mkdir -p www/fonts && curl -o www/fonts/inter-v12-latin-regular.woff2 https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
+    "sync": "npx cap sync android",
+    "open:android": "npx cap open android",
+    "clean": "rm -rf android/app/build && rm -rf node_modules"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": ["inventory", "offline", "sqlite", "capacitor"],
+  "author": "U-AUBEN",
+  "license": "MIT",
   "dependencies": {
-    "@capacitor/android": "^8.1.0",
-    "@capacitor/cli": "^8.1.0",
-    "@capacitor/core": "^8.1.0"
-  }
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/cli": "^6.1.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor-community/sqlite": "^6.0.1"
+  },
+  "devDependencies": {}
 }
