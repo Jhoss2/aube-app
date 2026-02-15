@@ -14,22 +14,30 @@ workflows:
           rm -rf android
           npx cap add android
           npx cap sync android
-      - name: Force Java 17 and SDK 35
+      - name: Force Java 17 and SDK 35 (Deep Patch)
         script: |
-          # 1. Forcer le SDK 35 pour corriger l'erreur VANILLA_ICE_CREAM
-          sed -i '' 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
-          sed -i '' 's/minSdkVersion 22/minSdkVersion 24/g' android/app/build.gradle
+          # 1. Créer un gradle.properties global pour forcer le JDK
+          echo "org.gradle.java.home=$JAVA_HOME_17" >> android/gradle.properties
+          echo "android.useAndroidX=true" >> android/gradle.properties
+          echo "android.enableJetifier=true" >> android/gradle.properties
+
+          # 2. Forcer le SDK 35 (pour l'erreur VANILLA_ICE_CREAM)
+          find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
+          find android -name "build.gradle" -exec sed -i '' 's/targetSdk 34/targetSdk 34/g' {} +
           
-          # 2. Forcer Java 17 dans TOUS les fichiers gradle (le coeur du problème)
+          # 3. Écraser TOUTE mention de Java 21 par Java 17
           find android -name "build.gradle" -exec sed -i '' 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
           find android -name "build.gradle" -exec sed -i '' 's/sourceCompatibility 21/sourceCompatibility 17/g' {} +
           find android -name "build.gradle" -exec sed -i '' 's/targetCompatibility 21/targetCompatibility 17/g' {} +
+          find android -name "build.gradle" -exec sed -i '' 's/sourceCompatibility = 21/sourceCompatibility = 17/g' {} +
+          find android -name "build.gradle" -exec sed -i '' 's/targetCompatibility = 21/targetCompatibility = 17/g' {} +
+
       - name: Build Android APK
         script: |
           export JAVA_HOME=$JAVA_HOME_17
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
       
