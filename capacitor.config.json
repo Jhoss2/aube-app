@@ -1,9 +1,34 @@
 {
-  "appId": "com.universite.aubenouvelle",
-  "appName": "U-A Logistique",
+  "appId": "com.uauben.inventory",
+  "appName": "U-AUBEN INVENTORY APP",
   "webDir": "www",
-  "bundledWebRuntime": false,
   "server": {
     "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "keystorePassword": "",
+      "keystoreAlias": "",
+      "keystoreAliasPassword": "",
+      "releaseType": "APK"
+    }
+  },
+  "plugins": {
+    "CapacitorSQLite": {
+      "iosDatabaseLocation": "Library/CapacitorDatabase",
+      "iosIsEncryption": false,
+      "iosKeychainPrefix": "com.uauben.inventory",
+      "iosBiometric": {
+        "biometricAuth": false,
+        "biometricTitle": "Biometric login for capacitor sqlite"
+      },
+      "androidIsEncryption": false,
+      "androidBiometric": {
+        "biometricAuth": false,
+        "biometricTitle": "Biometric login for capacitor sqlite",
+        "biometricSubTitle": "Log in using your biometric"
+      }
+    }
   }
 }
