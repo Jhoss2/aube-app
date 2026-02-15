@@ -1,25 +1,33 @@
 workflows:
   android-workflow:
-    name: Android Build
-    instance_type: mac_mini_m1
+    name: Aube App Final Build
+    max_build_duration: 60
     environment:
+      node: 20.x
       java: 17
-      node: 24.13.0
     scripts:
-      - name: Set Java 17
-        script: |
-          export JAVA_HOME=$JAVA_HOME_17
-          echo "Java version:"
-          java -version
       - name: Install dependencies
         script: |
           npm install
-      - name: Capacitor Sync
+          npm install @capacitor/android
+      - name: Rebuild Android Platform
         script: |
-          npx cap sync
+          # Recréation propre du dossier android
+          npx cap add android
+          npx cap copy android
+          npx cap sync android
+      - name: Patch Gradle for Java 17/SDK 35
+        script: |
+          # Ce script modifie les fichiers générés pour forcer la compatibilité
+          sed -i '' 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
+          sed -i '' 's/targetSdkVersion 34/targetSdkVersion 34/g' android/app/build.gradle
+          sed -i '' 's/minSdkVersion 22/minSdkVersion 24/g' android/app/build.gradle
       - name: Build Android APK
         script: |
+          export JAVA_HOME=$JAVA_HOME_17
           cd android
+          chmod +x gradlew
           ./gradlew assembleDebug
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
+      
