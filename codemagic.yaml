@@ -12,7 +12,10 @@ workflows:
         script: npx cap sync android
       - name: Build Android APK
         script: |
+          # Forcer JAVA_HOME pour pointer sur le JDK 17 de Codemagic
+          export JAVA_HOME=$JAVA_HOME_17
           cd android
+          chmod +x gradlew
           ./gradlew assembleDebug
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
