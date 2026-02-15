@@ -11,16 +11,19 @@ workflows:
           npm install @capacitor/android @capacitor/core @capacitor/cli
       - name: Rebuild Android Platform
         script: |
-          # Suppression de sécurité si le dossier existe encore
           rm -rf android
-          # Création et synchronisation
           npx cap add android
           npx cap sync android
-      - name: Patch Gradle for Java 17/SDK 35
+      - name: Force Java 17 and SDK 35
         script: |
-          # Correction des versions de SDK dans le fichier généré
+          # 1. Forcer le SDK 35 pour corriger l'erreur VANILLA_ICE_CREAM
           sed -i '' 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
           sed -i '' 's/minSdkVersion 22/minSdkVersion 24/g' android/app/build.gradle
+          
+          # 2. Forcer Java 17 dans TOUS les fichiers gradle (le coeur du problème)
+          find android -name "build.gradle" -exec sed -i '' 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
+          find android -name "build.gradle" -exec sed -i '' 's/sourceCompatibility 21/sourceCompatibility 17/g' {} +
+          find android -name "build.gradle" -exec sed -i '' 's/targetCompatibility 21/targetCompatibility 17/g' {} +
       - name: Build Android APK
         script: |
           export JAVA_HOME=$JAVA_HOME_17
