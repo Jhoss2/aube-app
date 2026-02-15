@@ -1,22 +1,25 @@
 workflows:
   android-workflow:
-    name: Aube App Android Build
-    max_build_duration: 60
+    name: Android Build
+    instance_type: mac_mini_m1
     environment:
-      node: 24.13.0
       java: 17
+      node: 24.13.0
     scripts:
+      - name: Set Java 17
+        script: |
+          export JAVA_HOME=$JAVA_HOME_17
+          echo "Java version:"
+          java -version
       - name: Install dependencies
-        script: npm install
+        script: |
+          npm install
       - name: Capacitor Sync
-        script: npx cap sync android
+        script: |
+          npx cap sync
       - name: Build Android APK
         script: |
-          # Forcer JAVA_HOME pour pointer sur le JDK 17 de Codemagic
-          export JAVA_HOME=$JAVA_HOME_17
           cd android
-          chmod +x gradlew
           ./gradlew assembleDebug
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
-      
