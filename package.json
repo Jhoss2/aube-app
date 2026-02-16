@@ -2,20 +2,21 @@
   "name": "u-auben-inventory-app",
   "version": "1.0.0",
   "description": "U-AUBEN INVENTORY APP - Native Offline Inventory Management",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
-    "prepare-folders": "mkdir -p www/css www/js www/fonts",
-    "download-assets": "npm run prepare-folders && npm run download-tailwind && npm run download-lucide && npm run download-marked",
-    "download-tailwind": "curl -L -o www/css/tailwind.min.css https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css",
-    "download-lucide": "curl -L -o www/js/lucide.min.js https://unpkg.com/lucide@latest/dist/umd/lucide.min.js",
-    "download-marked": "curl -L -o www/js/marked.min.js https://cdn.jsdelivr.net/npm/marked/marked.min.js",
-    "build": "npm run download-assets && npx cap sync android",
-    "clean": "rm -rf android/app/build node_modules www/css www/js"
+    "build": "npm install && npx tailwindcss -i ./style.css -o ./www/css/style.css --minify && cp index.html www/ && cp manifest.json www/ && npx cap sync",
+    "serve": "npx vite"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
     "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0",
-    "@capacitor-community/sqlite": "^6.0.1"
+    "lucide": "^0.446.0",
+    "marked": "^14.1.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
   }
 }
