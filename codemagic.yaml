@@ -1,25 +1,32 @@
 workflows:
   android-workflow:
-    name: U-AUBEN INVENTORY Build
+    name: U-AUBEN INVENTORY - Fix React Error
     max_build_duration: 60
     environment:
       java: 21
     scripts:
-      - name: Install dependencies
+      - name: Clean & Install Capacitor
         script: |
+          # Suppression des résidus problématiques
+          rm -rf node_modules package-lock.json android
+          
+          # Installation propre de Capacitor uniquement
           npm install
-          npm install @capacitor/android @capacitor/core @capacitor/cli
-      - name: Clean and Sync
+          npm install @capacitor/cli @capacitor/core @capacitor/android
+      - name: Initialize Android Platform
         script: |
-          rm -rf android
+          # On recrée le dossier android à partir de ton dossier www
           npx cap add android
           npx cap sync android
-      - name: Build Debug APK (No Keystore needed)
+      - name: Patch Gradle & SDK
+        script: |
+          # On force le SDK 35 pour la compatibilité
+          find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
+      - name: Build Debug APK
         script: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
-    # On ne met PAS de section 'publishing' ici pour éviter l'erreur
-    
+      
