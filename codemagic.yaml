@@ -15,38 +15,40 @@ workflows:
           
       - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
-          # Création de la structure pour l'APK
+          # Création de la structure
           mkdir -p www/css www/js www/fonts
           
-          # Téléchargement des polices (indispensable pour l'affichage correct)
+          # Téléchargement des polices
           curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # Compilation Tailwind (Génère le design)
-          npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
+          # GÉNÉRATION TAILWIND (Utilise maintenant ton fichier tailwind.config.js)
+          npx tailwindcss -o ./www/css/style.css --minify
           
-          # Copie des scripts JS nécessaires au mode offline
+          # Copie des scripts JS
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
-          # Création du projet natif et synchronisation du plugin SQLite
+          # Ajout et synchronisation native
           npx cap add android
+          npx cap copy android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Utilisation de Perl pour éviter l'erreur "command a expects \" rencontrée avec sed
+          # Correction SDK 35 pour Android 15
           perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
           perl -i -pe 's/targetSdk 34/targetSdk 35/g' android/app/build.gradle
           perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/build.gradle
-          echo "Patch SDK 35 appliqué via Perl."
+          echo "Patch SDK appliqué."
           
       - name: Build Debug APK
         script: |
-          # Passage en mode natif pour compiler l'APK final
+          # Synchronisation finale avant compilation
+          npx cap copy android
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
