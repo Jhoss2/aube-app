@@ -1,104 +1,121 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Modifications PWA : Ajout du manifeste et des méta-tags -->
     <meta name="theme-color" content="#fde7f3">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A"> <!-- Placeholder pour l'icône iOS -->
     
     <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
-    <title>U-AUBEN INVENTORY APP</title>
-
-    <link rel="stylesheet" href="css/tailwind.min.css">
-    <script src="js/lucide.min.js"></script>
-    <script src="js/marked.min.js"></script>
-    <script src="capacitor.js"></script>
+    <title>Gestion Logistique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- AJOUT: Script pour l'analyse du Markdown de Gemini -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-    /* Conservation stricte de tes styles originaux */
-    @import url('https://fonts.cdnfonts.com/css/algerian');
-    @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
+        /* Import custom fonts */
+        @import url('https://fonts.cdnfonts.com/css/algerian');
+        @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
 
-    body { 
-        font-family: 'Inter', sans-serif; 
-        -webkit-tap-highlight-color: transparent; 
-        margin: 0; /* Important : enlève les marges par défaut du navigateur */
-        padding: 0;
-        background-color: #fde7f3;
-    }
-    
-    /* MODIFICATION : On force la largeur totale */
-    .main-container {
-        width: 100%;           /* Occupe toute la largeur */
-        max-width: 100vw;      /* Interdit de dépasser l'écran */
-        margin: 0;             /* On ne centre plus, on colle aux bords */
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background-color: #fde7f3;
-        background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
-        background-size: 15px 15px;
-        background-position: center;
-        box-shadow: none;      /* Plus besoin d'ombre de boîte car l'app prend tout l'écran */
-        position: relative;
-        overflow-x: hidden;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .main-container {
+            max-width: 420px;
+            margin: auto;
+            min-height: 100vh; /* Utiliser min-height pour s'adapter au contenu */
+            display: flex;
+            flex-direction: column;
+            background-color: #fde7f3; /* Default background color */
+            /* MODIFICATION: Logique de l'arrière-plan corrigée */
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px); /* Default pattern */
+            background-size: 15px 15px; /* Default size for pattern only */
+            background-position: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative; /* For positioning child elements */
+            overflow-x: hidden; /* Empêche le débordement horizontal */
+        }
+        .font-algerian {
+            font-family: 'Algerian', sans-serif;
+        }
+        .font-monotype-corsiva {
+            font-family: 'Monotype Corsiva', sans-serif;
+            font-weight: 600; /* Monotype Corsiva est souvent fine, un peu de poids aide */
+        }
 
-    /* MODIFICATION : On désactive les limites pour tablette */
-    @media (min-width: 768px) {
-        .main-container { 
-            max-width: 100%;   /* Toujours 100% sur tablette */
-        } 
-    }
-
-    .font-algerian { font-family: 'Algerian', sans-serif; }
-    .font-monotype-corsiva { font-family: 'Monotype Corsiva', sans-serif; font-weight: 600; }
-
-    .header-btn {
-        background-color: #b91c1c;
-        color: white;
-        padding: 12px;
-        border-radius: 9999px;
-        font-weight: 600;
-        text-align: center;
-        width: 90%; /* Un peu plus large pour profiter de l'espace */
-        margin: 16px auto;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        flex-shrink: 0;
-    }
-
-    .main-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 16px; }
-    
-    .nav-btn {
-        background-color: #1e3a8a;
-        color: white;
-        padding: 14px;
-        border-radius: 9999px;
-        font-weight: 500;
-        text-align: center;
-        margin-top: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: background-color 0.3s;
-    }
-
-    #side-menu { transition: transform 0.3s ease-in-out; background-color: #7f1d1d; }
+        .header-btn {
+            background-color: #b91c1c; /* red-800 */
+            color: white;
+            padding: 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-align: center;
+            width: 80%;
+            margin: 16px auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex-shrink: 0; /* Empêche le header de rétrécir */
+        }
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 16px 16px;
+        }
+        /* MODIFICATION: Classe 'pb-nav' supprimée */
+        
+        .nav-btn {
+            background-color: #1e3a8a; /* blue-900 */
+            color: white;
+            padding: 14px;
+            border-radius: 9999px;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .nav-btn:hover {
+            background-color: #1e40af; /* blue-800 */
+        }
+        #side-menu {
+            transition: transform 0.3s ease-in-out;
+            background-color: #7f1d1d; /* red-900 - rouge bordeaux */
+        }
+        #menu-background {
+            background-image: url('https://placehold.co/420x900/1e3a8a/ffffff?text=Arri%C3%A8re-plan');
+            background-size: cover;
+            background-position: center;
+        }
+        /* Hide scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
-<body class="bg-pink-100"> <div class="main-container w-full min-h-screen flex flex-col no-scrollbar shadow-none">
-        
-        <div class="header-btn font-algerian tracking-widest text-xl">
-            U-AUBEN INVENTORY
-        </div>
+<body class="bg-gray-200">
 
-        <div class="main-content flex-grow">
-            <div id="inventory-list" class="space-y-4">
-                <p class="text-center py-10 font-monotype-corsiva text-gray-600">Initialisation de la base de données...</p>
+    <div id="main-app-container" class="main-container">
+        <!-- Chaque "écran" est un div que nous allons montrer/cacher -->
+
+        <!-- Écran: Accueil -->
+        <div id="screen-blocA" class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="flex-shrink-0 px-4 pt-4 z-10">
+                <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md" style="background-color: #b91c1c;">
+                    <button onclick="toggleMenu()" class="text-white"><i data-lucide="menu"></i></button>
+                    <h1 class="font-semibold text-sm">&nbsp;</h1>
+                    <button onclick="promptForPassword()" class="text-white"><i data-lucide="sliders-horizontal"></i></button>
+                </div>
             </div>
-        </div>
-        
-</div>
+
             <!-- Main Content (scrollable) -->
             <!-- MODIFICATION: pb-nav supprimé -->
             <div class="flex-grow overflow-y-auto px-4">
@@ -2001,7 +2018,4 @@ details[open] > summary::after { content: '−'; }
 }
 </style>
 </body>
-
 </html>
-
-
