@@ -6,48 +6,41 @@ workflows:
       java: 21
       node: latest
     scripts:
-      - name: Clean & Install Dependencies
+      - name: Clean & Install
         script: |
-          # 1. Nettoyage radical pour repartir sur une base saine
           rm -rf node_modules package-lock.json android
-          
-          # 2. Installation de toutes les dépendances listées
           npm install
           npm install @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
-          
-      - name: Prepare Offline Assets
+
+      - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
-          # 1. Création de TOUTE la structure de dossiers dans www
+          # 1. Création des dossiers
           mkdir -p www/css www/js www/fonts
           
-          # 2. Compilation de Tailwind CSS (scan du fichier dans www vers le css de www)
-          # On s'assure que le design est généré localement
+          # 2. Téléchargement des polices (La formule magique)
+          curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
+          curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
+          curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
+
+          # 3. Compilation Tailwind
           npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
           
-          # 3. Copie des scripts JS (Lucide et Marked) pour qu'ils soient dans l'APK
+          # 4. Copie des scripts JS
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
-          
-          # 4. FORMULE MAGIQUE POUR LES POLICES :
-          # On copie tes fichiers .woff2 depuis ton dossier /fonts (racine) vers www/fonts
-          # Le "|| true" évite que le build plante si tu as oublié un fichier
-          cp fonts/*.woff2 www/fonts/ || true
 
       - name: Initialize Android Platform
         script: |
-          # On force Capacitor à utiliser le dossier www préparé
           npx cap add android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Mise à jour forcée pour éviter les erreurs de version Android sur Codemagic
           find android -name "build.gradle" -exec sed -i 's/compileSdk 34/compileSdk 35/g' {} +
           find android -name "build.gradle" -exec sed -i 's/targetSdk 34/targetSdk 35/g' {} +
           
       - name: Build Debug APK
         script: |
-          # Lancement de la compilation native
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
