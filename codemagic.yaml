@@ -1,27 +1,45 @@
 workflows:
   android-workflow:
-    name: U-AUBEN INVENTORY - Fix React Error
+    name: U-AUBEN INVENTORY - Native Offline Fix
     max_build_duration: 60
     environment:
       java: 21
+      node: latest # Assure d'avoir une version récente de Node pour Tailwind
     scripts:
-      - name: Clean & Install Capacitor
+      - name: Clean & Install Dependencies
         script: |
-          # Suppression des résidus problématiques
+          # Nettoyage
           rm -rf node_modules package-lock.json android
           
-          # Installation propre de Capacitor uniquement
+          # Installation des dépendances (Capacitor + Lucide + Tailwind)
           npm install
-          npm install @capacitor/cli @capacitor/core @capacitor/android
+          npm install @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
+          
+      - name: Prepare Offline Assets
+        script: |
+          # 1. Création des dossiers locaux dans 'www'
+          mkdir -p www/css www/js
+          
+          # 2. Compilation de Tailwind CSS (génère un fichier local)
+          # Note: On utilise npx pour compiler les styles de l'index.html vers le fichier local
+          npx tailwindcss -o www/css/style.css --minify
+          
+          # 3. Copie physique des bibliothèques JS pour qu'elles soient dans l'APK
+          cp node_modules/lucide/dist/umd/lucide.min.js www/js/
+          cp node_modules/marked/marked.min.js www/js/
+
       - name: Initialize Android Platform
         script: |
-          # On recrée le dossier android à partir de ton dossier www
+          # Capacitor utilise le contenu du dossier 'www' (qui contient maintenant nos fichiers offline)
           npx cap add android
           npx cap sync android
+          
       - name: Patch Gradle & SDK
         script: |
-          # On force le SDK 35 pour la compatibilité
-          find android -name "build.gradle" -exec sed -i '' 's/compileSdk 34/compileSdk 35/g' {} +
+          # Correction pour macOS/Linux (sed sans extension vide sur Codemagic)
+          find android -name "build.gradle" -exec sed -i 's/compileSdk 34/compileSdk 35/g' {} +
+          find android -name "build.gradle" -exec sed -i 's/targetSdk 34/targetSdk 35/g' {} +
+          
       - name: Build Debug APK
         script: |
           cd android
@@ -29,4 +47,3 @@ workflows:
           ./gradlew assembleDebug --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
-      
