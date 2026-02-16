@@ -8,42 +8,48 @@ workflows:
     scripts:
       - name: Clean & Install Dependencies
         script: |
-          # Nettoyage et installation propre
+          # Nettoyage et installation des dépendances
           rm -rf node_modules package-lock.json android
           npm install
           npm install @capacitor-community/sqlite @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
           
       - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
+          # Création de la structure pour l'APK
           mkdir -p www/css www/js www/fonts
           
-          # Téléchargement des polices
+          # Téléchargement des polices (indispensable pour l'affichage correct)
           curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # Compilation Tailwind et copie JS
+          # Compilation Tailwind (Génère le design)
           npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
+          
+          # Copie des scripts JS nécessaires au mode offline
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
+          # Création du projet natif et synchronisation du plugin SQLite
           npx cap add android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Correction de la commande sed pour éviter l'erreur "command a expects \"
-          # On cible précisément les fichiers build.gradle de l'application
-          find android -name "build.gradle" -type f -exec sed -i.bak 's/compileSdk 34/compileSdk 35/g' {} +
-          find android -name "build.gradle" -type f -exec sed -i.bak 's/targetSdk 34/targetSdk 35/g' {} +
-          echo "Patch SDK 35 appliqué avec succès."
+          # Utilisation de Perl pour éviter l'erreur "command a expects \" rencontrée avec sed
+          perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
+          perl -i -pe 's/targetSdk 34/targetSdk 35/g' android/app/build.gradle
+          perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/build.gradle
+          echo "Patch SDK 35 appliqué via Perl."
           
       - name: Build Debug APK
         script: |
+          # Passage en mode natif pour compiler l'APK final
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
+      
