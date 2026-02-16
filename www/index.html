@@ -1,110 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#fde7f3">
-    
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
 
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
-    
-    <title>U-AUBEN INVENTORY</title>
-
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/lucide.min.js"></script>
-    <script src="js/marked.min.js"></script>
-    <script src="js/db.js"></script> <style>
-        /* Déclaration des polices téléchargées par Codemagic */
-        @font-face {
-            font-family: 'Inter';
-            src: url('fonts/inter.ttf') format('truetype');
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Algerian';
-            src: url('fonts/algerian.ttf') format('truetype');
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Monotype Corsiva';
-            src: url('fonts/monotype.ttf') format('truetype');
-            font-display: swap;
-        }
-
-        /* Corrections de rendu pour éviter les bugs d'affichage vus sur la vidéo */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-            margin: 0; 
-            padding: 0;
-            background-color: #fde7f3;
-            overflow-x: hidden; /* Empêche le défilement horizontal parasite */
-        }
-        
-        .main-container {
-            width: 100%; 
-            max-width: 100vw; 
-            margin: 0; 
-            min-height: 100vh;
-            display: flex; 
-            flex-direction: column; 
-            background-color: #fde7f3;
-            /* Motif de fond optimisé */
-            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
-            background-size: 15px 15px; 
-            background-position: center;
-            position: relative; 
-            overflow-x: hidden;
-        }
-
-        .font-algerian { font-family: 'Algerian', serif; }
-        .font-monotype-corsiva { font-family: 'Monotype Corsiva', cursive; font-weight: 600; }
-
-        .header-btn {
-            background-color: #b91c1c; 
-            color: white; 
-            padding: 12px;
-            border-radius: 9999px; 
-            font-weight: 600; 
-            text-align: center;
-            width: 90%; 
-            margin: 16px auto; 
-            flex-shrink: 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .main-content { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            padding: 0 16px 16px;
-            -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS/Android */
-        }
-        
-        .nav-btn {
-            background-color: #1e3a8a; 
-            color: white; 
-            padding: 14px;
-            border-radius: 9999px; 
-            font-weight: 500; 
-            text-align: center;
-            margin-top: 12px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        #side-menu { 
-            transition: transform 0.3s ease-in-out; 
-            background-color: #7f1d1d; 
-            z-index: 100; /* Assure que le menu passe au-dessus du contenu */
-        }
-
-        /* Correction pour masquer le modal par défaut si Tailwind tarde à charger */
-        .hidden { display: none !important; }
-    </style>
-</head>
 <body class="bg-gray-200">
 
     <div id="main-app-container" class="main-container">
@@ -1994,34 +1888,37 @@
         }
     }
 
-    // Assurer que le DOM est chargé avant d'exécuter l'app
+// Gestion du chargement du DOM et initialisation SQLite
     document.addEventListener('DOMContentLoaded', async () => {
-        initIcons(); // Active les icônes en premier
+        initIcons();
+
+        // Sécurité : Si Tailwind (style.css) est manquant, on le voit dans la console
+        const cssLoaded = Array.from(document.styleSheets).some(s => s.href && s.href.includes('style.css'));
+        if (!cssLoaded) console.warn("Attention : style.css non détecté !");
 
         try {
-            // On attend que la base soit prête avant de lancer le reste
-            inventoryDB = await setupDatabase(); 
-            console.log("SQLite est opérationnel.");
+            inventoryDB = await setupDatabase();
+            console.log("SQLite prêt.");
         } catch (e) {
-            console.error("Erreur d'initialisation de la base :", e);
+            console.error("Erreur SQLite:", e);
         }
 
         if (typeof initializeApp === 'function') {
-            // On lance l'app avec la base de données en argument
             initializeApp(inventoryDB);
         }
     });
 
-    // Enregistrement du Service Worker pour la PWA
+    // Fonctions de navigation et modal
+    function hidePasswordPrompt() {
+        const modal = document.getElementById('password-modal');
+        modal.style.display = 'none'; // Utilisation directe du style si Tailwind échoue
+        document.getElementById('password-input').value = '';
+    }
+
+    // Enregistrement du Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker enregistré avec succès:', registration);
-                })
-                .catch(error => {
-                    console.log('Échec de l\'enregistrement du Service Worker:', error);
-                });
+            navigator.serviceWorker.register('./service-worker.js').catch(() => {});
         });
     }
 </script>
@@ -2049,6 +1946,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
