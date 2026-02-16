@@ -1945,9 +1945,19 @@
         lucide.createIcons();
     }
     
+// Initialisation des icônes Lucide (Indispensable pour le mode offline)
+    function initIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
     // Assurer que le DOM est chargé avant d'exécuter l'app
     document.addEventListener('DOMContentLoaded', () => {
-        initializeApp();
+        initIcons(); // Active les icônes en premier
+        if (typeof initializeApp === 'function') {
+            initializeApp();
+        }
     });
 
     // Enregistrement du Service Worker pour la PWA
@@ -1962,7 +1972,6 @@
                 });
         });
     }
-
 </script>
 <style>
 .input-file-style {
@@ -1988,6 +1997,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
