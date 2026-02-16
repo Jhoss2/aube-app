@@ -630,28 +630,30 @@
         </div>
     </div>
     <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-30 hidden" onclick="toggleMenu()"></div>
-
     <!-- Password Modal -->
     <div id="password-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-80">
-            <h3 class="text-lg font-bold mb-4 text-center">Accès administrateur</h3>
-            <p class="text-sm text-gray-600 mb-4 text-center">Veuillez entrer le mot de passe pour accéder aux paramètres.</p>
-            <input type="password" id="password-input" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:border-blue-500">
-            <p id="password-error" class="text-red-500 text-xs text-center mb-4 hidden">Mot de passe incorrect.</p>
-            <div class="flex justify-between">
-                <button onclick="hidePasswordPrompt()" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Annuler</button>
-                <button onclick="checkPassword()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Valider</button>
-            </div>
+    <div class="bg-white rounded-lg shadow-xl p-6 w-80">
+        <h3 class="text-lg font-bold mb-4 text-center">Accès administrateur</h3>
+        <p class="text-sm text-gray-600 mb-4 text-center">Veuillez entrer le mot de passe pour accéder aux paramètres.</p>
+        <input type="password" id="password-input" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:border-blue-500">
+        <p id="password-error" class="text-red-500 text-xs text-center mb-4 hidden">Mot de passe incorrect.</p>
+        <div class="flex justify-between">
+            <button onclick="hidePasswordPrompt()" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Annuler</button>
+            <button onclick="checkPassword()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Valider</button>
         </div>
     </div>
+</div>
+
+<script src="js/db.js"></script>
 
 <script>
-    // Note: 'const' remplacé par 'let' pour les éléments qui pourraient être redéfinis (bonne pratique)
+    // Variables Globales de Navigation et UI
     let screens = document.querySelectorAll('.main-container > div');
     let menuContainer = document.getElementById('menu-container');
     let overlay = document.getElementById('menu-overlay');
     let currentScreen = 'screen-blocA';
-    let navigationHistory = ['screen-blocA']; // Pile pour l'historique de navigation
+    let navigationHistory = ['screen-blocA']; 
+    let inventoryDB = null;
     
     let currentBlocId = null;
     let currentSubBlocId = null;
@@ -1945,7 +1947,10 @@
         lucide.createIcons();
     }
     
-// Initialisation des icônes Lucide (Indispensable pour le mode offline)
+// Variable globale pour manipuler la base de données
+    let inventoryDB = null;
+
+    // Initialisation des icônes Lucide
     function initIcons() {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
@@ -1953,10 +1958,20 @@
     }
 
     // Assurer que le DOM est chargé avant d'exécuter l'app
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         initIcons(); // Active les icônes en premier
+
+        try {
+            // On attend que la base soit prête avant de lancer le reste
+            inventoryDB = await setupDatabase(); 
+            console.log("SQLite est opérationnel.");
+        } catch (e) {
+            console.error("Erreur d'initialisation de la base :", e);
+        }
+
         if (typeof initializeApp === 'function') {
-            initializeApp();
+            // On lance l'app avec la base de données en argument
+            initializeApp(inventoryDB);
         }
     });
 
@@ -1997,6 +2012,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
