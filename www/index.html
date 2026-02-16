@@ -2,19 +2,22 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#fde7f3">
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
+    
     <title>U-AUBEN INVENTORY</title>
 
     <link rel="stylesheet" href="css/style.css">
     <script src="js/lucide.min.js"></script>
     <script src="js/marked.min.js"></script>
-
-    <style>
+    <script src="js/db.js"></script> <style>
         /* Déclaration des polices téléchargées par Codemagic */
         @font-face {
             font-family: 'Inter';
@@ -32,40 +35,74 @@
             font-display: swap;
         }
 
+        /* Corrections de rendu pour éviter les bugs d'affichage vus sur la vidéo */
         body { 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent; 
-            margin: 0; padding: 0;
+            margin: 0; 
+            padding: 0;
             background-color: #fde7f3;
+            overflow-x: hidden; /* Empêche le défilement horizontal parasite */
         }
         
         .main-container {
-            width: 100%; max-width: 100vw; margin: 0; min-height: 100vh;
-            display: flex; flex-direction: column; background-color: #fde7f3;
+            width: 100%; 
+            max-width: 100vw; 
+            margin: 0; 
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column; 
+            background-color: #fde7f3;
+            /* Motif de fond optimisé */
             background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
-            background-size: 15px 15px; background-position: center;
-            position: relative; overflow-x: hidden;
+            background-size: 15px 15px; 
+            background-position: center;
+            position: relative; 
+            overflow-x: hidden;
         }
 
         .font-algerian { font-family: 'Algerian', serif; }
         .font-monotype-corsiva { font-family: 'Monotype Corsiva', cursive; font-weight: 600; }
 
         .header-btn {
-            background-color: #b91c1c; color: white; padding: 12px;
-            border-radius: 9999px; font-weight: 600; text-align: center;
-            width: 90%; margin: 16px auto; flex-shrink: 0;
+            background-color: #b91c1c; 
+            color: white; 
+            padding: 12px;
+            border-radius: 9999px; 
+            font-weight: 600; 
+            text-align: center;
+            width: 90%; 
+            margin: 16px auto; 
+            flex-shrink: 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .main-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 16px; }
+        .main-content { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 0 16px 16px;
+            -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS/Android */
+        }
         
         .nav-btn {
-            background-color: #1e3a8a; color: white; padding: 14px;
-            border-radius: 9999px; font-weight: 500; text-align: center;
-            margin-top: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: #1e3a8a; 
+            color: white; 
+            padding: 14px;
+            border-radius: 9999px; 
+            font-weight: 500; 
+            text-align: center;
+            margin-top: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        #side-menu { transition: transform 0.3s ease-in-out; background-color: #7f1d1d; }
+        #side-menu { 
+            transition: transform 0.3s ease-in-out; 
+            background-color: #7f1d1d; 
+            z-index: 100; /* Assure que le menu passe au-dessus du contenu */
+        }
+
+        /* Correction pour masquer le modal par défaut si Tailwind tarde à charger */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-200">
@@ -2012,6 +2049,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
