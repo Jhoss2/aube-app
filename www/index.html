@@ -3,38 +3,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Modifications PWA : Ajout du manifeste et des méta-tags -->
     <meta name="theme-color" content="#fde7f3">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A"> <!-- Placeholder pour l'icône iOS -->
-    
-    <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
+    <link rel="apple-touch-icon" href="icons/icon-192.png"> <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
     <title>Gestion Logistique</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- AJOUT: Script pour l'analyse du Markdown de Gemini -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/lucide.min.js"></script>
+    <script src="js/marked.min.js"></script>
+
 <style>
-    /* Conservation stricte de tes styles originaux */
-    @import url('https://fonts.cdnfonts.com/css/algerian');
-    @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
+    /* 3. CHARGEMENT LOCAL DES POLICES (Plus d'appels Google/CDNFonts) */
+    @font-face {
+        font-family: 'Inter';
+        src: url('fonts/inter.woff2') format('woff2');
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'Algerian';
+        src: url('fonts/algerian.woff2') format('woff2');
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'Monotype Corsiva';
+        src: url('fonts/monotype-corsiva.woff2') format('woff2');
+        font-display: swap;
+    }
 
     body { 
         font-family: 'Inter', sans-serif; 
         -webkit-tap-highlight-color: transparent; 
-        margin: 0; /* Important : enlève les marges par défaut du navigateur */
+        margin: 0; 
         padding: 0;
         background-color: #fde7f3;
     }
     
-    /* MODIFICATION : On force la largeur totale */
     .main-container {
-        width: 100%;           /* Occupe toute la largeur */
-        max-width: 100vw;      /* Interdit de dépasser l'écran */
-        margin: 0;             /* On ne centre plus, on colle aux bords */
+        width: 100%;           
+        max-width: 100vw;      
+        margin: 0;             
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -42,15 +52,14 @@
         background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
         background-size: 15px 15px;
         background-position: center;
-        box-shadow: none;      /* Plus besoin d'ombre de boîte car l'app prend tout l'écran */
+        box-shadow: none;      
         position: relative;
         overflow-x: hidden;
     }
 
-    /* MODIFICATION : On désactive les limites pour tablette */
     @media (min-width: 768px) {
         .main-container { 
-            max-width: 100%;   /* Toujours 100% sur tablette */
+            max-width: 100%;   
         } 
     }
 
@@ -64,7 +73,7 @@
         border-radius: 9999px;
         font-weight: 600;
         text-align: center;
-        width: 90%; /* Un peu plus large pour profiter de l'espace */
+        width: 90%; 
         margin: 16px auto;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         flex-shrink: 0;
@@ -2007,3 +2016,4 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
