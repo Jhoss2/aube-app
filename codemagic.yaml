@@ -4,39 +4,38 @@ workflows:
     max_build_duration: 60
     environment:
       java: 21
-      node: latest # Assure d'avoir une version récente de Node pour Tailwind
+      node: latest
     scripts:
       - name: Clean & Install Dependencies
         script: |
-          # Nettoyage
+          # On garde le dossier www mais on nettoie le reste
           rm -rf node_modules package-lock.json android
           
-          # Installation des dépendances (Capacitor + Lucide + Tailwind)
+          # Installation des dépendances
           npm install
           npm install @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
           
       - name: Prepare Offline Assets
         script: |
-          # 1. Création des dossiers locaux dans 'www'
+          # 1. On s'assure que les sous-dossiers existent dans www
           mkdir -p www/css www/js
           
-          # 2. Compilation de Tailwind CSS (génère un fichier local)
-          # Note: On utilise npx pour compiler les styles de l'index.html vers le fichier local
-          npx tailwindcss -o www/css/style.css --minify
+          # 2. Compilation de Tailwind CSS
+          # On dit à tailwind de scanner le index.html qui est DÉJÀ dans www
+          npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
           
-          # 3. Copie physique des bibliothèques JS pour qu'elles soient dans l'APK
+          # 3. Copie physique des bibliothèques JS dans www/js pour l'accès Offline
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
-          # Capacitor utilise le contenu du dossier 'www' (qui contient maintenant nos fichiers offline)
+          # On ajoute la plateforme (Capacitor lira le dossier www existant)
           npx cap add android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Correction pour macOS/Linux (sed sans extension vide sur Codemagic)
           find android -name "build.gradle" -exec sed -i 's/compileSdk 34/compileSdk 35/g' {} +
           find android -name "build.gradle" -exec sed -i 's/targetSdk 34/targetSdk 35/g' {} +
           
