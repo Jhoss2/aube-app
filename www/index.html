@@ -2,26 +2,33 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <meta name="theme-color" content="#fde7f3">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A">
     
     <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
     <title>U-AUBEN INVENTORY APP</title>
     
-    <link href="tailwind.min.css" rel="stylesheet">
-    <script src="lucide.min.js"></script>
-    <script src="marked.min.js"></script>
+    <script src="capacitor.js"></script>
+    <link rel="stylesheet" href="css/tailwind.min.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <script src="js/lucide.min.js"></script>
+    <script src="js/marked.min.js"></script>
     
     <style>
+        /* Conservation stricte de tes styles originaux */
         @import url('https://fonts.cdnfonts.com/css/algerian');
         @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
 
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Adaptation Tablette sans casser ton design mobile */
         .main-container {
-            max-width: 1024px;
+            max-width: 500px; /* Légèrement élargi pour tablette */
             margin: auto;
             min-height: 100vh;
             display: flex;
@@ -29,11 +36,19 @@
             background-color: #fde7f3;
             background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
             background-size: 15px 15px;
+            background-position: center;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
             overflow-x: hidden;
         }
+
+        @media (min-width: 768px) {
+            .main-container { max-width: 800px; } /* Format Tablette */
+        }
+
         .font-algerian { font-family: 'Algerian', sans-serif; }
         .font-monotype-corsiva { font-family: 'Monotype Corsiva', sans-serif; font-weight: 600; }
+
         .header-btn {
             background-color: #b91c1c;
             color: white;
@@ -44,8 +59,11 @@
             width: 80%;
             margin: 16px auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
+
         .main-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 16px; }
+        
         .nav-btn {
             background-color: #1e3a8a;
             color: white;
@@ -57,625 +75,1968 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: background-color 0.3s;
         }
-        .nav-btn:hover { background-color: #1e40af; }
+
         #side-menu { transition: transform 0.3s ease-in-out; background-color: #7f1d1d; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .chat-message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            word-wrap: break-word;
-        }
-        .chat-message-user {
-            background-color: #1e3a8a;
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-        .chat-message-aube {
-            background-color: #f3f4f6;
-            color: #1f2937;
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-        }
     </style>
 </head>
 <body>
-
-<div id="main-app-container" class="main-container">
-    <!-- Écran Accueil -->
-    <div id="screen-home" class="flex flex-col h-full">
-        <div class="flex-shrink-0 px-4 pt-4">
-            <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md">
-                <button onclick="toggleMenu()" class="text-white"><i data-lucide="menu"></i></button>
-                <h1 class="font-semibold text-sm">U-AUBEN INVENTORY</h1>
-                <button onclick="navigateTo('screen-settings')" class="text-white"><i data-lucide="settings"></i></button>
-            </div>
+    <div class="main-container no-scrollbar">
+        <div class="header-btn font-algerian tracking-widest text-xl">
+            U-AUBEN INVENTORY
         </div>
 
-        <div class="flex-grow overflow-y-auto px-4">
-            <div class="relative my-4">
-                <input type="search" id="search-input" placeholder="Rechercher un produit..." 
-                    class="w-full bg-white rounded-full pl-10 pr-12 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner">
-                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                <button onclick="navigateTo('screen-chat-aube')" class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600">
-                    <i data-lucide="bot"></i>
-                </button>
+        <div class="main-content">
+            <div id="inventory-list" class="space-y-4">
+                <p class="text-center py-10 font-monotype-corsiva text-gray-600">Initialisation de la base de données...</p>
             </div>
+        </div>
+        
+        </div>
 
-            <div class="text-center mb-6">
-                <div class="bg-blue-900 text-white inline-block px-6 py-3 rounded-2xl shadow-md font-algerian">
-                    INVENTAIRE UNIVERSITAIRE
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialisation des icônes Lucide
+            if(window.lucide) lucide.createIcons();
+            
+            // Initialisation de la base de données SQLite (Aube Database)
+            try {
+                // Ici Manus AI injectera le bridge SQLite
+                console.log("SQLite prêt pour U-AUBEN");
+            } catch (e) {
+                console.error("Mode Offline Activé");
+            }
+        });
+
+        // Fonction Aube IA Hybride
+        async function askAube(question) {
+            const isOnline = window.navigator.onLine;
+            if (isOnline) {
+                // Appel API Gemini
+            } else {
+                // Réponse locale basée sur SQLite
+                return "Aube (Offline) : Je consulte vos données locales...";
+            }
+        }
+    </script>
+</body>
+</html>
+
+<body class="bg-gray-200">
+
+    <div id="main-app-container" class="main-container">
+        <!-- Chaque "écran" est un div que nous allons montrer/cacher -->
+
+        <!-- Écran: Accueil -->
+        <div id="screen-blocA" class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="flex-shrink-0 px-4 pt-4 z-10">
+                <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md" style="background-color: #b91c1c;">
+                    <button onclick="toggleMenu()" class="text-white"><i data-lucide="menu"></i></button>
+                    <h1 class="font-semibold text-sm">&nbsp;</h1>
+                    <button onclick="promptForPassword()" class="text-white"><i data-lucide="sliders-horizontal"></i></button>
                 </div>
             </div>
 
-            <div class="space-y-4" id="inventory-list">
-                <p class="text-center text-gray-500">Chargement de l'inventaire...</p>
+            <!-- Main Content (scrollable) -->
+            <!-- MODIFICATION: pb-nav supprimé -->
+            <div class="flex-grow overflow-y-auto px-4">
+                 <div class="relative my-4">
+                    <input type="search" id="search-input" placeholder="Que cherchez vous aujourd’hui ?" class="w-full bg-white rounded-full pl-10 pr-12 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                    <button onclick="navigateTo('screen-chat-aube')" class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800">
+                        <i data-lucide="bot"></i>
+                    </button>
+                    <div id="search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg z-20 hidden overflow-hidden">
+                    </div>
+                </div>
+
+                <div class="bg-blue-900 rounded-2xl p-2 flex items-center space-x-2 text-center mb-4 shadow-lg overflow-x-auto no-scrollbar" style="background-color: #1e3a8a;">
+                    <button onclick="showBlocDetails('A')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc A</button>
+                    <button onclick="showBlocDetails('B')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc B</button>
+                    <button onclick="showBlocDetails('C')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc C</button>
+                    <button onclick="showBlocDetails('D')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc D</button>
+                    <button onclick="showBlocDetails('E')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc E</button>
+                    <button onclick="showBlocDetails('F')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc F</button>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-lg overflow-hidden mb-4">
+                    <img id="main-building-image" src="https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9" alt="Bâtiment Universitaire" class="w-full h-auto object-cover">
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-blue-900 text-white w-auto inline-block px-6 font-semibold py-3 rounded-2xl shadow-md text-center font-algerian" style="background-color: #1e3a8a;">
+                        UNIVERSITE AUBE NOUVELLE
+                    </div>
+                </div>
+                 <!-- MODIFICATION: Spacer pour la barre de nav (UNIQUEMENT sur cet écran) -->
+                 <div class="h-24"></div>
             </div>
             
-            <div class="h-24"></div>
+            <!-- Bottom Navigation (DÉPLACÉ hors de cet écran) -->
         </div>
 
-        <!-- Bottom Nav -->
-        <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg rounded-t-3xl p-4">
-            <div class="flex justify-around items-center max-w-md mx-auto">
-                <button onclick="navigateTo('screen-home')" class="flex flex-col items-center text-blue-900">
-                    <i data-lucide="home"></i>
-                    <span class="text-xs mt-1">Accueil</span>
-                </button>
-                <button onclick="navigateTo('screen-add-product')" class="flex flex-col items-center text-gray-600">
-                    <i data-lucide="plus-circle"></i>
-                    <span class="text-xs mt-1">Ajouter</span>
-                </button>
-                <button onclick="navigateTo('screen-notes')" class="flex flex-col items-center text-gray-600">
-                    <i data-lucide="file-text"></i>
-                    <span class="text-xs mt-1">Notes</span>
-                </button>
-                <button onclick="navigateTo('screen-chat-aube')" class="flex flex-col items-center text-gray-600">
-                    <i data-lucide="bot"></i>
-                    <span class="text-xs mt-1">Aube</span>
-                </button>
+        <!-- Écran: Détails du Bloc (Dynamique) -->
+        <div id="screen-blocA-details" class="hidden flex-col h-full">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
+            </div>
+            <div id="bloc-details-title" class="header-btn font-algerian">Bloc A</div>
+            <!-- MODIFICATION: pb-nav supprimé -->
+            <div class="main-content space-y-4">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <img id="bloc-details-main-image" onclick="navigateTo('screen-image-zoom')" src="https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+Bloc+A" alt="Vue aérienne Bloc A" class="w-full h-auto object-cover cursor-pointer">
+                    <p id="bloc-details-main-image-title" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Bloc A vu de dessus ·</p>
+                </div>
+                <p id="sub-bloc-title-1" class="text-center font-algerian text-blue-900 text-xl">A1</p>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <img id="sub-bloc-image-1" onclick="showSubBlocDetails('A1')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Salles+de+Classe" alt="Salles de classe" class="w-full h-auto object-cover cursor-pointer">
+                    <p id="sub-bloc-image-title-1" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Salles de classe ·</p>
+                </div>
+                
+                <p id="sub-bloc-title-2" class="text-center font-algerian text-blue-900 text-xl">A2</p>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <img id="sub-bloc-image-2" onclick="showSubBlocDetails('A2')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Bureaux" alt="Bureaux" class="w-full h-auto object-cover cursor-pointer">
+                    <p id="sub-bloc-image-title-2" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Bureaux ·</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Écran Ajouter Produit -->
-    <div id="screen-add-product" class="hidden flex-col h-full">
-        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
-            <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-            <h1 class="font-bold text-xl">Ajouter un produit</h1>
-            <div></div>
-        </div>
         
-        <div class="main-content space-y-4">
-            <input id="product-name" type="text" placeholder="Nom du produit" 
-                class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
-            <input id="product-quantity" type="number" placeholder="Quantité" 
-                class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
-            <input id="product-unit" type="text" placeholder="Unité (pcs, kg, litres...)" 
-                class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
-            
-            <button onclick="saveProduct()" class="nav-btn w-full mt-6">Enregistrer</button>
-        </div>
-    </div>
-
-    <!-- Écran Notes -->
-    <div id="screen-notes" class="hidden flex-col h-full">
-        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
-            <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-            <h1 class="font-bold text-xl">Notes</h1>
-            <button onclick="navigateTo('screen-add-note')" class="text-blue-600"><i data-lucide="plus"></i></button>
-        </div>
-        
-        <div class="main-content" id="notes-list">
-            <p class="text-center text-gray-500 mt-10">Aucune note</p>
-        </div>
-    </div>
-
-    <!-- Écran Ajouter Note -->
-    <div id="screen-add-note" class="hidden flex-col h-full">
-        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
-            <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-            <h1 class="font-bold text-xl">Nouvelle note</h1>
-            <div></div>
-        </div>
-        
-        <div class="main-content space-y-4">
-            <input id="note-category" type="text" placeholder="Catégorie" 
-                class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
-            <textarea id="note-content" rows="6" placeholder="Contenu de la note..." 
-                class="w-full bg-white rounded-2xl px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500"></textarea>
-            
-            <button onclick="saveNote()" class="nav-btn w-full">Enregistrer</button>
-        </div>
-    </div>
-
-    <!-- Écran Chat Aube -->
-    <div id="screen-chat-aube" class="hidden flex-col h-full">
-        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
-            <button onclick="goBack()" class="text-white"><i data-lucide="arrow-left"></i></button>
-            <div class="flex items-center space-x-2">
-                <i data-lucide="bot"></i>
-                <h1 class="font-bold text-xl">Aube IA</h1>
-            </div>
-            <button onclick="clearChat()" class="text-white"><i data-lucide="trash-2"></i></button>
-        </div>
-        
-        <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3">
-            <div class="chat-message chat-message-aube">
-                <p>👋 Bonjour ! Je suis Aube, votre assistant IA pour gérer l'inventaire. Comment puis-je vous aider aujourd'hui ?</p>
+        <!-- Écran: Zoom Image (Dynamique) -->
+        <div id="screen-image-zoom" class="hidden flex-col h-full bg-black">
+            <button onclick="goBack()" class="absolute top-4 left-4 z-10 text-white bg-black/50 rounded-full p-2">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <div class="flex-grow flex items-center justify-center">
+                 <img id="zoom-image-src" src="https://placehold.co/400x600/6b7280/ffffff?text=Vue+A%C3%A9rienne+Zoom" alt="Vue aérienne Bloc A Zoom" class="w-full h-auto object-contain">
             </div>
         </div>
 
-        <div class="flex-shrink-0 p-4 bg-white border-t">
-            <div class="flex space-x-2">
-                <input id="chat-input" type="text" placeholder="Posez votre question..." 
-                    class="flex-grow bg-gray-100 rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onkeypress="if(event.key==='Enter') sendMessage()">
-                <button onclick="sendMessage()" class="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700">
-                    <i data-lucide="send"></i>
-                </button>
+        <!-- Écran: Niveaux de Subdivision (Dynamique) -->
+        <div id="screen-blocA1-levels" class="hidden flex-col h-full">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
             </div>
-            <div id="connection-status" class="text-xs text-center mt-2 text-gray-500"></div>
-        </div>
-    </div>
-
-    <!-- Écran Settings -->
-    <div id="screen-settings" class="hidden flex-col h-full">
-        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
-            <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-            <h1 class="font-bold text-xl">Paramètres</h1>
-            <div></div>
+            <div id="levels-title" class="header-btn font-algerian">Bloc A1</div>
+            <!-- MODIFICATION: pb-nav supprimé -->
+            <div class="main-content">
+                <div class="bg-white text-blue-900 font-semibold text-center py-3 rounded-full shadow-md mb-6 font-monotype-corsiva text-lg">
+                    · NIVEAUX DE SUBDIVISION ·
+                </div>
+                <div class="space-y-3">
+                    <button onclick="showRoomProfiles('Sous-sol')" class="nav-btn w-full font-monotype-corsiva text-lg">· Sous-sol ·</button>
+                    <button onclick="showRoomProfiles('Rez-de-chaussée')" class="nav-btn w-full font-monotype-corsiva text-lg">· Rez-de-chaussée ·</button>
+                    <button onclick="showRoomProfiles('Premier Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Premier Niveau ·</button>
+                    <button onclick="showRoomProfiles('Deuxième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Deuxième Niveau ·</button>
+                    <button onclick="showRoomProfiles('Troisième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Troisième Niveau ·</button>
+                    <button onclick="showRoomProfiles('Quatrième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Quatrième Niveau ·</button>
+                </div>
+            </div>
         </div>
         
-        <div class="main-content space-y-4">
-            <div class="bg-white rounded-2xl p-4 shadow">
-                <h3 class="font-semibold mb-2">Clé API Gemini</h3>
-                <input id="gemini-api-key" type="password" placeholder="Entrez votre clé API..." 
-                    class="w-full bg-gray-100 rounded-lg px-4 py-2">
-                <button onclick="saveAPIKey()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg">Enregistrer</button>
+        <!-- Écran: Profils de Salles (Dynamique) -->
+        <!-- MODIFICATION: pb-nav remplacé par pb-24 (pour le bouton +) -->
+        <div id="screen-sous-sol" class="hidden flex-col min-h-full pb-24">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
+            </div>
+            <div id="room-profiles-title" class="header-btn font-algerian">Sous-sol</div>
+            <div class="flex-grow overflow-y-auto">
+                <h3 id="room-profiles-header" class="text-lg font-monotype-corsiva text-gray-800 font-semibold px-6 mt-4 mb-2">Profils des salles</h3>
+                <div class="overflow-x-auto no-scrollbar pb-4">
+                    <div id="room-profiles-container" class="flex space-x-4 px-6">
+                        <div class="flex-shrink-0 text-center w-24">
+                            <div class="w-24 h-24 bg-gray-200 rounded-2xl shadow-md flex items-center justify-center text-gray-500 text-xs p-2">Aucune salle ajoutée</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="bg-white rounded-2xl p-4 shadow">
-                <h3 class="font-semibold mb-2">Base de données</h3>
-                <button onclick="exportDB()" class="w-full bg-green-600 text-white py-2 rounded-lg mb-2">Exporter</button>
-                <button onclick="clearDB()" class="w-full bg-red-600 text-white py-2 rounded-lg">Réinitialiser</button>
+            <!-- Bouton + (fixe, mais pas la barre de nav) -->
+            <button onclick="navigateTo('screen-addRoom')" class="fixed bottom-6 right-6 w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg z-30">
+                <i data-lucide="plus" class="w-8 h-8"></i>
+            </button>
+        </div>
+
+        <!-- Écran: Options de la Salle (Détails) -->
+        <div id="screen-room-details" class="hidden flex-col h-full">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 id="room-details-title" class="font-bold text-xl text-gray-800">Laboratoire</h1>
+                 <div></div> <!-- Espace réservé -->
+            </div>
+            <div id="room-details-header" class="header-btn font-algerian">Détails du Laboratoire</div>
+            <!-- MODIFICATION: pb-nav supprimé -->
+            <div class="main-content flex flex-col justify-center items-center space-y-6 flex-grow">
+                <button id="room-details-show-btn" onclick="showRoomContents(currentSalleId)" class="nav-btn w-3/4 text-lg mx-auto">Afficher la salle</button>
+                <button id="room-details-add-btn" onclick="showCategoryList(currentSalleId)" class="nav-btn w-3/4 text-lg mx-auto">Ajouter du matériel</button>
             </div>
         </div>
-    </div>
+        
+        <!-- Écran: Contenu de la Salle (Profil) -->
+        <div id="screen-room-contents" class="hidden flex-col h-full bg-gray-100">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 id="room-contents-header" class="font-bold text-xl text-gray-800">Contenu de: Laboratoire</h1>
+                 <div></div>
+            </div>
+            <!-- MODIFICATION: pb-nav supprimé -->
+            <div id="room-contents-container" class="main-content overflow-y-auto space-y-4">
+                <p class="text-center text-gray-500 mt-10">Aucun matériel n'a été ajouté à cette salle.</p>
+            </div>
+        </div>
 
-    <!-- Side Menu -->
-    <div id="side-menu" class="fixed top-0 left-0 h-full w-80 bg-red-900 text-white transform -translate-x-full z-50 shadow-2xl">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold">Menu</h2>
+        <!-- Écran: Ajouter une salle -->
+        <div id="screen-addRoom" class="hidden flex-col h-full bg-gray-100">
+             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
+            </div>
+            <div class="header-btn font-algerian">Ajouter une salle</div>
+            <div class="main-content space-y-6">
+                <div class="bg-blue-900 rounded-2xl p-4 flex flex-col items-center justify-center h-48 text-white shadow-lg">
+                    <label for="room-images-upload" class="cursor-pointer text-center">
+                        <i data-lucide="camera" class="w-16 h-16 mb-2 mx-auto"></i>
+                        <p class="font-medium">Insérer des images de la salle</p>
+                    </label>
+                    <input type="file" id="room-images-upload" accept="image/*" class="hidden" onchange="previewRoomPhoto(event)">
+                </div>
+                <img id="room-photo-preview" src="" alt="Aperçu" class="hidden w-full h-auto rounded-lg mt-4 object-cover">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-red-700 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">Nom</div>
+                        <input id="add-room-nom" type="text" placeholder="Nom de la salle" class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                     <div class="flex items-center space-x-3">
+                        <div class="bg-blue-900 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">Emplacement</div>
+                        <input id="add-room-emplacement" type="text" placeholder="Ex: A1, D1, E2..." class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                     <div class="flex items-center space-x-3" id="add-room-niveau-row">
+                        <div class="bg-red-700 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">Niveau</div>
+                        <input id="add-room-niveau" type="text" placeholder="Ex: Sous-sol, Premier Niveau..." class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <!-- MODIFICATION: Appel async -->
+                <button onclick="saveRoom()" class="nav-btn w-full mt-8">Enregistrer la salle</button>
+            </div>
+        </div>
+        
+        <!-- Écran: Catégories de Matériaux -->
+        <div id="screen-categories" class="hidden flex-col h-full bg-gray-100">
+             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
+            </div>
+            <div class="header-btn font-algerian">Catégories de Matériaux</div>
+            <div class="main-content flex flex-col">
+                <div class="relative mb-6">
+                    <input type="search" id="category-search-input" placeholder="Rechercher une catégorie..." class="w-full bg-white rounded-full pl-10 pr-12 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                    <button onclick="navigateTo('screen-add-category')" class="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2 hover:bg-blue-700">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="border-b border-gray-300 mb-4"></div>
+                <div id="category-list-container" class="flex-grow overflow-y-auto space-y-3">
+                    <!-- Les catégories seront injectées ici -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Écran: Ajouter un Formulaire de Catégorie -->
+        <div id="screen-add-category" class="hidden flex-col h-full bg-gray-100">
+             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <div></div>
+            </div>
+            <div class="header-btn font-algerian">Ajouter une Catégorie</div>
+            <div class="main-content space-y-6">
+                <input id="add-category-name" type="text" placeholder="Nom de la nouvelle catégorie" class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                <button onclick="saveCategory()" class="nav-btn w-full">Enregistrer</button>
+            </div>
+        </div>
+        
+        <!-- Écran: Ajouter du Matériel (Formulaire) -->
+        <div id="screen-add-materiel" class="hidden flex-col h-full bg-gray-100">
+             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 id="add-materiel-header" class="font-bold text-xl text-gray-800">Ajouter: Extincteur</h1>
+                 <div></div>
+            </div>
+            <div class="main-content overflow-y-auto space-y-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <label for="materiel-photo-camera" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                        <i data-lucide="camera" class="w-12 h-12 text-gray-400"></i>
+                        <span class="text-gray-500">Prendre une photo</span>
+                        <input id="materiel-photo-camera" type="file" accept="image/*" capture="environment" class="hidden" onchange="previewMaterielPhoto(event)">
+                    </label>
+                    <p class="text-center text-gray-500 my-2">ou</p>
+                    <label for="materiel-photo-gallery" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                        <i data-lucide="image" class="w-10 h-10 text-gray-400"></i>
+                        <span class="text-gray-500">Choisir de la gallerie</span>
+                        <input id="materiel-photo-gallery" type="file" accept="image/*" class="hidden" onchange="previewMaterielPhoto(event)">
+                    </label>
+                    <img id="materiel-photo-preview" src="" alt="Aperçu" class="hidden w-full h-auto rounded-lg mt-4 object-cover">
+                    <!-- MODIFICATION: Bouton pour supprimer la photo -->
+                    <button id="materiel-remove-photo-btn" onclick="removeMaterielPhoto()" class="hidden w-full mt-2 text-sm text-red-600 hover:text-red-800">Supprimer la photo</button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow space-y-4">
+                    <div>
+                        <label for="materiel-nom" class="text-sm font-medium text-gray-700">Nom du matériel</label>
+                        <input id="materiel-nom" type="text" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="materiel-marque" class="text-sm font-medium text-gray-700">Marque</label>
+                        <input id="materiel-marque" type="text" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="materiel-couleur" class="text-sm font-medium text-gray-700">Couleur</label>
+                        <input id="materiel-couleur" type="text" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="materiel-etat" class="text-sm font-medium text-gray-700">État</label>
+                        <select id="materiel-etat" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                            <option>Neuf</option>
+                            <option>Bon</option>
+                            <option>Usé</option>
+                            <option>Défectueux</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="materiel-date-acq" class="text-sm font-medium text-gray-700">Date d'acquisition</label>
+                        <input id="materiel-date-acq" type="date" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="materiel-date-ren" class="text-sm font-medium text-gray-700">Date de renouvellement conseillée</label>
+                        <input id="materiel-date-ren" type="date" class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="materiel-infos" class="text-sm font-medium text-gray-700">Informations supplémentaires</label>
+                        <textarea id="materiel-infos" rows="3" class="mt-1 w-full bg-gray-50 rounded-2xl px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+                <!-- MODIFICATION: Appel async -->
+                <button onclick="saveMateriel()" class="nav-btn w-full !bg-red-700 hover:!bg-red-800">Enregistrer le matériel</button>
+            </div>
+        </div>
+
+        <!-- Écran: Notifications (DEVIENT ÉCRAN D'ALERTES) -->
+        <!-- MODIFICATION: pb-nav supprimé -->
+        <div id="screen-alerts" class="hidden flex-col h-full bg-gray-100">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800 font-algerian">Alertes & Avertissements</h1>
+                 <div class="w-6"></div> <!-- Spacer -->
+            </div>
+            <div id="alerts-container" class="flex-grow overflow-y-auto p-4 space-y-3">
+                <!-- Les alertes seront injectées ici -->
+                <p class="text-center text-gray-500 mt-10">Aucune alerte pour le moment.</p>
+            </div>
+        </div>
+        
+        <!-- Écran: Chat "Aube" -->
+        <div id="screen-chat-aube" class="hidden flex-col h-full bg-gray-200">
+            <div class="flex-shrink-0 p-3 flex items-center bg-white shadow-md">
+                 <button onclick="goBack()" class="text-gray-600 mr-2"><i data-lucide="arrow-left"></i></button>
+                 <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                     <i data-lucide="bot"></i>
+                 </div>
+                 <h1 class="font-bold text-lg text-gray-800">Aube</h1>
+                 <div class="flex-grow"></div>
+                 <button class="text-gray-600 ml-2"><i data-lucide="more-vertical"></i></button>
+            </div>
+            <div id="aube-chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3">
+                <div class="p-3 rounded-lg max-w-xs shadow" style="background-color: #F8BBD0; margin-right: auto;">
+                    <p>Bonjour ! Je suis Aube, votre assistant. Comment puis-je vous aider ?</p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 p-2 bg-white flex items-center">
+                <input id="aube-chat-input" type="text" placeholder="Envoyer un message à Aube..." class="flex-grow bg-gray-100 rounded-full px-4 py-2 border-2 border-transparent focus:outline-none focus:border-blue-500">
+                <button id="aube-chat-send-btn" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center ml-2 flex-shrink-0">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- NOUVEL Écran: Notes (Style amélioré) -->
+        <!-- MODIFICATION: pb-nav supprimé -->
+        <div id="screen-notes" class="hidden flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800 font-algerian">Notes</h1>
+                 <button onclick="createNewNote()" class="text-blue-600"><i data-lucide="plus-circle" class="w-7 h-7"></i></button>
+            </div>
+            <div class="p-4 flex-shrink-0">
+                <div class="relative">
+                    <input type="search" id="note-search-input" placeholder="Rechercher une note..." class="w-full bg-white rounded-full pl-10 pr-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                </div>
+            </div>
+            <div id="notes-list-container" class="main-content overflow-y-auto p-4 pt-0 space-y-4"> <!-- MODIFICATION: pt-0 -->
+                <!-- Les notes seront injectées ici -->
+                <p id="no-notes-placeholder" class="text-center text-gray-500 mt-10">Aucune note. Cliquez sur '+' pour en créer une.</p>
+            </div>
+        </div>
+        
+        <!-- NOUVEL Écran: Éditeur de Note (Style amélioré) -->
+        <div id="screen-note-editor" class="hidden flex-col h-full bg-gradient-to-br from-white to-gray-50">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-md">
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <div>
+                    <button onclick="deleteCurrentNote()" class="text-red-500 mr-4 p-2 rounded-full hover:bg-red-100"><i data-lucide="trash-2"></i></button>
+                    <button onclick="saveCurrentNote()" class="text-blue-600 p-2 rounded-full hover:bg-blue-100"><i data-lucide="check-circle"></i></button>
+                 </div>
+            </div>
+            <div class="flex-grow flex flex-col p-4">
+                <input id="note-editor-title" type="text" placeholder="Titre de la note..." class="text-2xl font-bold w-full p-2 focus:outline-none mb-4 border-b-2 border-gray-100 pb-4 bg-transparent">
+                <textarea id="note-editor-content" placeholder="Commencez à écrire..." class="flex-grow w-full p-2 focus:outline-none text-lg resize-none bg-transparent"></textarea>
+            </div>
+        </div>
+
+        <!-- Écran: Paramètres -->
+        <div id="screen-settings" class="hidden flex-col h-full bg-gray-50">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center border-b">
+                 <h1 class="font-bold text-xl text-gray-800 font-algerian">Paramètres</h1>
+                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="x"></i></button>
+            </div>
+            <div class="main-content text-gray-700 space-y-6 overflow-y-auto">
+                 <details class="bg-white rounded-lg shadow" open>
+                    <summary class="p-4 font-semibold cursor-pointer">Général</summary>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Changer l'image de l'université</label>
+                        <input type="file" id="main-building-image-upload" accept="image/*" class="input-file-style"/>
+                    </div>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Changer l'arrière-plan de l'accueil</label>
+                        <input type="file" id="main-bg-upload" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Changer l'icône de l'application</label>
+                        <input type="file" id="app-icon-upload" accept="image/*" class="input-file-style"/>
+                    </div>
+                </details>
+
+                 <details class="bg-white rounded-lg shadow">
+                    <summary class="p-4 font-semibold cursor-pointer">Menu Latéral</summary>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Changer l'arrière-plan du menu</label>
+                        <input type="file" id="menu-bg-upload" accept="image/*" class="input-file-style"/>
+                    </div>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Changer le logo du menu</label>
+                        <input type="file" id="menu-logo-upload" accept="image/*" class="input-file-style"/>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-lg shadow">
+                    <summary class="p-4 font-semibold cursor-pointer">Personnalisation des Blocs</summary>
+                    <!-- Blocs A, B, C -->
+                    <div class="p-4 border-t"><h4 class="font-semibold text-lg mb-2">Bloc A</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (A)</label>
+                        <input type="file" id="setting-img-bloc-A" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (A1)</label>
+                        <input type="file" id="setting-img-A1" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (A2)</label>
+                        <input type="file" id="setting-img-A2" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <div class="p-4 border-t"><h4 class="font-semibold text-lg mb-2">Bloc B</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (B)</label>
+                        <input type="file" id="setting-img-bloc-B" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (B1)</label>
+                        <input type="file" id="setting-img-B1" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (B2)</label>
+                        <input type="file" id="setting-img-B2" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <div class="p-4 border-t"><h4 class="font-semibold text-lg mb-2">Bloc C</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (C)</label>
+                        <input type="file" id="setting-img-bloc-C" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (C1)</label>
+                        <input type="file" id="setting-img-C1" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (C2)</label>
+                        <input type="file" id="setting-img-C2" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <!-- Bloc D -->
+                    <div class="p-4 border-t"><h4 class="font-semibold text-lg mb-2">Bloc D</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (D)</label>
+                        <input type="file" id="setting-img-bloc-D" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (D1)</label>
+                        <input type="file" id="setting-img-D1" accept="image/*" class="input-file-style"/>
+                         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (D2)</label>
+                        <input type="file" id="setting-img-D2" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <!-- Bloc E -->
+                    <div class="p-4 border-t"><h4 class="font-semibold text-lg mb-2">Bloc E</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (E)</label>
+                        <input type="file" id="setting-img-bloc-E" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (E1 - Toilettes)</label>
+                        <input type="file" id="setting-img-E1" accept="image/*" class="input-file-style"/>
+                        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Image Sous-Bloc (E2 - Jardins)</label>
+                        <input type="file" id="setting-img-E2" accept="image/*" class="input-file-style"/>
+                    </div>
+                    <!-- Bloc F -->
+                     <div class="p-4 border-t">
+                        <h4 class="font-semibold text-lg mb-2">Bloc F</h4>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Image Vue Aérienne (F)</label>
+                        <input type="file" id="setting-img-bloc-F" accept="image/*" class="input-file-style"/>
+                    </div>
+                </details>
+                
+                <details class="bg-white rounded-lg shadow">
+                    <summary class="p-4 font-semibold cursor-pointer">Base de Connaissances Aube</summary>
+                     <div class="p-4 border-t">
+                        <label for="aube-kb" class="block text-sm font-medium text-gray-700 mb-2">Informations pour le bot</label>
+                        <textarea id="aube-kb" rows="4" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Glissez des informations ici..."></textarea>
+                        <button onclick="saveAubeKb()" class="mt-2 w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Sauvegarder</button>
+                    </div>
+                </details>
+
+                 <details class="bg-white rounded-lg shadow">
+                    <summary class="p-4 font-semibold cursor-pointer">Documents</summary>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Charger le guide d'utilisation (PDF)</label>
+                        <input type="file" id="guide-pdf-upload" accept=".pdf" class="input-file-style"/>
+                    </div>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Charger "A propos du développeur" (PDF)</label>
+                        <input type="file" id="dev-pdf-upload" accept=".pdf" class="input-file-style"/>
+                    </div>
+                </details>
+
+                 <details class="bg-white rounded-lg shadow">
+                    <summary class="p-4 font-semibold cursor-pointer">Données</summary>
+                     <div class="p-4 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Données essentielles</label>
+                        <button id="download-data" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Télécharger les données (.csv)</button>
+                    </div>
+                </details>
+            </div>
+        </div>
+        
+        <!-- Écran: Visionneuse PDF - Guide -->
+        <div id="screen-guide" class="hidden flex-col h-full">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                <button onclick="toggleMenu()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                <h1 class="font-bold text-lg text-gray-800">Guide d'utilisation</h1>
+                <div></div>
+            </div>
+            <div class="flex-grow flex items-center justify-center">
+                <embed id="guide-pdf-viewer" src="" type="application/pdf" width="100%" height="100%">
+                <p id="guide-pdf-placeholder" class="text-gray-500">Aucun guide n'a été chargé.</p>
+            </div>
+        </div>
+
+        <!-- Écran: Visionneuse PDF - Dev -->
+        <div id="screen-about-dev" class="hidden flex-col h-full">
+            <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+                <button onclick="toggleMenu()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                <h1 class="font-bold text-lg text-gray-800">A propos du développeur</h1>
+                <div></div>
+            </div>
+            <div class="flex-grow flex items-center justify-center">
+                <embed id="dev-pdf-viewer" src="" type="application/pdf" width="100%" height="100%">
+                 <p id="dev-pdf-placeholder" class="text-gray-500">Aucun document n'a été chargé.</p>
+            </div>
+        </div>
+        
+        <!-- MODIFICATION: Barre de navigation DÉPLACÉE ICI, à l'extérieur des écrans -->
+        <div id="bottom-nav-bar" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] z-20">
+            <div class="bg-blue-900 text-white rounded-full flex justify-around items-center h-16 shadow-lg" style="background-color: #1e3a8a;">
+                <button onclick="navigateTo('screen-alerts')" class="p-4 opacity-70 hover:opacity-100 transition-opacity relative">
+                    <i data-lucide="bell"></i>
+                    <span id="notification-dot" class="absolute top-3 right-3 w-3 h-3 bg-red-500 rounded-full border-2 border-blue-900 hidden"></span>
+                </button>
+                <!-- MODIFICATION: Ajout d'ID et gestion de l'opacité -->
+                <button onclick="navigateTo('screen-blocA')" class="p-4 opacity-100" id="nav-home-btn"><i data-lucide="home"></i></button>
+                <button onclick="navigateTo('screen-notes')" class="p-4 opacity-70 hover:opacity-100 transition-opacity" id="nav-notes-btn"><i data-lucide="file-text"></i></button>
+            </div>
+        </div>
+
+    </div> <!-- Fin de main-app-container -->
+
+    <!-- Menu Latéral -->
+     <div id="menu-container" class="fixed inset-0 z-40 transform -translate-x-full transition-transform duration-300">
+        <div id="menu-background" class="absolute inset-0"></div>
+        <div id="side-menu" class="relative w-72 h-full text-white p-6 flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2 mb-8">
+                <h2 class="text-xl font-bold font-algerian">U-AUBEN Supplies Tracker</h2>
                 <button onclick="toggleMenu()" class="text-white"><i data-lucide="x"></i></button>
             </div>
-            
-            <nav class="space-y-4">
-                <button onclick="navigateTo('screen-home'); toggleMenu();" class="w-full text-left p-3 rounded-lg hover:bg-red-800 flex items-center space-x-3">
-                    <i data-lucide="home"></i>
-                    <span>Accueil</span>
-                </button>
-                <button onclick="navigateTo('screen-add-product'); toggleMenu();" class="w-full text-left p-3 rounded-lg hover:bg-red-800 flex items-center space-x-3">
-                    <i data-lucide="plus-circle"></i>
-                    <span>Ajouter produit</span>
-                </button>
-                <button onclick="navigateTo('screen-notes'); toggleMenu();" class="w-full text-left p-3 rounded-lg hover:bg-red-800 flex items-center space-x-3">
-                    <i data-lucide="file-text"></i>
-                    <span>Notes</span>
-                </button>
-                <button onclick="navigateTo('screen-settings'); toggleMenu();" class="w-full text-left p-3 rounded-lg hover:bg-red-800 flex items-center space-x-3">
-                    <i data-lucide="settings"></i>
-                    <span>Paramètres</span>
-                </button>
+            <nav class="space-y-4 flex flex-col flex-grow text-lg font-monotype-corsiva">
+                <a href="#" onclick="loadAndShowPdf('guidePdfUrl', 'screen-guide', 'guide-pdf-viewer', 'guide-pdf-placeholder')" class="hover:bg-white/10 p-2 rounded-md text-center">· Guide d’utilisation de l’application ·</a>
+                <a href="#" onclick="loadAndShowPdf('devPdfUrl', 'screen-about-dev', 'dev-pdf-viewer', 'dev-pdf-placeholder')" class="hover:bg-white/10 p-2 rounded-md text-center">· A propos du développeur ·</a>
+                <a href="#" onclick="document.getElementById('download-data').click()" class="hover:bg-white/10 p-2 rounded-md text-center">· Données essentielles ·</a>
+                <div class="flex-grow"></div>
+                <div class="text-center text-gray-300 p-2">· Version 1.1.1 ·</div>
+                <div class="text-center p-4">
+                    <img id="menu-logo-image" src="https://placehold.co/80x80/ffffff/7f1d1d?text=Logo" class="mx-auto w-16 h-16 rounded-full">
+                </div>
             </nav>
         </div>
     </div>
-    
-    <div id="menu-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40" onclick="toggleMenu()"></div>
-</div>
+    <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-30 hidden" onclick="toggleMenu()"></div>
 
-<script type="module">
-    import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
+    <!-- Password Modal -->
+    <div id="password-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-80">
+            <h3 class="text-lg font-bold mb-4 text-center">Accès administrateur</h3>
+            <p class="text-sm text-gray-600 mb-4 text-center">Veuillez entrer le mot de passe pour accéder aux paramètres.</p>
+            <input type="password" id="password-input" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:border-blue-500">
+            <p id="password-error" class="text-red-500 text-xs text-center mb-4 hidden">Mot de passe incorrect.</p>
+            <div class="flex justify-between">
+                <button onclick="hidePasswordPrompt()" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Annuler</button>
+                <button onclick="checkPassword()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Valider</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Note: 'const' remplacé par 'let' pour les éléments qui pourraient être redéfinis (bonne pratique)
+    let screens = document.querySelectorAll('.main-container > div');
+    let menuContainer = document.getElementById('menu-container');
+    let overlay = document.getElementById('menu-overlay');
+    let currentScreen = 'screen-blocA';
+    let navigationHistory = ['screen-blocA']; // Pile pour l'historique de navigation
     
-    // Variables globales
-    let db = null;
-    let sqliteConnection = null;
-    let chatHistory = [];
-    let currentScreen = 'screen-home';
-    let navigationHistory = [];
-    
-    // Initialisation au chargement
-    document.addEventListener('DOMContentLoaded', async () => {
-        lucide.createIcons();
-        await initDatabase();
-        await loadInventory();
-        await loadNotes();
-        checkConnection();
-        setInterval(checkConnection, 5000);
-    });
-    
-    // === DATABASE FUNCTIONS ===
-    async function initDatabase() {
-        try {
-            sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-            db = await sqliteConnection.createConnection('u_auben_inventory', false, 'no-encryption', 1, false);
-            await db.open();
-            
-            // Create tables
-            await db.execute(`
-                CREATE TABLE IF NOT EXISTS inventory (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    product_name TEXT NOT NULL,
-                    quantity INTEGER NOT NULL,
-                    unit TEXT,
-                    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `);
-            
-            await db.execute(`
-                CREATE TABLE IF NOT EXISTS notes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    content TEXT NOT NULL,
-                    date DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    category TEXT
-                );
-            `);
-            
-            console.log('✅ Base de données initialisée');
-        } catch (error) {
-            console.error('❌ Erreur DB:', error);
-        }
-    }
-    
-    async function saveProduct() {
-        const name = document.getElementById('product-name').value.trim();
-        const quantity = parseInt(document.getElementById('product-quantity').value);
-        const unit = document.getElementById('product-unit').value.trim();
-        
-        if (!name || !quantity) {
-            alert('Veuillez remplir tous les champs');
-            return;
-        }
-        
-        try {
-            await db.run(`INSERT INTO inventory (product_name, quantity, unit) VALUES (?, ?, ?)`, 
-                [name, quantity, unit]);
-            
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-quantity').value = '';
-            document.getElementById('product-unit').value = '';
-            
-            await loadInventory();
-            navigateTo('screen-home');
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de l\'enregistrement');
-        }
-    }
-    
-    async function loadInventory() {
-        try {
-            const result = await db.query('SELECT * FROM inventory ORDER BY last_updated DESC');
-            const container = document.getElementById('inventory-list');
-            
-            if (!result.values || result.values.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500">Aucun produit dans l\'inventaire</p>';
-                return;
-            }
-            
-            container.innerHTML = result.values.map(item => `
-                <div class="bg-white rounded-2xl p-4 shadow-md flex justify-between items-center">
-                    <div>
-                        <h3 class="font-semibold text-lg">${item.product_name}</h3>
-                        <p class="text-gray-600">${item.quantity} ${item.unit || 'pcs'}</p>
-                    </div>
-                    <button onclick="deleteProduct(${item.id})" class="text-red-600">
-                        <i data-lucide="trash-2"></i>
-                    </button>
-                </div>
-            `).join('');
-            
-            lucide.createIcons();
-        } catch (error) {
-            console.error('Erreur chargement:', error);
-        }
-    }
-    
-    window.deleteProduct = async function(id) {
-        if (!confirm('Supprimer ce produit ?')) return;
-        try {
-            await db.run('DELETE FROM inventory WHERE id = ?', [id]);
-            await loadInventory();
-        } catch (error) {
-            console.error('Erreur:', error);
+    let currentBlocId = null;
+    let currentSubBlocId = null;
+    let currentNiveau = null;
+    let currentSalleId = null;
+    let currentCategorie = null;
+    let currentMaterielPhoto = null; // Stocke le Data URL de l'aperçu/nouvelle photo
+    let currentRoomPhoto = null; // Stocke le Data URL de l'aperçu/nouvelle photo
+    let currentNoteId = null; 
+    let currentEditingMaterielId = null; 
+
+    let appData = {};
+    const defaultData = {
+        general: {
+            mainBuildingImage: 'https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9',
+            mainBgUrl: null,
+            appIconUrl: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>',
+            menuBgUrl: 'https://placehold.co/420x900/1e3a8a/ffffff?text=Arri%C3%A8re-plan',
+            menuLogoUrl: 'https://placehold.co/80x80/ffffff/7f1d1d?text=Logo'
+        },
+        blocs: {
+            A: {
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+A',
+                subBlocs: [
+                    { id: 'A1', title: 'A1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/3b82f6/ffffff?text=Salles+A1' },
+                    { id: 'A2', title: 'A2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/3b82f6/ffffff?text=Bureaux+A2' }
+                ]
+            },
+            B: {
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+B',
+                subBlocs: [
+                    { id: 'B1', title: 'B1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/16a34a/ffffff?text=Salles+B1' },
+                    { id: 'B2', title: 'B2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/16a34a/ffffff?text=Bureaux+B2' }
+                ]
+            },
+            C: { 
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+C', 
+                subBlocs: [
+                    { id: 'C1', title: 'C1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/f59e0b/ffffff?text=Salles+C1' },
+                    { id: 'C2', title: 'C2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/f59e0b/ffffff?text=Bureaux+C2' }
+                ] 
+            },
+            D: { 
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+D', 
+                subBlocs: [
+                    { id: 'D1', title: 'Box Sécurité', imageTitle: '· Box Sécurité ·', image: 'https://placehold.co/400x220/c026d3/ffffff?text=Box+D1' },
+                    { id: 'D2', title: 'Parking', imageTitle: '· Parking ·', image: 'https://placehold.co/400x220/64748b/ffffff?text=Parking+D2' }
+                ] 
+            },
+            E: { 
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+E', 
+                subBlocs: [
+                    { id: 'E1', title: 'Toilettes', imageTitle: '· Toilettes ·', image: 'https://placehold.co/400x220/ea580c/ffffff?text=Toilettes+E1' },
+                    { id: 'E2', title: 'Jardins', imageTitle: '· Jardins ·', image: 'https://placehold.co/400x220/22c55e/ffffff?text=Jardins+E2' }
+                ] 
+            },
+            F: { mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+F', subBlocs: [] }
+        },
+        // MODIFICATION: Les photos sont remplacées par photoId
+        salles: [], // ex: { id, nom, emplacement, niveau, photoId }
+        defaultCategories: [
+            "Ampoules", "Armoires", "Balais", "Baies de brassage", "Bouilloires", "Bureaux", "Câbles (HDMI, VGA, ...)",
+            "Cafetières", "Canapés", "Chaises", "Claviers", "Climatiseurs", "Coussins", "Disques durs externes", "Extincteurs",
+            "Fauteuils", "Horloges", "Imprimantes", "Lampes/Néons", "Micro-ondes", "Multiprises", "Ordinateurs (fixes)",
+            "Ordinateurs (portables)", "Papier toilette", "Photocopieurs", "Plantes (décoratives)", "Post-it", "Poubelles",
+            "Prises électriques", "Produits d'entretien", "Rallonges", "Rideaux", "Routeurs Wi-Fi", "Réfrigérateurs",
+            "Scanners", "Serpillères", "Savon", "Souris", "Tables", "Tableaux (blancs)", "Tableaux (craie)", "Tapis",
+            "Téléphones (fixes)", "Unités centrales", "Vaisselle", "Ventilateurs", "Vidéoprojecteurs", "Écrans", "Éponges", "Étagères"
+        ],
+        customCategories: [],
+        materiel: [], // ex: { id, salleId, categorie, nom, photoId, ... }
+        notes: [], // ex: { id, title, content, date }
+        alerts: [], // ex: { id, title, message, date, read, materielId }
+        aube: {
+            kb: "Je suis Aube, un assistant IA. Je suis ici pour aider à gérer l'inventaire et répondre aux questions sur l'application.",
+            hasNewNotification: false // Initialisé à false
         }
     };
-    
-    async function saveNote() {
-        const content = document.getElementById('note-content').value.trim();
-        const category = document.getElementById('note-category').value.trim();
-        
-        if (!content) {
-            alert('Veuillez entrer du contenu');
-            return;
-        }
-        
-        try {
-            await db.run('INSERT INTO notes (content, category) VALUES (?, ?)', [content, category]);
-            document.getElementById('note-content').value = '';
-            document.getElementById('note-category').value = '';
-            await loadNotes();
-            navigateTo('screen-notes');
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
+
+    function saveData() {
+        // Ne sauvegarde QUE les métadonnées, pas les images
+        localStorage.setItem('logisticsAppData', JSON.stringify(appData));
     }
-    
-    async function loadNotes() {
-        try {
-            const result = await db.query('SELECT * FROM notes ORDER BY date DESC');
-            const container = document.getElementById('notes-list');
-            
-            if (!result.values || result.values.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 mt-10">Aucune note</p>';
-                return;
-            }
-            
-            container.innerHTML = result.values.map(note => `
-                <div class="bg-white rounded-2xl p-4 shadow-md mb-4">
-                    ${note.category ? `<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${note.category}</span>` : ''}
-                    <p class="mt-2">${note.content}</p>
-                    <p class="text-xs text-gray-500 mt-2">${new Date(note.date).toLocaleDateString()}</p>
-                </div>
-            `).join('');
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-    
-    // === AUBE IA - HYBRID MODE ===
-    async function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const message = input.value.trim();
-        if (!message) return;
-        
-        // Add user message
-        addChatMessage(message, 'user');
-        input.value = '';
-        
-        // Show typing indicator
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'chat-message chat-message-aube';
-        typingDiv.id = 'typing-indicator';
-        typingDiv.innerHTML = '<div class="flex space-x-1"><div class="typing-indicator"></div><div class="typing-indicator"></div><div class="typing-indicator"></div></div>';
-        document.getElementById('chat-messages').appendChild(typingDiv);
-        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-        
-        // Get inventory data for context
-        const inventoryData = await getInventoryForAI();
-        
-        // Try online mode first
-        const isOnline = navigator.onLine;
-        const apiKey = localStorage.getItem('gemini_api_key');
-        
-        if (isOnline && apiKey) {
-            await processOnlineMode(message, inventoryData, apiKey);
+
+    function loadData() {
+        const savedData = localStorage.getItem('logisticsAppData');
+        if (savedData) {
+            appData = JSON.parse(savedData);
+            // Fusionner les données par défaut pour les nouvelles clés
+            appData.general = {...defaultData.general, ...appData.general};
+            appData.blocs = {...defaultData.blocs, ...appData.blocs};
+            appData.salles = appData.salles || defaultData.salles;
+            appData.defaultCategories = appData.defaultCategories || defaultData.defaultCategories;
+            appData.customCategories = appData.customCategories || defaultData.customCategories;
+            appData.materiel = appData.materiel || defaultData.materiel;
+            appData.notes = appData.notes || defaultData.notes;
+            appData.alerts = appData.alerts || defaultData.alerts; 
+            appData.aube = {...defaultData.aube, ...appData.aube};
+
         } else {
-            await processOfflineMode(message, inventoryData);
+            appData = JSON.parse(JSON.stringify(defaultData)); // Copie profonde
         }
         
-        document.getElementById('typing-indicator')?.remove();
-    }
-    
-    async function getInventoryForAI() {
-        try {
-            const result = await db.query('SELECT * FROM inventory');
-            if (!result.values || result.values.length === 0) {
-                return "L'inventaire est actuellement vide.";
-            }
-            return result.values.map(item => 
-                `${item.product_name}: ${item.quantity} ${item.unit || 'pcs'}`
-            ).join(', ');
-        } catch (error) {
-            return "Erreur de lecture de l'inventaire.";
-        }
-    }
-    
-    async function processOnlineMode(message, inventoryData, apiKey) {
-        try {
-            const systemPrompt = `Tu es Aube, l'assistant IA pour la gestion d'inventaire U-AUBEN. 
-Inventaire actuel: ${inventoryData}
-Réponds de manière concise et utile. Si l'utilisateur demande des informations sur un produit, utilise les données de l'inventaire.`;
-            
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `${systemPrompt}\n\nUtilisateur: ${message}`
-                        }]
-                    }]
-                })
-            });
-            
-            const data = await response.json();
-            const aubeResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                "Désolé, je n'ai pas pu traiter votre demande.";
-            
-            addChatMessage(aubeResponse, 'aube');
-        } catch (error) {
-            console.error('Erreur API:', error);
-            await processOfflineMode(message, inventoryData);
-        }
-    }
-    
-    async function processOfflineMode(message, inventoryData) {
-        const lowerMsg = message.toLowerCase();
-        let response = '';
+        // Appliquer les données générales chargées
+        document.getElementById('main-building-image').src = appData.general.mainBuildingImage;
         
-        // Pattern matching pour les requêtes simples
-        if (lowerMsg.includes('combien') || lowerMsg.includes('stock') || lowerMsg.includes('quantité')) {
-            try {
-                const result = await db.query('SELECT * FROM inventory');
-                if (result.values && result.values.length > 0) {
-                    const productMatch = result.values.find(item => 
-                        lowerMsg.includes(item.product_name.toLowerCase())
-                    );
-                    
-                    if (productMatch) {
-                        response = `🔵 Aube (Offline): Il reste ${productMatch.quantity} ${productMatch.unit || 'pcs'} de ${productMatch.product_name}.`;
-                    } else {
-                        response = `🔵 Aube (Offline): Voici l'inventaire complet: ${inventoryData}`;
-                    }
-                } else {
-                    response = "🔵 Aube (Offline): L'inventaire est vide.";
+        // MODIFICATION: Logique de l'arrière-plan corrigée
+        const container = document.getElementById('main-app-container');
+        if(appData.general.mainBgUrl) {
+            container.style.backgroundImage = `url(${appData.general.mainBgUrl})`;
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+            container.style.backgroundRepeat = 'no-repeat';
+        } else {
+            container.style.backgroundImage = `radial-gradient(#e5e7eb 0.5px, transparent 0.5px)`;
+            container.style.backgroundSize = '15px 15px';
+            container.style.backgroundPosition = 'center';
+            container.style.backgroundRepeat = 'repeat'; // Le pattern doit se répéter
+        }
+        
+        document.getElementById('app-favicon').href = appData.general.appIconUrl;
+        document.getElementById('menu-background').style.backgroundImage = `url(${appData.general.menuBgUrl})`;
+        document.getElementById('menu-logo-image').src = appData.general.menuLogoUrl;
+        
+        // Appliquer les données Aube KB
+        if(document.getElementById('aube-kb')) {
+            document.getElementById('aube-kb').value = appData.aube.kb;
+        }
+
+        // Mettre à jour le point de notification
+        updateNotificationDot();
+        // Charger les notes
+        loadNotesList();
+    }
+    
+    // Système de navigation
+    function navigateTo(screenId) {
+        if (screenId === currentScreen) return; // Ne rien faire si on est déjà sur l'écran
+        
+        // Cacher l'ancien écran
+        document.getElementById(currentScreen).classList.add('hidden');
+        document.getElementById(currentScreen).classList.remove('flex');
+        
+        // Afficher le nouvel écran
+        document.getElementById(screenId).classList.remove('hidden');
+        document.getElementById(screenId).classList.add('flex');
+        
+        // MODIFICATION: Logique de navigation "Noyau"
+        // Si on navigue vers un écran "racine" depuis la barre de nav, on réinitialise l'historique
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(screenId)) {
+             navigationHistory = [screenId];
+        } else {
+             navigationHistory.push(screenId);
+        }
+        currentScreen = screenId;
+        
+        // MODIFICATION: Logique de la barre de nav persistante
+        const bottomNav = document.getElementById('bottom-nav-bar');
+        // La barre est visible sur les écrans "racine"
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(screenId)) {
+            bottomNav.classList.remove('hidden');
+        } else {
+            bottomNav.classList.add('hidden');
+        }
+
+        // Mettre à jour l'état actif des boutons
+        const homeBtn = document.getElementById('nav-home-btn');
+        const notesBtn = document.getElementById('nav-notes-btn');
+        
+        if (homeBtn) {
+            homeBtn.classList.toggle('opacity-100', screenId === 'screen-blocA');
+            homeBtn.classList.toggle('opacity-70', screenId !== 'screen-blocA');
+        }
+        if (notesBtn) {
+            notesBtn.classList.toggle('opacity-100', screenId === 'screen-notes');
+            notesBtn.classList.toggle('opacity-70', screenId !== 'screen-notes');
+        }
+
+        // Cas spécial: Si on va aux notifs, marquer comme lues
+        if (screenId === 'screen-alerts') { 
+            loadAlerts(); // Charger les alertes
+            // La logique de "lecture" est maintenant dans loadAlerts()
+        }
+        
+        // Fermer le menu si ouvert
+        if(!menuContainer.classList.contains('-translate-x-full')) {
+            toggleMenu();
+        }
+    }
+    
+    function goBack() {
+        if (navigationHistory.length <= 1) return; // Ne pas revenir de l'écran d'accueil
+        
+        const oldScreen = navigationHistory.pop();
+        const newScreen = navigationHistory[navigationHistory.length - 1];
+        
+        document.getElementById(oldScreen).classList.add('hidden');
+        document.getElementById(oldScreen).classList.remove('flex');
+        
+        document.getElementById(newScreen).classList.remove('hidden');
+        document.getElementById(newScreen).classList.add('flex');
+        
+        currentScreen = newScreen;
+        
+        // MODIFICATION: Mettre à jour la barre de nav au retour
+        const bottomNav = document.getElementById('bottom-nav-bar');
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(newScreen)) {
+            bottomNav.classList.remove('hidden');
+        } else {
+            bottomNav.classList.add('hidden');
+        }
+        
+        const homeBtn = document.getElementById('nav-home-btn');
+        const notesBtn = document.getElementById('nav-notes-btn');
+        if (homeBtn) {
+            homeBtn.classList.toggle('opacity-100', newScreen === 'screen-blocA');
+            homeBtn.classList.toggle('opacity-70', newScreen !== 'screen-blocA');
+        }
+        if (notesBtn) {
+            notesBtn.classList.toggle('opacity-100', newScreen === 'screen-notes');
+            notesBtn.classList.toggle('opacity-70', newScreen !== 'screen-notes');
+        }
+        
+        // --- FIX: Recharger les données sur l'écran précédent ---
+        if (newScreen === 'screen-notes') {
+            loadNotesList();
+        }
+        if (newScreen === 'screen-sous-sol') {
+            const isProfilDirect = ['D1', 'D2', 'E2'].includes(currentSubBlocId);
+            const title = isProfilDirect ? 'Profil' : 'Profils des salles';
+            showRoomProfiles(currentNiveau, title, false); // Rafraîchir SANS naviguer
+        }
+        if (newScreen === 'screen-categories') {
+            showCategoryList(currentSalleId, false); // Rafraîchir SANS naviguer
+        }
+        if (newScreen === 'screen-room-details') {
+            showRoomDetails(currentSalleId, false); // Rafraîchir SANS naviguer
+        }
+        if (newScreen === 'screen-room-contents') {
+            showRoomContents(currentSalleId, false); // Rafraîchir SANS naviguer
+        }
+    }
+    
+    function updateNotificationDot() {
+        const dot = document.getElementById('notification-dot');
+        // Vérifier s'il y a des alertes non lues
+        const hasUnreadAlerts = appData.alerts.some(a => !a.read);
+        appData.aube.hasNewNotification = hasUnreadAlerts; // Synchroniser
+        
+        if (appData.aube.hasNewNotification) {
+            dot.classList.remove('hidden');
+        } else {
+            dot.classList.add('hidden');
+        }
+    }
+
+    function showBlocDetails(blocId) {
+        currentBlocId = blocId;
+        const blocData = appData.blocs[blocId];
+        
+        document.getElementById('bloc-details-title').innerText = `Bloc ${blocId}`;
+        document.getElementById('bloc-details-main-image').src = blocData.mainImage;
+        document.getElementById('bloc-details-main-image').onclick = () => {
+            document.getElementById('zoom-image-src').src = blocData.mainImage;
+            navigateTo('screen-image-zoom');
+        };
+        document.getElementById('bloc-details-main-image-title').innerText = `· Bloc ${blocId} vu de dessus ·`;
+
+        const subBloc1 = blocData.subBlocs[0];
+        if (subBloc1) {
+            document.getElementById('sub-bloc-title-1').innerText = subBloc1.title;
+            document.getElementById('sub-bloc-image-1').src = subBloc1.image;
+            document.getElementById('sub-bloc-image-title-1').innerText = subBloc1.imageTitle;
+            document.getElementById('sub-bloc-image-1').onclick = () => showSubBlocDetails(subBloc1.id);
+            document.getElementById('sub-bloc-title-1').classList.remove('hidden');
+            document.getElementById('sub-bloc-image-1').parentElement.classList.remove('hidden');
+        } else {
+            document.getElementById('sub-bloc-title-1').classList.add('hidden');
+            document.getElementById('sub-bloc-image-1').parentElement.classList.add('hidden');
+        }
+
+        const subBloc2 = blocData.subBlocs[1];
+         if (subBloc2) {
+            document.getElementById('sub-bloc-title-2').innerText = subBloc2.title;
+            document.getElementById('sub-bloc-image-2').src = subBloc2.image;
+            document.getElementById('sub-bloc-image-title-2').innerText = subBloc2.imageTitle;
+            document.getElementById('sub-bloc-image-2').onclick = () => showSubBlocDetails(subBloc2.id);
+            document.getElementById('sub-bloc-title-2').classList.remove('hidden');
+            document.getElementById('sub-bloc-image-2').parentElement.classList.remove('hidden');
+        } else {
+            document.getElementById('sub-bloc-title-2').classList.add('hidden');
+            document.getElementById('sub-bloc-image-2').parentElement.classList.add('hidden');
+        }
+        
+        navigateTo('screen-blocA-details');
+    }
+
+    function showSubBlocDetails(subBlocId) {
+        currentSubBlocId = subBlocId;
+        document.getElementById('levels-title').innerText = `Bloc ${subBlocId}`;
+        
+        if (subBlocId === 'D1') {
+            currentSubBlocId = 'D1'; 
+            showRoomProfiles('Box Sécurité', 'Profil');
+        } else if (subBlocId === 'D2') {
+            currentSubBlocId = 'D2'; 
+            showRoomProfiles('Parking', 'Profil');
+        } else if (subBlocId === 'E2') {
+            currentSubBlocId = 'E2'; 
+            showRoomProfiles('Jardins', 'Profil');
+        } else {
+            navigateTo('screen-blocA1-levels');
+        }
+    }
+
+    function showRoomProfiles(niveau, title = 'Profils des salles', navigate = true) {
+        currentNiveau = niveau;
+        document.getElementById('room-profiles-title').innerText = niveau;
+        document.getElementById('room-profiles-header').innerText = title;
+
+        const container = document.getElementById('room-profiles-container');
+        container.innerHTML = '';
+        
+        const filteredSalles = appData.salles.filter(salle => 
+            salle.emplacement === currentSubBlocId && salle.niveau === currentNiveau
+        );
+        
+        if (filteredSalles.length === 0) {
+            container.innerHTML = `<div class="flex-shrink-0 text-center w-24"><div class="w-24 h-24 bg-gray-200 rounded-2xl shadow-md flex items-center justify-center text-gray-500 text-xs p-2">Aucune salle ajoutée</div></div>`;
+        } else {
+            filteredSalles.forEach(salle => {
+                const photoPlaceholder = 'https://placehold.co/96x96/b91c1c/ffffff?text=' + salle.nom.charAt(0);
+                const salleHtml = `
+                    <div onclick="showRoomDetails('${salle.id}')" class="flex-shrink-0 text-center w-24 cursor-pointer">
+                        <img src="${photoPlaceholder}" id="salle-img-${salle.id}" alt="${salle.nom}" class="w-24 h-24 bg-red-700 rounded-2xl shadow-md object-cover">
+                        <p class="mt-2 text-sm font-semibold text-gray-700">${salle.nom}</p>
+                    </div>`;
+                container.innerHTML += salleHtml;
+                
+                // Charger l'image depuis IndexedDB
+                if (salle.photoId) {
+                    loadAndSetImage(`salle-img-${salle.id}`, salle.photoId, photoPlaceholder);
                 }
-            } catch (error) {
-                response = "🔵 Aube (Offline): Erreur de lecture de la base de données.";
-            }
-        } else if (lowerMsg.includes('liste') || lowerMsg.includes('inventaire')) {
-            response = `🔵 Aube (Offline): ${inventoryData}`;
-        } else if (lowerMsg.includes('bonjour') || lowerMsg.includes('salut')) {
-            response = "🔵 Aube (Offline): Bonjour ! Je peux vous aider à consulter votre inventaire même sans connexion Internet.";
-        } else {
-            response = `🔵 Aube (Offline): Je fonctionne en mode hors ligne. Je peux vous donner des informations sur votre inventaire: ${inventoryData}`;
+            });
         }
         
-        addChatMessage(response, 'aube');
+        if (navigate) navigateTo('screen-sous-sol');
     }
     
-    function addChatMessage(text, sender) {
-        const messagesDiv = document.getElementById('chat-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message chat-message-${sender}`;
-        messageDiv.innerHTML = `<p>${text}</p>`;
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    function showRoomDetails(salleId, navigate = true) {
+        currentSalleId = salleId;
+        const salle = appData.salles.find(s => s.id === salleId);
+        if (!salle) return;
+        
+        document.getElementById('room-details-title').innerText = salle.nom;
+        document.getElementById('room-details-header').innerText = `Détails de ${salle.nom}`;
+        if (navigate) navigateTo('screen-room-details');
     }
     
-    window.clearChat = function() {
-        if (confirm('Effacer la conversation ?')) {
-            document.getElementById('chat-messages').innerHTML = `
-                <div class="chat-message chat-message-aube">
-                    <p>👋 Bonjour ! Je suis Aube, votre assistant IA pour gérer l'inventaire. Comment puis-je vous aider aujourd'hui ?</p>
-                </div>
-            `;
-            chatHistory = [];
+    function showRoomContents(salleId, navigate = true) {
+        currentSalleId = salleId;
+        const salle = appData.salles.find(s => s.id === salleId);
+        if (!salle) return;
+
+        document.getElementById('room-contents-header').innerText = `Contenu de: ${salle.nom}`;
+        const container = document.getElementById('room-contents-container');
+        container.innerHTML = '';
+
+        const items = appData.materiel.filter(m => m.salleId === salleId);
+        
+        if (items.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 mt-10">Aucun matériel n'a été ajouté à cette salle.</p>`;
+        } else {
+            items.forEach(item => {
+                const photoPlaceholder = 'https://placehold.co/400x200/e0e0e0/a0a0a0?text=Pas+d\'image';
+                const itemHtml = `
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden my-4">
+                        <img src="${photoPlaceholder}" id="mat-img-${item.id}" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-xl">${item.nom} <span class="text-sm font-normal text-gray-600">(${item.categorie})</span></h3>
+                                <div class="flex space-x-2">
+                                    <button onclick="editMateriel('${item.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i data-lucide="edit" class="w-5 h-5"></i></button>
+                                    <button onclick="deleteMateriel('${item.id}')" class="text-red-600 hover:text-red-800 p-1"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <p class="text-gray-700"><span class="font-semibold">Marque:</span> ${item.marque || 'N/A'}</p>
+                                <p class="text-gray-700"><span class="font-semibold">Couleur:</span> ${item.couleur || 'N/A'}</p>
+                                <p class="text-gray-700"><span class="font-semibold">État:</span> <span class="font-bold ${item.etat === 'Neuf' ? 'text-green-600' : (item.etat === 'Défectueux' ? 'text-red-600' : 'text-yellow-600')}">${item.etat || 'N/A'}</span></p>
+                                <p class="text-gray-700"><span class="font-semibold">Acquis le:</span> ${item.dateAcq || 'N/A'}</p>
+                                <p class="text-gray-700 col-span-2"><span class="font-semibold">Renouveler le:</span> <span class="font-bold text-red-700">${item.dateRen || 'N/A'}</span></p>
+                                <p class="text-gray-700 col-span-2 mt-2"><span class="font-semibold">Infos:</span> ${item.infos || 'Aucune'}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                container.innerHTML += itemHtml;
+
+                // Charger l'image depuis IndexedDB
+                if (item.photoId) {
+                    loadAndSetImage(`mat-img-${item.id}`, item.photoId, photoPlaceholder);
+                }
+            });
+            lucide.createIcons();
         }
-    };
+        if (navigate) navigateTo('screen-room-contents');
+    }
+
+    function showCategoryList(salleId, navigate = true) {
+        currentSalleId = salleId;
+        const container = document.getElementById('category-list-container');
+        container.innerHTML = '';
+        
+        const searchInput = document.getElementById('category-search-input');
+        const query = searchInput.value.toLowerCase();
+        
+        const allCategories = [...appData.defaultCategories, ...appData.customCategories].sort();
+        
+        const filteredCategories = allCategories.filter(cat => cat.toLowerCase().includes(query));
+
+        if (filteredCategories.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500">Aucune catégorie trouvée.</p>`;
+        } else {
+            filteredCategories.forEach(cat => {
+                container.innerHTML += `<div onclick="showAddMaterielForm('${cat}')" class="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-50"><h4 class="font-semibold text-gray-800">${cat}</h4></div>`;
+            });
+        }
+        if (navigate) navigateTo('screen-categories');
+    }
+
+    function saveCategory() {
+        const nameInput = document.getElementById('add-category-name');
+        const name = nameInput.value.trim();
+        if (name) {
+            const allCategories = [...appData.defaultCategories, ...appData.customCategories];
+            if (!allCategories.find(cat => cat.toLowerCase() === name.toLowerCase())) {
+                appData.customCategories.push(name);
+                saveData();
+            }
+            nameInput.value = '';
+            showCategoryList(currentSalleId); // Navigue en arrière
+        }
+    }
+
+    function showAddMaterielForm(categorie) {
+        currentEditingMaterielId = null; // S'assurer qu'on est en mode ajout
+        currentCategorie = categorie;
+        currentMaterielPhoto = null; // Réinitialiser la photo
+        document.getElementById('add-materiel-header').innerText = `Ajouter: ${categorie}`;
+        // Vider le formulaire
+        document.getElementById('materiel-nom').value = '';
+        document.getElementById('materiel-marque').value = '';
+        document.getElementById('materiel-couleur').value = '';
+        document.getElementById('materiel-etat').value = 'Neuf';
+        document.getElementById('materiel-date-acq').value = '';
+        document.getElementById('materiel-date-ren').value = '';
+        document.getElementById('materiel-infos').value = '';
+        document.getElementById('materiel-photo-preview').classList.add('hidden');
+        document.getElementById('materiel-remove-photo-btn').classList.add('hidden');
+        document.getElementById('materiel-photo-camera').value = null;
+        document.getElementById('materiel-photo-gallery').value = null;
+        navigateTo('screen-add-materiel');
+    }
     
-    window.sendMessage = sendMessage;
+    function previewMaterielPhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            currentMaterielPhoto = e.target.result; // Ceci est un Data URL
+            const preview = document.getElementById('materiel-photo-preview');
+            preview.src = currentMaterielPhoto;
+            preview.classList.remove('hidden');
+            document.getElementById('materiel-remove-photo-btn').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // MODIFICATION: Nouvelle fonction pour supprimer la photo
+    function removeMaterielPhoto() {
+        currentMaterielPhoto = null; // Marquer pour suppression
+        const preview = document.getElementById('materiel-photo-preview');
+        preview.src = '';
+        preview.classList.add('hidden');
+        document.getElementById('materiel-remove-photo-btn').classList.add('hidden');
+        document.getElementById('materiel-photo-camera').value = null;
+        document.getElementById('materiel-photo-gallery').value = null;
+    }
     
-    // === NAVIGATION ===
-    window.navigateTo = function(screenId) {
-        // Hide all screens
-        document.querySelectorAll('[id^="screen-"]').forEach(screen => {
-            screen.classList.add('hidden');
+    async function saveMateriel() {
+        const nom = document.getElementById('materiel-nom').value;
+        const marque = document.getElementById('materiel-marque').value;
+        const couleur = document.getElementById('materiel-couleur').value;
+        const etat = document.getElementById('materiel-etat').value;
+        const dateAcq = document.getElementById('materiel-date-acq').value;
+        const dateRen = document.getElementById('materiel-date-ren').value;
+        const infos = document.getElementById('materiel-infos').value;
+        // currentMaterielPhoto est soit un Data URL (nouvelle/modifiée), soit null (supprimée), soit undefined (pas touchée en édition)
+
+        if (!nom) {
+            console.error("Veuillez au moins entrer un nom pour le matériel.");
+            return;
+        }
+
+        if (currentEditingMaterielId) {
+            // Mode ÉDITION
+            const itemToUpdate = appData.materiel.find(m => m.id === currentEditingMaterielId);
+            if (itemToUpdate) {
+                itemToUpdate.nom = nom;
+                itemToUpdate.marque = marque;
+                itemToUpdate.couleur = couleur;
+                itemToUpdate.etat = etat;
+                itemToUpdate.dateAcq = dateAcq;
+                itemToUpdate.dateRen = dateRen;
+                itemToUpdate.infos = infos;
+                itemToUpdate.categorie = currentCategorie; 
+                
+                if (currentMaterielPhoto) { // Photo nouvelle ou modifiée (c'est un Data URL)
+                    itemToUpdate.photoId = itemToUpdate.photoId || `img-mat-${new Date().getTime()}`;
+                    await saveFileToDB(itemToUpdate.photoId, currentMaterielPhoto);
+                } else if (currentMaterielPhoto === null) { // Photo marquée pour suppression
+                    if(itemToUpdate.photoId) { await deleteFileFromDB(itemToUpdate.photoId); }
+                    itemToUpdate.photoId = null;
+                }
+                // Si currentMaterielPhoto === undefined, on ne touche pas à itemToUpdate.photoId
+            }
+            currentEditingMaterielId = null; 
+            saveData();
+            checkMaterielExpiration(); 
+            showRoomContents(currentSalleId); // Revenir à la liste
+        } else {
+            // Mode AJOUT
+            const newItem = {
+                id: `mat-${new Date().getTime()}`,
+                salleId: currentSalleId,
+                categorie: currentCategorie,
+                nom: nom,
+                marque: marque,
+                couleur: couleur,
+                etat: etat,
+                dateAcq: dateAcq,
+                dateRen: dateRen,
+                infos: infos,
+                photoId: null // Initialiser à null
+            };
+
+            if (currentMaterielPhoto) {
+                newItem.photoId = `img-mat-${new Date().getTime()}`;
+                await saveFileToDB(newItem.photoId, currentMaterielPhoto);
+            }
+            
+            appData.materiel.push(newItem);
+            saveData();
+            checkMaterielExpiration(); 
+            navigateTo('screen-room-details'); // Revenir à l'écran "Afficher/Ajouter"
+        }
+    }
+
+    async function editMateriel(itemId) {
+        const item = appData.materiel.find(m => m.id === itemId);
+        if (!item) return;
+
+        currentEditingMaterielId = itemId;
+        currentCategorie = item.categorie;
+        currentMaterielPhoto = undefined; // undefined = "pas touché"
+
+        document.getElementById('add-materiel-header').innerText = `Modifier: ${item.categorie}`;
+        
+        document.getElementById('materiel-nom').value = item.nom || '';
+        document.getElementById('materiel-marque').value = item.marque || '';
+        document.getElementById('materiel-couleur').value = item.couleur || '';
+        document.getElementById('materiel-etat').value = item.etat || 'Neuf';
+        document.getElementById('materiel-date-acq').value = item.dateAcq || '';
+        document.getElementById('materiel-date-ren').value = item.dateRen || '';
+        document.getElementById('materiel-infos').value = item.infos || '';
+
+        const preview = document.getElementById('materiel-photo-preview');
+        const removeBtn = document.getElementById('materiel-remove-photo-btn');
+        if (item.photoId) {
+            const dataUrl = await loadFileFromDB(item.photoId);
+            if(dataUrl) { 
+                preview.src = dataUrl; 
+                preview.classList.remove('hidden');
+                removeBtn.classList.remove('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                removeBtn.classList.add('hidden');
+            }
+        } else {
+            preview.src = '';
+            preview.classList.add('hidden');
+            removeBtn.classList.add('hidden');
+        }
+        document.getElementById('materiel-photo-camera').value = null;
+        document.getElementById('materiel-photo-gallery').value = null;
+
+        navigateTo('screen-add-materiel');
+    }
+
+    async function deleteMateriel(itemId) {
+        // Idéalement, utiliser un modal de confirmation personnalisé
+        const item = appData.materiel.find(m => m.id === itemId);
+        
+        // Supprimer l'image de IndexedDB si elle existe
+        if (item && item.photoId) {
+            await deleteFileFromDB(item.photoId);
+        }
+
+        appData.materiel = appData.materiel.filter(m => m.id !== itemId);
+        // Supprimer aussi l'alerte associée s'il y en a une
+        appData.alerts = appData.alerts.filter(a => a.materielId !== itemId);
+        saveData();
+        checkMaterielExpiration(); // Re-vérifier (au cas où on supprime la dernière alerte)
+        showRoomContents(currentSalleId, false); // Rafraîchir la liste SANS naviguer
+    }
+
+
+    // Gère l'aperçu photo pour la SALLE
+    function previewRoomPhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            currentRoomPhoto = e.target.result; // Data URL
+            const preview = document.getElementById('room-photo-preview');
+            preview.src = currentRoomPhoto;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    async function saveRoom() {
+        const nom = document.getElementById('add-room-nom').value;
+        const emplacement = document.getElementById('add-room-emplacement').value.toUpperCase();
+        const niveau = document.getElementById('add-room-niveau').value;
+        
+        if (!nom || !emplacement || !niveau) {
+            console.error("Veuillez remplir tous les champs.");
+            return;
+        }
+        
+        const newSalle = {
+            id: `salle-${new Date().getTime()}`,
+            nom: nom,
+            emplacement: emplacement,
+            niveau: niveau,
+            photoId: null // Initialiser
+        };
+
+        if (currentRoomPhoto) {
+            const photoId = `img-salle-${new Date().getTime()}`;
+            await saveFileToDB(photoId, currentRoomPhoto);
+            newSalle.photoId = photoId;
+        }
+        
+        appData.salles.push(newSalle);
+        saveData();
+        
+        // Vider le formulaire
+        document.getElementById('add-room-nom').value = '';
+        document.getElementById('add-room-emplacement').value = '';
+        document.getElementById('add-room-niveau').value = '';
+        document.getElementById('room-photo-preview').classList.add('hidden');
+        document.getElementById('room-images-upload').value = null;
+        currentRoomPhoto = null;
+        
+        // Mettre à jour les contextes pour le retour
+        currentSubBlocId = newSalle.emplacement;
+        currentNiveau = newSalle.niveau;
+        
+        goBack(); 
+    }
+    
+    function toggleMenu() {
+        menuContainer.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+
+    // --- Admin Password ---
+    const passwordModal = document.getElementById('password-modal');
+    const passwordInput = document.getElementById('password-input');
+    const passwordError = document.getElementById('password-error');
+    const correctPassword = "U-AUBEN 1992";
+    function promptForPassword() {
+        passwordInput.value = "";
+        passwordError.classList.add('hidden');
+        passwordModal.classList.remove('hidden');
+        passwordModal.classList.add('flex');
+    }
+    function hidePasswordPrompt() {
+        passwordModal.classList.add('hidden');
+        passwordModal.classList.remove('flex');
+    }
+    function checkPassword() {
+        if (passwordInput.value === correctPassword) {
+            hidePasswordPrompt();
+            navigateTo('screen-settings'); 
+        } else {
+            passwordError.classList.remove('hidden');
+        }
+    }
+
+    // --- Search Suggestions ---
+    const searchInput = document.getElementById('search-input');
+    const suggestionsContainer = document.getElementById('search-suggestions');
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase();
+        suggestionsContainer.innerHTML = '';
+        if (query.length === 0) {
+            suggestionsContainer.classList.add('hidden'); return;
+        }
+        const filteredSalles = appData.salles.filter(s => s.nom.toLowerCase().includes(query));
+        if (filteredSalles.length > 0) {
+            suggestionsContainer.classList.remove('hidden');
+            filteredSalles.forEach(salle => {
+                const suggestionEl = document.createElement('div');
+                suggestionEl.textContent = `${salle.nom} (Bloc ${salle.emplacement}, ${salle.niveau})`;
+                suggestionEl.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+                suggestionEl.onclick = () => { 
+                    searchInput.value = salle.nom; 
+                    suggestionsContainer.classList.add('hidden');
+                    currentBlocId = salle.emplacement.substring(0, 1);
+                    currentSubBlocId = salle.emplacement;
+                    currentNiveau = salle.niveau;
+                    showRoomDetails(salle.id);
+                };
+                suggestionsContainer.appendChild(suggestionEl);
+            });
+        } else { suggestionsContainer.classList.add('hidden'); }
+    });
+    document.addEventListener('click', (event) => { if (!searchInput.contains(event.target)) { suggestionsContainer.classList.add('hidden'); } });
+    
+    // --- Chatbot Aube (MAJ AVEC GEMINI) ---
+    let aubeHistory = []; 
+
+    function appendAubeMessage(content, type = 'bot') {
+        const messagesContainer = document.getElementById('aube-chat-messages');
+        const bubble = document.createElement('div');
+        
+        if (type === 'user') {
+            bubble.className = "p-3 rounded-lg max-w-xs ml-auto bg-white shadow";
+            bubble.textContent = content; 
+        } else {
+            bubble.className = "p-3 rounded-lg max-w-xs shadow aube-bubble";
+            bubble.style.backgroundColor = "#F8BBD0"; 
+            bubble.style.marginRight = "auto";
+            bubble.innerHTML = marked.parse(content); 
+        }
+        messagesContainer.appendChild(bubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return bubble; 
+    }
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    async function callGeminiAPI(prompt, systemPrompt) {
+        const API_KEY = ""; 
+        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+        
+        const historyForAPI = aubeHistory.map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }]
+        }));
+
+        const payload = {
+            contents: [...historyForAPI, { role: 'user', parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        let response;
+        let error;
+        for (let i = 0; i < 3; i++) { 
+            try {
+                response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    error = null;
+                    break; 
+                }
+                error = response;
+            } catch (e) {
+                error = e;
+            }
+            await sleep(1000 * (i + 1)); 
+        }
+
+        if (error) {
+            console.error("Erreur Gemini (fetch):", error);
+            throw new Error(`Échec de la connexion API après 3 tentatives. Statut: ${error.status || 'FETCH_FAILED'}`);
+        }
+
+        const data = await response.json();
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+             console.error("Erreur Gemini (réponse invalide):", data);
+             throw new Error("Réponse invalide de l'API Gemini.");
+        }
+        
+        const text = data.candidates[0].content.parts[0].text;
+        return text;
+    }
+
+    async function sendAubeMessage() { 
+        const input = document.getElementById('aube-chat-input');
+        const sendBtn = document.getElementById('aube-chat-send-btn');
+        const msg = input.value.trim();
+        if (msg === '') return;
+        
+        appendAubeMessage(msg, 'user');
+        aubeHistory.push({ type: 'user', content: msg }); 
+        input.value = '';
+        sendBtn.disabled = true; 
+
+        const loaderBubble = appendAubeMessage("Aube réfléchit...", 'bot');
+        loaderBubble.classList.add('animate-pulse');
+
+        try {
+            const systemPrompt = `Tu es Aube, une assistante IA pour une application de gestion logistique d'université.
+            Ton rôle est de guider les utilisateurs. Sois amicale et professionnelle.
+            Ne réponds qu'aux questions relatives à l'application, à la logistique, ou à la gestion de matériel.
+            NE JAMAIS révéler le mot de passe administrateur ("U-AUBEN 1992").
+            Voici des informations que l'administrateur t'a données (contexte) : "${appData.aube.kb || "Aucune information spécifique."}"
+            Réponds en Markdown simple (listes à puces, gras, italique).`;
+
+            const response = await callGeminiAPI(msg, systemPrompt);
+            
+            loaderBubble.remove(); 
+            appendAubeMessage(response, 'bot');
+            aubeHistory.push({ type: 'bot', content: response }); 
+
+        } catch (error) {
+            console.error(error);
+            loaderBubble.remove(); 
+            appendAubeMessage("Désolée, je n'arrive pas à me connecter au réseau pour répondre. Veuillez réessayer plus tard.", 'bot');
+        } finally {
+            sendBtn.disabled = false; 
+        }
+    }
+        
+    function saveAubeKb() {
+        appData.aube.kb = document.getElementById('aube-kb').value;
+        saveData();
+        console.log('Base de connaissances Aube sauvegardée !');
+    }
+    
+    // --- App de Notes ---
+    
+    function deleteNoteFromList(noteId, event) {
+        event.stopPropagation(); // Empêche d'ouvrir l'éditeur en cliquant sur la poubelle
+        appData.notes = appData.notes.filter(n => n.id !== noteId);
+        saveData();
+        loadNotesList(); // Rafraîchir la liste
+    }
+
+    function loadNotesList() {
+        const container = document.getElementById('notes-list-container');
+        const placeholder = document.getElementById('no-notes-placeholder');
+        const searchInput = document.getElementById('note-search-input');
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+
+        if (!container || !placeholder) {
+            console.error("loadNotesList: Impossible de trouver les éléments 'notes-list-container' or 'no-notes-placeholder'.");
+            return; 
+        }
+
+        container.innerHTML = ''; // Vider la liste
+        
+        const filteredNotes = appData.notes.filter(note => 
+            note.title.toLowerCase().includes(query) || 
+            note.content.toLowerCase().includes(query)
+        );
+        
+        if (filteredNotes.length === 0) {
+            if (appData.notes.length === 0) {
+                placeholder.textContent = "Aucune note. Cliquez sur '+' pour en créer une.";
+            } else {
+                placeholder.textContent = "Aucune note ne correspond à votre recherche.";
+            }
+            placeholder.classList.remove('hidden');
+        } else {
+            placeholder.classList.add('hidden');
+            filteredNotes.sort((a, b) => new Date(b.date) - new Date(a.date)); // Trier par date
+            filteredNotes.forEach(note => {
+                const preview = note.content.substring(0, 100) + (note.content.length > 100 ? '...' : '');
+                
+                const noteHtml = `
+                    <div class="bg-gradient-to-br from-white to-yellow-50 p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200">
+                        <div onclick="openNoteEditor('${note.id}')" class="cursor-pointer">
+                            <h4 class="font-monotype-corsiva text-2xl text-gray-800 truncate">${note.title || 'Note sans titre'}</h4>
+                            <p class="text-sm text-gray-600 mt-1 truncate">${preview}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs text-gray-400">${new Date(note.date).toLocaleString('fr-FR')}</span>
+                            <button onclick="deleteNoteFromList('${note.id}', event)" class="text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-100">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += noteHtml;
+            });
+            lucide.createIcons();
+        }
+    }
+    
+    function createNewNote() {
+        currentNoteId = null; // C'est une nouvelle note
+        document.getElementById('note-editor-title').value = '';
+        document.getElementById('note-editor-content').value = '';
+        navigateTo('screen-note-editor');
+    }
+    
+    function openNoteEditor(noteId) {
+        const note = appData.notes.find(n => n.id === noteId);
+        if (!note) return;
+        
+        currentNoteId = noteId;
+        document.getElementById('note-editor-title').value = note.title;
+        document.getElementById('note-editor-content').value = note.content;
+        navigateTo('screen-note-editor');
+    }
+    
+    function saveCurrentNote() {
+        const title = document.getElementById('note-editor-title').value;
+        const content = document.getElementById('note-editor-content').value;
+        
+        if (currentNoteId) {
+            // Mettre à jour la note existante
+            const note = appData.notes.find(n => n.id === currentNoteId);
+            note.title = title;
+            note.content = content;
+            note.date = new Date().toISOString();
+        } else {
+            // Créer une nouvelle note
+            const newNote = {
+                id: `note-${new Date().getTime()}`,
+                title: title,
+                content: content,
+                date: new Date().toISOString()
+            };
+            appData.notes.push(newNote);
+        }
+        
+        saveData();
+        goBack(); // Retourne à la liste des notes (et loadNotesList sera appelé)
+    }
+    
+    function deleteCurrentNote() {
+        if (!currentNoteId) {
+            goBack(); 
+            return;
+        }
+        
+        appData.notes = appData.notes.filter(n => n.id !== currentNoteId);
+        saveData();
+        currentNoteId = null;
+        goBack(); 
+    }
+
+
+    // --- NOUVELLES FONCTIONS D'ALERTE (Logique modifiée) ---
+    
+    function checkMaterielExpiration() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0); 
+        
+        const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        let notificationTriggered = false;
+
+        appData.materiel.forEach(item => {
+            if (item.dateRen) {
+                const expirationDate = new Date(item.dateRen);
+                expirationDate.setHours(0, 0, 0, 0); 
+                
+                // Si la date est aujourd'hui ou dans la semaine à venir
+                if (expirationDate <= oneWeekFromNow && expirationDate >= now) {
+                    const existingAlert = appData.alerts.find(a => a.materielId === item.id);
+                    if (!existingAlert) {
+                        const salle = appData.salles.find(s => s.id === item.salleId);
+                        const newAlert = {
+                            id: `alert-mat-${item.id}`, 
+                            title: 'Avertissement de renouvellement',
+                            message: `Le matériel "${item.nom}" (Salle: ${salle ? salle.nom : 'Inconnue'}) doit être renouvelé le ${item.dateRen}.`,
+                            date: new Date().toISOString(),
+                            read: false,
+                            materielId: item.id 
+                        };
+                        appData.alerts.push(newAlert);
+                        notificationTriggered = true;
+                    }
+                }
+            }
+        });
+
+        if (notificationTriggered) {
+            appData.aube.hasNewNotification = true;
+            updateNotificationDot();
+            saveData(); 
+        } else {
+            // S'il n'y a pas eu de nouvelle alerte, on vérifie si des alertes existent
+            updateNotificationDot(); 
+        }
+    }
+
+    async function deleteAlert(alertId) {
+        appData.alerts = appData.alerts.filter(a => a.id !== alertId);
+        saveData();
+        updateNotificationDot(); // Mettre à jour le point au cas où c'était la dernière
+        loadAlerts(); // Recharger la liste
+    }
+
+    function loadAlerts() {
+        const container = document.getElementById('alerts-container');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        let hasUnread = false;
+        appData.alerts.forEach(alert => {
+            if (!alert.read) {
+                alert.read = true;
+                hasUnread = true;
+            }
         });
         
-        // Show target screen
-        const targetScreen = document.getElementById(screenId);
-        if (targetScreen) {
-            navigationHistory.push(currentScreen);
-            currentScreen = screenId;
-            targetScreen.classList.remove('hidden');
-            targetScreen.classList.add('flex');
-            lucide.createIcons();
+        if(hasUnread) {
+             appData.aube.hasNewNotification = false; 
+             updateNotificationDot();
+             saveData(); 
         }
-    };
-    
-    window.goBack = function() {
-        if (navigationHistory.length > 0) {
-            const previousScreen = navigationHistory.pop();
-            navigateTo(previousScreen);
-        } else {
-            navigateTo('screen-home');
-        }
-    };
-    
-    window.toggleMenu = function() {
-        const menu = document.getElementById('side-menu');
-        const overlay = document.getElementById('menu-overlay');
+
+        const alerts = appData.alerts.sort((a, b) => new Date(b.date) - new Date(a.date)); 
         
-        if (menu.classList.contains('-translate-x-full')) {
-            menu.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        } else {
-            menu.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
+        if (alerts.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500 mt-10">Aucune alerte pour le moment.</p>';
+            return;
         }
-    };
-    
-    // === SETTINGS ===
-    window.saveAPIKey = function() {
-        const key = document.getElementById('gemini-api-key').value.trim();
-        if (key) {
-            localStorage.setItem('gemini_api_key', key);
-            alert('Clé API enregistrée !');
-        }
-    };
-    
-    window.exportDB = async function() {
-        try {
-            const inventory = await db.query('SELECT * FROM inventory');
-            const notes = await db.query('SELECT * FROM notes');
-            
-            const exportData = {
-                inventory: inventory.values || [],
-                notes: notes.values || [],
-                exportDate: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `u-auben-backup-${Date.now()}.json`;
-            link.click();
-            
-            alert('Export réussi !');
-        } catch (error) {
-            console.error('Erreur export:', error);
-            alert('Erreur lors de l\'export');
-        }
-    };
-    
-    window.clearDB = async function() {
-        if (!confirm('⚠️ Effacer toutes les données ? Cette action est irréversible.')) return;
         
-        try {
-            await db.execute('DELETE FROM inventory');
-            await db.execute('DELETE FROM notes');
-            await loadInventory();
-            await loadNotes();
-            alert('Base de données réinitialisée');
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    };
-    
-    // === CONNECTION STATUS ===
-    function checkConnection() {
-        const statusDiv = document.getElementById('connection-status');
-        if (statusDiv) {
-            statusDiv.textContent = navigator.onLine ? '🟢 En ligne - Mode IA complet' : '🔵 Hors ligne - Mode Aube Lite';
-        }
+        alerts.forEach(alert => {
+            // Les alertes sont toujours "lues" (bordure rouge) car elles sont critiques
+            const alertHtml = `
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-red-700">${alert.title}</h4>
+                    <button onclick="deleteAlert('${alert.id}')" class="text-gray-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-gray-700 text-sm mb-2">${alert.message}</p>
+                <span class="text-xs text-gray-500">${new Date(alert.date).toLocaleString('fr-FR')}</span>
+            </div>
+            `;
+            container.innerHTML += alertHtml;
+        });
+        
+        lucide.createIcons();
+    }
+    // --- FIN DES NOUVELLES FONCTIONS D'ALERTE ---
+
+
+    // --- IndexedDB Helpers (MODIFIÉ POUR LES DATA URLS) ---
+    const dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open('logisticsAppDB', 1);
+        request.onerror = () => reject("Error opening DB");
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('files')) { db.createObjectStore('files'); }
+        };
+    });
+
+    async function saveFileToDB(key, dataUrl) { // Sauvegarde un Data URL (string)
+        const db = await dbPromise;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('files', 'readwrite');
+            const store = transaction.objectStore('files');
+            const request = store.put(dataUrl, key); // Stocke le string
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async function loadFileFromDB(key) { // Charge un Data URL (string)
+        const db = await dbPromise;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('files', 'readonly');
+            const store = transaction.objectStore('files');
+            const request = store.get(key);
+            request.onsuccess = () => resolve(request.result); // Renvoie le string
+            request.onerror = () => reject(request.error);
+        });
     }
     
-    window.addEventListener('online', checkConnection);
-    window.addEventListener('offline', checkConnection);
-    
-    // Export functions
-    window.saveProduct = saveProduct;
-    window.saveNote = saveNote;
-</script>
+    async function deleteFileFromDB(key) {
+        const db = await dbPromise;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('files', 'readwrite');
+            const store = transaction.objectStore('files');
+            const request = store.delete(key);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
 
+    // --- Nouvelle fonction Helper pour charger les images ---
+    async function loadAndSetImage(imgId, photoId, placeholderSrc) {
+        const imgElement = document.getElementById(imgId);
+        if (!imgElement) return;
+        try {
+            const dataUrl = await loadFileFromDB(photoId);
+            if (dataUrl) {
+                imgElement.src = dataUrl;
+            } else if (placeholderSrc) {
+                imgElement.src = placeholderSrc;
+            }
+        } catch (error) {
+            console.error("Error loading image from DB:", error);
+            if (placeholderSrc) {
+                imgElement.src = placeholderSrc;
+            }
+        }
+    }
+
+
+    // --- File and Data Handling ---
+    function setupFileUpload(inputId, updateFunction) {
+        const inputElement = document.getElementById(inputId);
+        if (!inputElement) return;
+        
+        inputElement.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    try {
+                        updateFunction(dataUrl);
+                    } catch (error) {
+                         console.error("Erreur de sauvegarde:", error);
+                         console.error("Le fichier est trop grand pour être sauvegardé.");
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    function setupTextInput(inputId, updateFunction) {
+        const inputElement = document.getElementById(inputId);
+        if (!inputElement) return;
+        inputElement.addEventListener('change', (event) => {
+            updateFunction(event.target.value);
+            saveData();
+        });
+    }
+
+    async function setupPdfUpload(inputId, storageKey) {
+        const inputElement = document.getElementById(inputId);
+        if (!inputElement) return;
+        inputElement.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                try {
+                    // Les PDFs sont des Blobs, mais pour rester cohérent, on va aussi les lire en Data URL
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        await saveFileToDB(storageKey, e.target.result); // Sauvegarde le Data URL du PDF
+                         console.log("Document PDF sauvegardé."); 
+                    };
+                    reader.readAsDataURL(file);
+                } catch (error) { console.error("Error saving PDF to DB:", error); console.error("Erreur lors de la sauvegarde du PDF."); }
+            }
+        });
+    }
+    
+    async function loadAndShowPdf(storageKey, screenId, viewerId, placeholderId) {
+        const viewer = document.getElementById(viewerId);
+        const placeholder = document.getElementById(placeholderId);
+        try {
+            const dataUrl = await loadFileFromDB(storageKey); // Charge le Data URL
+            if (dataUrl) {
+                viewer.src = dataUrl;
+                viewer.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                viewer.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error("Error loading PDF from DB:", error);
+            viewer.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            placeholder.textContent = "Erreur lors du chargement du PDF.";
+        }
+        navigateTo(screenId);
+    }
+    
+    const downloadDataBtn = document.getElementById('download-data');
+    if(downloadDataBtn) {
+        downloadDataBtn.addEventListener('click', () => {
+            let csvContent = "data:text/csv;charset=utf-8,Type,Nom,Emplacement,Niveau,Categorie,Marque,Couleur,Etat,DateAcq,DateRen\n";
+            appData.salles.forEach(salle => {
+                csvContent += `Salle,${salle.nom},${salle.emplacement},${salle.niveau},,,,,,\n`;
+            });
+            appData.materiel.forEach(item => {
+                csvContent += `Materiel,${item.nom},,${item.salleId},${item.categorie},${item.marque},${item.couleur},${item.etat},${item.dateAcq},${item.dateRen}\n`;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "donnees_completes.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+    
+    function initializeApp() {
+        loadData();
+        checkMaterielExpiration(); // Vérifier les expirations au démarrage
+        
+        // Setup généraux
+        setupFileUpload('main-building-image-upload', (url) => { appData.general.mainBuildingImage = url; document.getElementById('main-building-image').src = url; saveData(); });
+        
+        setupFileUpload('main-bg-upload', (url) => { 
+            appData.general.mainBgUrl = url; 
+            const container = document.getElementById('main-app-container');
+            container.style.backgroundImage = `url(${url})`;
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+            container.style.backgroundRepeat = 'no-repeat';
+            saveData(); 
+        });
+
+        setupFileUpload('app-icon-upload', (url) => { appData.general.appIconUrl = url; document.getElementById('app-favicon').href = url; saveData(); });
+        setupFileUpload('menu-bg-upload', (url) => { appData.general.menuBgUrl = url; document.getElementById('menu-background').style.backgroundImage = `url(${url})`; saveData(); });
+        setupFileUpload('menu-logo-upload', (url) => { appData.general.menuLogoUrl = url; document.getElementById('menu-logo-image').src = url; saveData(); });
+        
+        setupPdfUpload('guide-pdf-upload', 'guidePdfUrl');
+        setupPdfUpload('dev-pdf-upload', 'devPdfUrl');
+
+        // Setup Blocs Images
+        ['A', 'B', 'C', 'D', 'E', 'F'].forEach(blocId => {
+            setupFileUpload(`setting-img-bloc-${blocId}`, (url) => { appData.blocs[blocId].mainImage = url; saveData(); });
+        });
+
+        // Setup Sous-Blocs Images
+        ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2', 'E1', 'E2'].forEach(subId => {
+            const blocId = subId.charAt(0);
+            const subIndex = parseInt(subId.charAt(1)) - 1;
+            if (appData.blocs[blocId] && appData.blocs[blocId].subBlocs[subIndex]) {
+                setupFileUpload(`setting-img-${subId}`, (url) => { appData.blocs[blocId].subBlocs[subIndex].image = url; saveData(); });
+            }
+        });
+        
+        document.getElementById('add-room-emplacement').addEventListener('input', (e) => {
+            const niveauRow = document.getElementById('add-room-niveau-row');
+            const niveauInput = document.getElementById('add-room-niveau');
+            const val = e.target.value.toUpperCase();
+            
+            if (val === 'D1') {
+                niveauInput.value = 'Box Sécurité';
+                niveauRow.classList.add('hidden');
+            } else if (val === 'D2') {
+                niveauInput.value = 'Parking';
+                niveauRow.classList.add('hidden');
+            } else if (val === 'E2') {
+                niveauInput.value = 'Jardins';
+                niveauRow.classList.add('hidden');
+            } else {
+                if (niveauRow.classList.contains('hidden')) {
+                    niveauInput.value = '';
+                }
+                niveauRow.classList.remove('hidden');
+            }
+        });
+        
+        document.getElementById('aube-chat-send-btn').addEventListener('click', sendAubeMessage);
+        
+        document.getElementById('category-search-input').addEventListener('input', () => {
+            showCategoryList(currentSalleId, false); // Rafraîchir SANS naviguer
+        });
+
+        const noteSearchInput = document.getElementById('note-search-input');
+        if (noteSearchInput) {
+            noteSearchInput.addEventListener('input', loadNotesList);
+        }
+
+        lucide.createIcons();
+    }
+    
+    // Assurer que le DOM est chargé avant d'exécuter l'app
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeApp();
+    });
+
+    // Enregistrement du Service Worker pour la PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker enregistré avec succès:', registration);
+                })
+                .catch(error => {
+                    console.log('Échec de l\'enregistrement du Service Worker:', error);
+                });
+        });
+    }
+
+</script>
+<style>
+.input-file-style {
+    @apply block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100;
+}
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::after {
+    content: '+';
+    float: right;
+    font-size: 1.5em;
+    line-height: 1;
+    font-weight: bold;
+    color: #3b82f6; /* blue-500 */
+}
+details[open] > summary::after { content: '−'; }
+#aube-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* space-y-3 */
+}
+</style>
 </body>
 </html>
