@@ -1,41 +1,44 @@
 workflows:
   android-workflow:
-    name: U-AUBEN INVENTORY - Native Offline Fix
+    name: U-AUBEN INVENTORY - SQLite Native Build
     max_build_duration: 60
     environment:
       java: 21
       node: latest
     scripts:
-      - name: Clean & Install
+      - name: Clean & Install Dependencies
         script: |
+          # Nettoyage pour éviter les conflits de plugins natifs
           rm -rf node_modules package-lock.json android
+          
+          # Installation des dépendances avec le moteur SQLite community
           npm install
-          npm install @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
-
+          npm install @capacitor-community/sqlite @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
+          
       - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
-          # 1. Création des dossiers
+          # Création de la structure pour l'APK
           mkdir -p www/css www/js www/fonts
           
-          # 2. Téléchargement des polices (La formule magique)
+          # Téléchargement automatique des polices pour le design
           curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # 3. Compilation Tailwind
+          # Compilation Tailwind et copie des scripts JS offline
           npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
-          
-          # 4. Copie des scripts JS
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
+          # Synchronisation de Capacitor avec le plugin SQLite
           npx cap add android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
+          # Mise à jour forcée vers SDK 35 pour compatibilité Android 15
           find android -name "build.gradle" -exec sed -i 's/compileSdk 34/compileSdk 35/g' {} +
           find android -name "build.gradle" -exec sed -i 's/targetSdk 34/targetSdk 35/g' {} +
           
