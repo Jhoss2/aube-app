@@ -19,177 +19,79 @@
     <script src="js/lucide.min.js"></script>
     <script src="js/marked.min.js"></script>
     
- <style>
-    /* 1. IMPORTATION DES POLICES (OFFLINE READY) */
-    @import url('https://fonts.cdnfonts.com/css/algerian');
-    @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    <style>
+        /* Conservation stricte de tes styles originaux */
+        @import url('https://fonts.cdnfonts.com/css/algerian');
+        @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
 
-    :root {
-        /* Couleur par défaut (modifiable via les paramètres) */
-        --app-bg-color: #fde7f3;
-        --uaben-bordeaux: #b91c1c;
-        --uaben-blue: #1e3a8a;
-    }
-
-    /* 2. ARCHITECTURE PLEIN ÉCRAN TABLETTE */
-    body { 
-        font-family: 'Inter', sans-serif; 
-        margin: 0; 
-        padding: 0; 
-        background-color: var(--app-bg-color);
-        -webkit-tap-highlight-color: transparent;
-        transition: background-color 0.4s ease;
-    }
-
-    .main-container {
-        width: 100%;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--app-bg-color);
-        /* Texture légère en fond pour le cachet */
-        background-image: radial-gradient(#0000000a 0.5px, transparent 0.5px);
-        background-size: 20px 20px;
-    }
-
-    /* 3. STYLES DES BOUTONS ET TITRES (IDENTITÉ U-AUBEN) */
-    .header-btn {
-        background-color: var(--uaben-bordeaux);
-        color: white;
-        padding: 18px;
-        border-radius: 9999px;
-        font-weight: 600;
-        text-align: center;
-        width: 90%;
-        margin: 20px auto;
-        box-shadow: 0 10px 15px -3px rgba(185, 28, 28, 0.3);
-        font-family: 'Algerian', sans-serif;
-        letter-spacing: 2px;
-        font-size: 1.25rem;
-    }
-
-    .font-algerian { font-family: 'Algerian', sans-serif; }
-    .font-monotype { font-family: 'Monotype Corsiva', sans-serif; }
-
-    /* 4. CARTES D'INVENTAIRE (FINI LE BASIQUE) */
-    .inventory-card {
-        background: white;
-        padding: 16px;
-        border-radius: 24px;
-        margin-bottom: 12px;
-        border-left: 8px solid var(--uaben-bordeaux);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: transform 0.2s;
-    }
-
-    .inventory-card:active { transform: scale(0.98); }
-
-    .qty-badge {
-        background-color: #fff1f2;
-        color: var(--uaben-bordeaux);
-        padding: 8px 16px;
-        border-radius: 16px;
-        font-family: 'Monotype Corsiva', sans-serif;
-        font-size: 1.4rem;
-        font-weight: bold;
-    }
-
-    /* 5. NAVIGATION BASSE (STYLE NATIVE APP) */
-    .bottom-nav {
-        position: fixed;
-        bottom: 25px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 500px;
-        background: var(--uaben-blue);
-        display: flex;
-        justify-content: space-around;
-        padding: 14px;
-        border-radius: 40px;
-        box-shadow: 0 15px 30px rgba(30, 58, 138, 0.4);
-        z-index: 1000;
-    }
-
-    .nav-item {
-        color: rgba(255, 255, 255, 0.6);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .nav-item.active {
-        color: white;
-    }
-
-    /* 6. INTERFACE DE CHAT AUBE */
-    #chat-display {
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 28px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .message-aube {
-        background: white;
-        color: #1f2937;
-        padding: 12px 16px;
-        border-radius: 20px 20px 20px 4px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-left: 4px solid var(--uaben-blue);
-    }
-
-    /* 7. UTILITAIRES */
-    .main-content {
-        flex-grow: 1;
-        padding: 0 20px 120px; /* Espace pour la nav basse */
-        overflow-y: auto;
-    }
-
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    
-    .btn-primary {
-        background-color: var(--uaben-blue);
-        color: white;
-        padding: 12px 24px;
-        border-radius: 9999px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* Adaptation tablette pour les grilles */
-    @media (min-width: 768px) {
-        #inventory-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-    }
- </style>  
-</head>
-<body class="bg-pink-100"> <div class="main-container w-full min-h-screen flex flex-col no-scrollbar shadow-none">
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
+        /* Adaptation Tablette sans casser ton design mobile */
+        .main-container {
+            max-width: 500px; /* Légèrement élargi pour tablette */
+            margin: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #fde7f3;
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+            background-size: 15px 15px;
+            background-position: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .main-container { max-width: 800px; } /* Format Tablette */
+        }
+
+        .font-algerian { font-family: 'Algerian', sans-serif; }
+        .font-monotype-corsiva { font-family: 'Monotype Corsiva', sans-serif; font-weight: 600; }
+
+        .header-btn {
+            background-color: #b91c1c;
+            color: white;
+            padding: 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-align: center;
+            width: 80%;
+            margin: 16px auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 16px; }
+        
+        .nav-btn {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 14px;
+            border-radius: 9999px;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+
+        #side-menu { transition: transform 0.3s ease-in-out; background-color: #7f1d1d; }
+    </style>
+</head>
+<body>
+    <div class="main-container no-scrollbar">
         <div class="header-btn font-algerian tracking-widest text-xl">
             U-AUBEN INVENTORY
         </div>
 
-        <div class="main-content flex-grow">
+        <div class="main-content">
             <div id="inventory-list" class="space-y-4">
                 <p class="text-center py-10 font-monotype-corsiva text-gray-600">Initialisation de la base de données...</p>
             </div>
         </div>
         
-</div>
+        </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2137,7 +2039,4 @@ details[open] > summary::after { content: '−'; }
 }
 </style>
 </body>
-
 </html>
-
-
