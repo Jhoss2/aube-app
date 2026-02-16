@@ -1,0 +1,231 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║         🚀 U-AUBEN INVENTORY APP - QUICK START GUIDE 🚀         ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────┐
+│  📦 CE QUE TU AS REÇU                                            │
+└──────────────────────────────────────────────────────────────────┘
+
+✅ Application Android native complète
+✅ SQLite intégré avec 2 tables (inventory + notes)
+✅ IA "Aube" hybride (online + offline)
+✅ Design rose préservé + adaptation tablette
+✅ Assets 100% locaux (no CDN)
+✅ Documentation complète
+✅ Scripts de build automatiques
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🎯 DÉMARRAGE EN 3 ÉTAPES                                        │
+└──────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 1 : INSTALLATION
+━━━━━━━━━━━━━━━━━━━━━━
+$ cd u-auben-inventory-app
+$ chmod +x setup.sh
+$ ./setup.sh
+
+→ Installe les dépendances
+→ Télécharge les assets locaux
+→ Prépare le projet Android
+
+ÉTAPE 2 : BUILD
+━━━━━━━━━━━━━━━
+$ cd android
+$ ./gradlew assembleRelease
+
+→ Build l'APK
+→ Prend ~2-5 minutes
+
+ÉTAPE 3 : INSTALLATION SUR TABLETTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+$ adb install -r android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+→ Installe sur la tablette
+→ Lance l'app
+→ C'est prêt ! 🎉
+
+┌──────────────────────────────────────────────────────────────────┐
+│  📚 FICHIERS IMPORTANTS                                          │
+└──────────────────────────────────────────────────────────────────┘
+
+📄 INDEX.md                      ← Navigation complète
+📄 RESUME_POUR_UTILISATEUR.md    ← À lire en premier
+📄 README.md                     ← Documentation principale
+📄 DEPLOYMENT.md                 ← Guide de déploiement
+📄 SQLITE_GUIDE.md               ← Guide base de données
+📄 ARCHITECTURE.md               ← Schémas du système
+
+📁 www/index.html                ⭐ FICHIER PRINCIPAL DE L'APP
+
+🔧 setup.sh                      ← Script d'installation
+🔧 package.json                  ← Dépendances npm
+🔧 capacitor.config.json         ← Config app
+🔧 codemagic.yaml                ← CI/CD
+
+🧪 test-sqlite.html              ← Tests
+
+┌──────────────────────────────────────────────────────────────────┐
+│  ✅ FONCTIONNALITÉS                                              │
+└──────────────────────────────────────────────────────────────────┘
+
+🏠 ÉCRAN ACCUEIL
+   → Liste des produits de l'inventaire
+   → Recherche rapide
+   → Bouton d'ajout
+
+➕ AJOUTER PRODUIT
+   → Nom, quantité, unité
+   → Sauvegarde en SQLite
+   → Mise à jour instantanée
+
+📝 NOTES
+   → Créer des notes avec catégories
+   → Historique complet
+
+🤖 AUBE IA (HYBRIDE)
+   → MODE ONLINE (avec clé API Gemini)
+     • "Combien de Colis A ?"
+     • Contexte en temps réel de l'inventaire
+     • Réponses intelligentes
+   
+   → MODE OFFLINE (Aube Lite)
+     • Fonctionne sans Internet
+     • "Stock Colis A ?" → "🔵 Aube (Offline): Il reste 25 pcs"
+     • Requêtes SQL directes
+
+⚙️  PARAMÈTRES
+   → Configurer clé API Gemini
+   → Exporter la base de données
+   → Réinitialiser
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🧪 TESTS RECOMMANDÉS                                            │
+└──────────────────────────────────────────────────────────────────┘
+
+TEST 1 : Ajouter un produit
+   1. Ouvrir l'app
+   2. Cliquer sur "+"
+   3. Entrer : Colis A, 25, pcs
+   4. Enregistrer
+   ✅ Produit affiché dans la liste
+
+TEST 2 : Aube Offline
+   1. Désactiver Wi-Fi
+   2. Ouvrir chat Aube
+   3. Taper : "Combien de Colis A ?"
+   ✅ Réponse : "🔵 Aube (Offline): Il reste 25 pcs"
+
+TEST 3 : Aube Online
+   1. Activer Wi-Fi
+   2. Paramètres → Clé API Gemini
+   3. Chat : "Fais un rapport de stock"
+   ✅ Réponse contextuelle
+
+TEST 4 : Export
+   1. Paramètres → Exporter DB
+   ✅ Fichier JSON téléchargé
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🔧 CONFIGURATION REQUISE                                        │
+└──────────────────────────────────────────────────────────────────┘
+
+✅ Node.js 20.x ou supérieur
+✅ Java 21
+✅ Android SDK 35
+✅ Capacitor 6+
+✅ Tablette Android (ou émulateur)
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🔑 CLÉ API GEMINI (OPTIONNEL)                                   │
+└──────────────────────────────────────────────────────────────────┘
+
+Pour activer le mode online d'Aube :
+
+1. → https://makersuite.google.com/app/apikey
+2. Créer une clé (gratuit)
+3. Dans l'app : Paramètres → Clé API Gemini
+4. Coller et enregistrer
+
+Sans clé : Aube fonctionne en mode Lite (offline uniquement)
+
+┌──────────────────────────────────────────────────────────────────┐
+│  📊 BASE DE DONNÉES                                              │
+└──────────────────────────────────────────────────────────────────┘
+
+TABLE: inventory
+   • id (auto)
+   • product_name
+   • quantity
+   • unit
+   • last_updated (auto)
+
+TABLE: notes
+   • id (auto)
+   • content
+   • date (auto)
+   • category
+
+Créée automatiquement au premier lancement ✅
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🐛 DÉPANNAGE RAPIDE                                             │
+└──────────────────────────────────────────────────────────────────┘
+
+PROBLÈME : App ne s'installe pas
+SOLUTION : $ adb uninstall com.uauben.inventory
+           $ adb install -r app-release.apk
+
+PROBLÈME : SQLite ne fonctionne pas
+SOLUTION : $ adb logcat | grep -i sqlite
+
+PROBLÈME : Aube ne répond pas
+SOLUTION : • Vérifier connexion Internet (mode online)
+           • Tester en mode offline d'abord
+           • $ adb logcat | grep Gemini
+
+┌──────────────────────────────────────────────────────────────────┐
+│  ✅ CHECKLIST DE CONFORMITÉ                                      │
+└──────────────────────────────────────────────────────────────────┘
+
+[✓] Nom "U-AUBEN INVENTORY APP"
+[✓] Design rose (#fde7f3) préservé
+[✓] Assets 100% locaux (no CDN)
+[✓] SQLite fonctionnel
+[✓] Table inventory
+[✓] Table notes
+[✓] CRUD complet
+[✓] Aube Online (Gemini + context)
+[✓] Aube Offline (Lite + SQL direct)
+[✓] Context injection SQL → IA
+[✓] Adaptation tablette (max-width 1024px)
+[✓] Scripts de build
+[✓] Codemagic CI/CD
+
+┌──────────────────────────────────────────────────────────────────┐
+│  📌 NOTES IMPORTANTES                                            │
+└──────────────────────────────────────────────────────────────────┘
+
+• Le design NE DOIT PAS être modifié (selon specs)
+• Toutes les données restent en local sur la tablette
+• L'app crée la DB SQLite automatiquement
+• L'export JSON sauvegarde avant réinstallation
+• Performance optimale : SQLite ultra-rapide
+
+┌──────────────────────────────────────────────────────────────────┐
+│  🎉 TU ES PRÊT !                                                 │
+└──────────────────────────────────────────────────────────────────┘
+
+Commence par lire : RESUME_POUR_UTILISATEUR.md
+
+Puis lance :
+$ chmod +x setup.sh && ./setup.sh
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║               🚀 BON BUILD ! 🚀                                  ║
+║                                                                  ║
+║    Développé par Manus AI selon les specs strictes U-AUBEN      ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
