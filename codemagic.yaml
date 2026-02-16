@@ -8,39 +8,37 @@ workflows:
     scripts:
       - name: Clean & Install Dependencies
         script: |
-          # Nettoyage pour éviter les conflits de plugins natifs
+          # Nettoyage et installation propre
           rm -rf node_modules package-lock.json android
-          
-          # Installation des dépendances avec le moteur SQLite community
           npm install
           npm install @capacitor-community/sqlite @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
           
       - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
-          # Création de la structure pour l'APK
           mkdir -p www/css www/js www/fonts
           
-          # Téléchargement automatique des polices pour le design
+          # Téléchargement des polices
           curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # Compilation Tailwind et copie des scripts JS offline
+          # Compilation Tailwind et copie JS
           npx tailwindcss -content "./www/index.html" -o www/css/style.css --minify
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
-          # Synchronisation de Capacitor avec le plugin SQLite
           npx cap add android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Mise à jour forcée vers SDK 35 pour compatibilité Android 15
-          find android -name "build.gradle" -exec sed -i 's/compileSdk 34/compileSdk 35/g' {} +
-          find android -name "build.gradle" -exec sed -i 's/targetSdk 34/targetSdk 35/g' {} +
+          # Correction de la commande sed pour éviter l'erreur "command a expects \"
+          # On cible précisément les fichiers build.gradle de l'application
+          find android -name "build.gradle" -type f -exec sed -i.bak 's/compileSdk 34/compileSdk 35/g' {} +
+          find android -name "build.gradle" -type f -exec sed -i.bak 's/targetSdk 34/targetSdk 35/g' {} +
+          echo "Patch SDK 35 appliqué avec succès."
           
       - name: Build Debug APK
         script: |
