@@ -1,48 +1,25 @@
 workflows:
   android-workflow:
-    name: U-AUBEN INVENTORY APP Build
+    name: U-AUBEN INVENTORY Build
     max_build_duration: 60
-    instance_type: mac_mini_m1
     environment:
-      android_signing:
-        - keystore_reference
-      groups:
-        - google_play
-      vars:
-        PACKAGE_NAME: "com.uauben.inventory"
-      node: v20.11.0
       java: 21
-      
     scripts:
-      - name: Set up local properties
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-          
       - name: Install dependencies
         script: |
           npm install
-          
-      - name: Download assets
+          npm install @capacitor/android @capacitor/core @capacitor/cli
+      - name: Clean and Sync
         script: |
-          npm run copy-assets
-          
-      - name: Setup Capacitor
-        script: |
+          rm -rf android
+          npx cap add android
           npx cap sync android
-          
-      - name: Build Android APK
+      - name: Build Debug APK (No Keystore needed)
         script: |
           cd android
-          ./gradlew assembleRelease
-          
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
     artifacts:
-      - android/app/build/outputs/**/*.apk
-      - android/app/build/outputs/**/*.aab
-      
-    publishing:
-      email:
-        recipients:
-          - dev@uauben.com
-        notify:
-          success: true
-          failure: true
+      - android/app/build/outputs/apk/**/*.apk
+    # On ne met PAS de section 'publishing' ici pour éviter l'erreur
+    
