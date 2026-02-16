@@ -1,55 +1,63 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <!-- Modifications PWA : Ajout du manifeste et des méta-tags -->
     <meta name="theme-color" content="#fde7f3">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A"> <!-- Placeholder pour l'icône iOS -->
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/b91c1c/ffffff?text=U-A">
     
     <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
-    <title>Gestion Logistique</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- AJOUT: Script pour l'analyse du Markdown de Gemini -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>U-AUBEN INVENTORY APP</title>
+
+    <link rel="stylesheet" href="css/tailwind.min.css">
+    <script src="js/lucide.min.js"></script>
+    <script src="js/marked.min.js"></script>
+    <script src="capacitor.js"></script>
+    
     <style>
-        /* Import custom fonts */
+        /* Importation des polices (Gérées localement par ton package.json) */
         @import url('https://fonts.cdnfonts.com/css/algerian');
         @import url('https://fonts.cdnfonts.com/css/monotype-corsiva');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
-        }
-        .main-container {
-            max-width: 420px;
-            margin: auto;
-            min-height: 100vh; /* Utiliser min-height pour s'adapter au contenu */
-            display: flex;
-            flex-direction: column;
-            background-color: #fde7f3; /* Default background color */
-            /* MODIFICATION: Logique de l'arrière-plan corrigée */
-            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px); /* Default pattern */
-            background-size: 15px 15px; /* Default size for pattern only */
-            background-position: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            position: relative; /* For positioning child elements */
-            overflow-x: hidden; /* Empêche le débordement horizontal */
-        }
-        .font-algerian {
-            font-family: 'Algerian', sans-serif;
-        }
-        .font-monotype-corsiva {
-            font-family: 'Monotype Corsiva', sans-serif;
-            font-weight: 600; /* Monotype Corsiva est souvent fine, un peu de poids aide */
+            -webkit-tap-highlight-color: transparent;
+            background-color: #fde7f3;
         }
 
+        /* Conteneur principal avec adaptation Tablette */
+        .main-container {
+            max-width: 420px; /* Taille mobile par défaut */
+            margin: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #fde7f3;
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+            background-size: 15px 15px;
+            background-position: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Largeur étendue pour tablettes Android */
+        @media (min-width: 768px) {
+            .main-container {
+                max-width: 850px;
+            }
+        }
+
+        .font-algerian { font-family: 'Algerian', sans-serif; }
+        .font-monotype-corsiva { font-family: 'Monotype Corsiva', sans-serif; font-weight: 600; }
+
+        /* Styles Bordeaux / Bleu conservés */
         .header-btn {
-            background-color: #b91c1c; /* red-800 */
+            background-color: #b91c1c;
             color: white;
             padding: 12px;
             border-radius: 9999px;
@@ -58,17 +66,17 @@
             width: 80%;
             margin: 16px auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            flex-shrink: 0; /* Empêche le header de rétrécir */
+            flex-shrink: 0;
         }
+
         .main-content {
             flex-grow: 1;
             overflow-y: auto;
             padding: 0 16px 16px;
         }
-        /* MODIFICATION: Classe 'pb-nav' supprimée */
         
         .nav-btn {
-            background-color: #1e3a8a; /* blue-900 */
+            background-color: #1e3a8a;
             color: white;
             padding: 14px;
             border-radius: 9999px;
@@ -76,28 +84,15 @@
             text-align: center;
             margin-top: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
         }
-        .nav-btn:hover {
-            background-color: #1e40af; /* blue-800 */
-        }
+
         #side-menu {
             transition: transform 0.3s ease-in-out;
-            background-color: #7f1d1d; /* red-900 - rouge bordeaux */
+            background-color: #7f1d1d;
         }
-        #menu-background {
-            background-image: url('https://placehold.co/420x900/1e3a8a/ffffff?text=Arri%C3%A8re-plan');
-            background-size: cover;
-            background-position: center;
-        }
-        /* Hide scrollbar for cleaner look */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-200">
@@ -2018,4 +2013,5 @@ details[open] > summary::after { content: '−'; }
 }
 </style>
 </body>
+
 </html>
