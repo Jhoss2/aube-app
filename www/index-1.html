@@ -95,22 +95,19 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-200">
+<body class="bg-pink-100"> <div class="main-container w-full min-h-screen flex flex-col no-scrollbar shadow-none">
+        
+        <div class="header-btn font-algerian tracking-widest text-xl">
+            U-AUBEN INVENTORY
+        </div>
 
-    <div id="main-app-container" class="main-container">
-        <!-- Chaque "écran" est un div que nous allons montrer/cacher -->
-
-        <!-- Écran: Accueil -->
-        <div id="screen-blocA" class="flex flex-col h-full">
-            <!-- Header -->
-            <div class="flex-shrink-0 px-4 pt-4 z-10">
-                <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md" style="background-color: #b91c1c;">
-                    <button onclick="toggleMenu()" class="text-white"><i data-lucide="menu"></i></button>
-                    <h1 class="font-semibold text-sm">&nbsp;</h1>
-                    <button onclick="promptForPassword()" class="text-white"><i data-lucide="sliders-horizontal"></i></button>
-                </div>
+        <div class="main-content flex-grow">
+            <div id="inventory-list" class="space-y-4">
+                <p class="text-center py-10 font-monotype-corsiva text-gray-600">Initialisation de la base de données...</p>
             </div>
-
+        </div>
+        
+</div>
             <!-- Main Content (scrollable) -->
             <!-- MODIFICATION: pb-nav supprimé -->
             <div class="flex-grow overflow-y-auto px-4">
@@ -2015,3 +2012,4 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
