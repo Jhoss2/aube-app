@@ -2,9 +2,9 @@
   "name": "u-auben-inventory-app",
   "version": "1.0.0",
   "description": "U-AUBEN INVENTORY APP - Native Offline Inventory Management",
-  "main": "index.html",
+  "main": "www/index.html",
   "scripts": {
-    "build": "npm install && npx tailwindcss -i ./style.css -o ./www/css/style.css --minify && cp index.html www/ && cp manifest.json www/ && npx cap sync",
+    "build": "npx tailwindcss -content './www/index.html' -o ./www/css/style.css --minify && npx cap sync",
     "serve": "npx vite"
   },
   "dependencies": {
