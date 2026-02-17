@@ -21,13 +21,15 @@ workflows:
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # GÉNÉRATION TAILWIND (Syntaxe explicite pour éviter l'ArgError)
-          # On utilise --content au lieu de -content
-          npx tailwindcss --content "./www/index.html" --output ./www/css/style.css --minify
-          
-          # Vérification post-génération
-          if [ ! -f ./www/css/style.css ]; then echo "ERREUR : style.css n'a pas été généré !"; exit 1; fi
+          # 1. LA SOLUTION : Création du fichier source contenant les directives Tailwind obligatoires
+          echo "@tailwind base;" > tailwind-input.css
+          echo "@tailwind components;" >> tailwind-input.css
+          echo "@tailwind utilities;" >> tailwind-input.css
 
+          # 2. GÉNÉRATION TAILWIND (Utilisation de -i pour l'entrée et -o pour la sortie)
+          npx tailwindcss -i tailwind-input.css -o ./www/css/style.css --content "./www/index.html" --minify
+          
+          # Copie des scripts JS
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
