@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="fr"> 
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#fde7f3">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://cdn.tailwindcss.com https://unpkg.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://cdn.tailwindcss.com https://unpkg.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content: https://placehold.co;">
     
     <title>U-AUBEN INVENTORY</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <script src="js/marked.min.js"></script>
     <script src="js/db.js"></script>
 
     <style>
-        /* Police système propre pour tablette (évite les erreurs de dossiers fonts manquants) */
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
             -webkit-tap-highlight-color: transparent; 
@@ -26,7 +23,6 @@
             min-height: 100vh;
         }
         
-        /* Structure de l'application */
         .main-container {
             width: 100%; 
             min-height: 100vh;
@@ -39,146 +35,137 @@
             overflow-x: hidden;
         }
 
-        /* Classes utilitaires personnalisées */
         .font-algerian { font-family: 'serif'; font-weight: bold; }
         .font-monotype-corsiva { font-family: 'cursive'; }
+        .hidden { display: none !important; }
 
-        /* Correction pour les boutons tactiles sur tablette */
-        button {
-            touch-action: manipulation;
-            cursor: pointer;
+        button { touch-action: manipulation; cursor: pointer; }
+
+        .header-btn {
+            background-color: #b91c1c; 
+            color: white; 
+            padding: 12px;
+            border-radius: 9999px; 
+            font-weight: 600; 
+            text-align: center;
+            width: 90%; 
+            margin: 16px auto;
         }
 
-        /* Sécurité : cache les éléments par défaut avant le chargement de Tailwind */
-        .hidden { display: none !important; }
+        .nav-btn {
+            background-color: #1e3a8a; 
+            color: white; 
+            padding: 14px;
+            border-radius: 9999px; 
+            font-weight: 500; 
+            text-align: center;
+            margin-top: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
     </style>
 
     <script>
-        // Configuration de Tailwind pour tes couleurs personnalisées
+        // CONFIGURATION TAILWIND
         tailwind.config = {
-          theme: {
-            extend: {
-              colors: {
-                'aube-red': '#b91c1c',
-                'aube-blue': '#1e3a8a',
-              }
-            }
-          }
+          theme: { extend: { colors: { 'aube-red': '#b91c1c', 'aube-blue': '#1e3a8a' } } }
         }
+
+        // NAVIGATION ET INITIALISATION
+        function initApp() {
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+        }
+
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.main-container > div');
+            screens.forEach(screen => screen.classList.add('hidden'));
+
+            const target = document.getElementById(screenId);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Navigation arrière simple
+        function goBack() { showScreen('screen-home'); }
+
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </head>
 <body class="bg-gray-200">
 
     <div id="main-app-container" class="main-container">
-        <!-- Chaque "écran" est un div que nous allons montrer/cacher -->
-
-        <!-- Écran: Accueil -->
-        <div id="screen-blocA" class="flex flex-col h-full">
-            <!-- Header -->
+        
+        <div id="screen-home" class="flex flex-col h-full">
             <div class="flex-shrink-0 px-4 pt-4 z-10">
                 <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md" style="background-color: #b91c1c;">
-                    <button onclick="toggleMenu()" class="text-white"><i data-lucide="menu"></i></button>
-                    <h1 class="font-semibold text-sm">&nbsp;</h1>
-                    <button onclick="promptForPassword()" class="text-white"><i data-lucide="sliders-horizontal"></i></button>
+                    <button class="text-white"><i data-lucide="menu"></i></button>
+                    <h1 class="font-semibold text-sm">INVENTAIRE</h1>
+                    <button class="text-white"><i data-lucide="sliders-horizontal"></i></button>
                 </div>
             </div>
 
-            <!-- Main Content (scrollable) -->
-            <!-- MODIFICATION: pb-nav supprimé -->
             <div class="flex-grow overflow-y-auto px-4">
                  <div class="relative my-4">
-                    <input type="search" id="search-input" placeholder="Que cherchez vous aujourd’hui ?" class="w-full bg-white rounded-full pl-10 pr-12 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner">
+                    <input type="search" placeholder="Que cherchez vous aujourd’hui ?" class="w-full bg-white rounded-full pl-10 pr-12 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner">
                     <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                    <button onclick="navigateTo('screen-chat-aube')" class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800">
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600">
                         <i data-lucide="bot"></i>
                     </button>
-                    <div id="search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg z-20 hidden overflow-hidden">
-                    </div>
                 </div>
 
-                <div class="bg-blue-900 rounded-2xl p-2 flex items-center space-x-2 text-center mb-4 shadow-lg overflow-x-auto no-scrollbar" style="background-color: #1e3a8a;">
-                    <button onclick="showBlocDetails('A')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc A</button>
-                    <button onclick="showBlocDetails('B')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc B</button>
-                    <button onclick="showBlocDetails('C')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc C</button>
-                    <button onclick="showBlocDetails('D')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc D</button>
-                    <button onclick="showBlocDetails('E')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc E</button>
-                    <button onclick="showBlocDetails('F')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0">Bloc F</button>
+                <div class="bg-blue-900 rounded-2xl p-2 flex items-center space-x-2 text-center mb-4 shadow-lg overflow-x-auto" style="background-color: #1e3a8a;">
+                    <button onclick="showScreen('screen-blocA-details')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 rounded-lg flex-shrink-0">Bloc A</button>
+                    <button onclick="showScreen('screen-blocA-details')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 rounded-lg flex-shrink-0">Bloc B</button>
+                    <button onclick="showScreen('screen-blocA-details')" class="text-white py-2 px-4 text-xs font-semibold bg-white/10 rounded-lg flex-shrink-0">Bloc C</button>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-lg overflow-hidden mb-4">
-                    <img id="main-building-image" src="https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9" alt="Bâtiment Universitaire" class="w-full h-auto object-cover">
+                    <img src="https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9" alt="Bâtiment" class="w-full h-auto object-cover">
                 </div>
 
                 <div class="text-center">
-                    <div class="bg-blue-900 text-white w-auto inline-block px-6 font-semibold py-3 rounded-2xl shadow-md text-center font-algerian" style="background-color: #1e3a8a;">
+                    <div class="bg-blue-900 text-white inline-block px-6 font-semibold py-3 rounded-2xl shadow-md font-algerian" style="background-color: #1e3a8a;">
                         UNIVERSITE AUBE NOUVELLE
                     </div>
                 </div>
-                 <!-- MODIFICATION: Spacer pour la barre de nav (UNIQUEMENT sur cet écran) -->
-                 <div class="h-24"></div>
+                <div class="h-24"></div>
             </div>
-            
-            <!-- Bottom Navigation (DÉPLACÉ hors de cet écran) -->
         </div>
 
-        <!-- Écran: Détails du Bloc (Dynamique) -->
         <div id="screen-blocA-details" class="hidden flex-col h-full">
             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
                  <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <h1 class="font-bold text-xl text-gray-800">Détails</h1>
                  <div></div>
             </div>
-            <div id="bloc-details-title" class="header-btn font-algerian">Bloc A</div>
-            <!-- MODIFICATION: pb-nav supprimé -->
-            <div class="main-content space-y-4">
+            <div class="header-btn font-algerian">BLOC A</div>
+            <div class="overflow-y-auto px-4 space-y-4">
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <img id="bloc-details-main-image" onclick="navigateTo('screen-image-zoom')" src="https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+Bloc+A" alt="Vue aérienne Bloc A" class="w-full h-auto object-cover cursor-pointer">
-                    <p id="bloc-details-main-image-title" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Bloc A vu de dessus ·</p>
-                </div>
-                <p id="sub-bloc-title-1" class="text-center font-algerian text-blue-900 text-xl">A1</p>
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <img id="sub-bloc-image-1" onclick="showSubBlocDetails('A1')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Salles+de+Classe" alt="Salles de classe" class="w-full h-auto object-cover cursor-pointer">
-                    <p id="sub-bloc-image-title-1" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Salles de classe ·</p>
+                    <img src="https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+Bloc+A" class="w-full h-auto object-cover">
+                    <p class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Vue de dessus ·</p>
                 </div>
                 
-                <p id="sub-bloc-title-2" class="text-center font-algerian text-blue-900 text-xl">A2</p>
+                <p class="text-center font-algerian text-blue-900 text-xl">A1</p>
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <img id="sub-bloc-image-2" onclick="showSubBlocDetails('A2')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Bureaux" alt="Bureaux" class="w-full h-auto object-cover cursor-pointer">
-                    <p id="sub-bloc-image-title-2" class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Bureaux ·</p>
+                    <img onclick="showScreen('screen-blocA1-levels')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Salles+de+Classe" class="w-full h-auto object-cover cursor-pointer">
+                    <p class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva">· Salles de classe ·</p>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Écran: Zoom Image (Dynamique) -->
-        <div id="screen-image-zoom" class="hidden flex-col h-full bg-black">
-            <button onclick="goBack()" class="absolute top-4 left-4 z-10 text-white bg-black/50 rounded-full p-2">
-                <i data-lucide="arrow-left"></i>
-            </button>
-            <div class="flex-grow flex items-center justify-center">
-                 <img id="zoom-image-src" src="https://placehold.co/400x600/6b7280/ffffff?text=Vue+A%C3%A9rienne+Zoom" alt="Vue aérienne Bloc A Zoom" class="w-full h-auto object-contain">
             </div>
         </div>
 
-        <!-- Écran: Niveaux de Subdivision (Dynamique) -->
         <div id="screen-blocA1-levels" class="hidden flex-col h-full">
             <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
-                 <button onclick="goBack()" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
-                 <h1 class="font-bold text-xl text-gray-800">&nbsp;</h1>
+                 <button onclick="showScreen('screen-blocA-details')" class="text-gray-600"><i data-lucide="arrow-left"></i></button>
+                 <h1 class="font-bold text-xl text-gray-800">Niveaux</h1>
                  <div></div>
             </div>
-            <div id="levels-title" class="header-btn font-algerian">Bloc A1</div>
-            <!-- MODIFICATION: pb-nav supprimé -->
-            <div class="main-content">
-                <div class="bg-white text-blue-900 font-semibold text-center py-3 rounded-full shadow-md mb-6 font-monotype-corsiva text-lg">
-                    · NIVEAUX DE SUBDIVISION ·
-                </div>
-                <div class="space-y-3">
-                    <button onclick="showRoomProfiles('Sous-sol')" class="nav-btn w-full font-monotype-corsiva text-lg">· Sous-sol ·</button>
-                    <button onclick="showRoomProfiles('Rez-de-chaussée')" class="nav-btn w-full font-monotype-corsiva text-lg">· Rez-de-chaussée ·</button>
-                    <button onclick="showRoomProfiles('Premier Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Premier Niveau ·</button>
-                    <button onclick="showRoomProfiles('Deuxième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Deuxième Niveau ·</button>
-                    <button onclick="showRoomProfiles('Troisième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Troisième Niveau ·</button>
-                    <button onclick="showRoomProfiles('Quatrième Niveau')" class="nav-btn w-full font-monotype-corsiva text-lg">· Quatrième Niveau ·</button>
+            <div class="header-btn font-algerian">BLOC A1</div>
+            <div class="overflow-y-auto px-4">
+                <div class="space-y-3 mt-4">
+                    <button class="nav-btn w-full font-monotype-corsiva text-lg">· Rez-de-chaussée ·</button>
+                    <button class="nav-btn w-full font-monotype-corsiva text-lg">· Premier Niveau ·</button>
+                    <button class="nav-btn w-full font-monotype-corsiva text-lg">· Deuxième Niveau ·</button>
                 </div>
             </div>
         </div>
@@ -2040,6 +2027,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
