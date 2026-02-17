@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#fde7f3">
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://cdn.tailwindcss.com https://unpkg.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content:;">
-
+    
     <title>U-AUBEN INVENTORY</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1948,38 +1948,74 @@
     
 // Variable globale pour manipuler la base de données
     let inventoryDB = null;
+/**
+     * 1. INITIALISATION DES ICÔNES
+     * Cette fonction transforme vos balises <i> en icônes visibles.
+     */
+    function initIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+            console.log("Icônes Lucide générées avec succès.");
+        } else {
+            console.error("Erreur : La bibliothèque Lucide est introuvable (vérifiez le lien CDN).");
+        }
+    }
 
-   // 1. Initialisation des icônes Lucide
-        function initApp() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-                console.log("Icônes activées");
+    /**
+     * 2. SYSTÈME DE NAVIGATION (showScreen)
+     * @param {string} screenId - L'ID de la section à afficher (ex: 'screen-blocA')
+     */
+    function showScreen(screenId) {
+        // Sélectionne toutes les sections de contenu (enfants directs de main-container)
+        const allScreens = document.querySelectorAll('.main-container > div');
+        
+        allScreens.forEach(screen => {
+            // On cache absolument tout le monde
+            screen.classList.add('hidden');
+        });
+
+        // On affiche uniquement la section demandée
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            targetScreen.classList.remove('hidden');
+            console.log("Affichage de la section : " + screenId);
+            
+            // Force la tablette à remonter en haut de l'écran
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            console.warn("Attention : Aucune section trouvée avec l'ID '" + screenId + "'");
+        }
+
+        // Fermeture automatique du menu latéral pour libérer l'espace
+        toggleMenu(false);
+    }
+
+    /**
+     * 3. GESTION DU MENU LATÉRAL
+     * @param {boolean} isOpen - true pour ouvrir, false pour fermer
+     */
+    function toggleMenu(isOpen) {
+        const sideMenu = document.getElementById('side-menu');
+        const overlay = document.getElementById('menu-overlay');
+
+        if (sideMenu && overlay) {
+            if (isOpen) {
+                sideMenu.style.transform = 'translateX(0)';
+                overlay.classList.remove('hidden');
             } else {
-                console.error("Lucide n'est pas chargé");
+                sideMenu.style.transform = 'translateX(-100%)';
+                overlay.classList.add('hidden');
             }
         }
+    }
 
-        // 2. Gestionnaire de navigation entre les blocs
-        function showScreen(screenId) {
-            console.log("Tentative de navigation vers :", screenId);
-            
-            // On récupère tous les écrans (tes div de contenu)
-            const screens = document.querySelectorAll('.main-container > div');
-            
-            screens.forEach(screen => {
-                // On cache tout le monde
-                screen.classList.add('hidden');
-                
-                // Si c'est l'écran demandé, on l'affiche
-                if (screen.id === screenId) {
-                    screen.classList.remove('hidden');
-                }
-            });
-        }
-
-        // Lancement au chargement de la page
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script> 
+    // Lancement automatique dès que la tablette a fini de charger le HTML
+    document.addEventListener('DOMContentLoaded', () => {
+        initIcons();
+        // Optionnel : Afficher l'écran d'accueil par défaut au démarrage
+        // showScreen('screen-home'); 
+    });
+</script>
 <style>
 .input-file-style {
     @apply block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100;
@@ -2004,6 +2040,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
