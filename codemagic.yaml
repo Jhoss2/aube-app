@@ -16,20 +16,21 @@ workflows:
         script: |
           mkdir -p www/css www/js www/fonts
           
-          # Téléchargement des polices
           curl -L -o www/fonts/inter.ttf https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # 1. LA SOLUTION : Création du fichier source contenant les directives Tailwind obligatoires
           echo "@tailwind base;" > tailwind-input.css
           echo "@tailwind components;" >> tailwind-input.css
           echo "@tailwind utilities;" >> tailwind-input.css
 
-          # 2. GÉNÉRATION TAILWIND (Utilisation de -i pour l'entrée et -o pour la sortie)
-          npx tailwindcss -i tailwind-input.css -o ./www/css/style.css --content "./www/index.html" --minify
+          # LE CORRECTIF EST ICI : "./**/*.html" scanne tout le dépôt pour être sûr de trouver tes classes
+          npx tailwindcss -i tailwind-input.css -o ./www/css/style.css --content "./**/*.html" --minify
           
-          # Copie des scripts JS
+          # DIAGNOSTIC : Affiche la taille du fichier généré dans tes logs Codemagic
+          echo "Vérification du poids du fichier CSS :"
+          ls -lh ./www/css/style.css
+          
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
