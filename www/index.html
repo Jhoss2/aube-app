@@ -1949,47 +1949,37 @@
 // Variable globale pour manipuler la base de données
     let inventoryDB = null;
 
-    // Initialisation des icônes Lucide
-    function initIcons() {
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-
-// Gestion du chargement du DOM et initialisation SQLite
-    document.addEventListener('DOMContentLoaded', async () => {
-        initIcons();
-
-        // Sécurité : Si Tailwind (style.css) est manquant, on le voit dans la console
-        const cssLoaded = Array.from(document.styleSheets).some(s => s.href && s.href.includes('style.css'));
-        if (!cssLoaded) console.warn("Attention : style.css non détecté !");
-
-        try {
-            inventoryDB = await setupDatabase();
-            console.log("SQLite prêt.");
-        } catch (e) {
-            console.error("Erreur SQLite:", e);
+   // 1. Initialisation des icônes Lucide
+        function initApp() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+                console.log("Icônes activées");
+            } else {
+                console.error("Lucide n'est pas chargé");
+            }
         }
 
-        if (typeof initializeApp === 'function') {
-            initializeApp(inventoryDB);
+        // 2. Gestionnaire de navigation entre les blocs
+        function showScreen(screenId) {
+            console.log("Tentative de navigation vers :", screenId);
+            
+            // On récupère tous les écrans (tes div de contenu)
+            const screens = document.querySelectorAll('.main-container > div');
+            
+            screens.forEach(screen => {
+                // On cache tout le monde
+                screen.classList.add('hidden');
+                
+                // Si c'est l'écran demandé, on l'affiche
+                if (screen.id === screenId) {
+                    screen.classList.remove('hidden');
+                }
+            });
         }
-    });
 
-    // Fonctions de navigation et modal
-    function hidePasswordPrompt() {
-        const modal = document.getElementById('password-modal');
-        modal.style.display = 'none'; // Utilisation directe du style si Tailwind échoue
-        document.getElementById('password-input').value = '';
-    }
-
-    // Enregistrement du Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js').catch(() => {});
-        });
-    }
-</script>
+        // Lancement au chargement de la page
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> 
 <style>
 .input-file-style {
     @apply block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100;
@@ -2014,6 +2004,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
