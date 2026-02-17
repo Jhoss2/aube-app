@@ -8,14 +8,12 @@ workflows:
     scripts:
       - name: Clean & Install Dependencies
         script: |
-          # Nettoyage et installation des dépendances
           rm -rf node_modules package-lock.json android
           npm install
           npm install @capacitor-community/sqlite @capacitor/cli @capacitor/core @capacitor/android lucide marked tailwindcss
           
       - name: Prepare Offline Assets (Fonts, JS, CSS)
         script: |
-          # Création de la structure
           mkdir -p www/css www/js www/fonts
           
           # Téléchargement des polices
@@ -23,31 +21,32 @@ workflows:
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # GÉNÉRATION TAILWIND (Utilise maintenant ton fichier tailwind.config.js)
-          npx tailwindcss -o ./www/css/style.css --minify
+          # GÉNÉRATION TAILWIND AGRESSIVE
+          # On passe les fichiers directement en argument pour ignorer les erreurs de config
+          npx tailwindcss -content "./www/index.html" -o ./www/css/style.css --minify
           
-          # Copie des scripts JS
+          # Vérification de la taille du fichier (si 0 octet, le build doit échouer ici)
+          if [ ! -s ./www/css/style.css ]; then echo "ERREUR : style.css est vide !"; exit 1; fi
+
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
 
       - name: Initialize Android Platform
         script: |
-          # Ajout et synchronisation native
           npx cap add android
+          # On force la copie des fichiers Web vers Android AVANT la synchro
           npx cap copy android
           npx cap sync android
           
       - name: Patch Gradle & SDK
         script: |
-          # Correction SDK 35 pour Android 15
           perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/app/build.gradle
           perl -i -pe 's/targetSdk 34/targetSdk 35/g' android/app/build.gradle
           perl -i -pe 's/compileSdk 34/compileSdk 35/g' android/build.gradle
-          echo "Patch SDK appliqué."
           
       - name: Build Debug APK
         script: |
-          # Synchronisation finale avant compilation
+          # Ultime synchro pour être CERTAIN que le style.css est dans l'APK
           npx cap copy android
           cd android
           chmod +x gradlew
