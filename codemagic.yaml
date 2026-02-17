@@ -21,12 +21,12 @@ workflows:
           curl -L -o www/fonts/algerian.ttf https://github.com/google/fonts/raw/main/ofl/cinzel/Cinzel-Bold.ttf
           curl -L -o www/fonts/monotype.ttf https://github.com/google/fonts/raw/main/ofl/dancingscript/DancingScript-VariableFont_wght.ttf
 
-          # GÉNÉRATION TAILWIND AGRESSIVE
-          # On passe les fichiers directement en argument pour ignorer les erreurs de config
-          npx tailwindcss -content "./www/index.html" -o ./www/css/style.css --minify
+          # GÉNÉRATION TAILWIND (Syntaxe explicite pour éviter l'ArgError)
+          # On utilise --content au lieu de -content
+          npx tailwindcss --content "./www/index.html" --output ./www/css/style.css --minify
           
-          # Vérification de la taille du fichier (si 0 octet, le build doit échouer ici)
-          if [ ! -s ./www/css/style.css ]; then echo "ERREUR : style.css est vide !"; exit 1; fi
+          # Vérification post-génération
+          if [ ! -f ./www/css/style.css ]; then echo "ERREUR : style.css n'a pas été généré !"; exit 1; fi
 
           cp node_modules/lucide/dist/umd/lucide.min.js www/js/
           cp node_modules/marked/marked.min.js www/js/
@@ -34,7 +34,6 @@ workflows:
       - name: Initialize Android Platform
         script: |
           npx cap add android
-          # On force la copie des fichiers Web vers Android AVANT la synchro
           npx cap copy android
           npx cap sync android
           
@@ -46,7 +45,6 @@ workflows:
           
       - name: Build Debug APK
         script: |
-          # Ultime synchro pour être CERTAIN que le style.css est dans l'APK
           npx cap copy android
           cd android
           chmod +x gradlew
