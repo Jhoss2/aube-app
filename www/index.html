@@ -63,32 +63,75 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
     </style>
-
+    
     <script>
-        // CONFIGURATION TAILWIND
+        // Configuration de Tailwind (Ton code exact)
         tailwind.config = {
-          theme: { extend: { colors: { 'aube-red': '#b91c1c', 'aube-blue': '#1e3a8a' } } }
+          theme: {
+            extend: {
+              colors: {
+                'aube-red': '#b91c1c',
+                'aube-blue': '#1e3a8a',
+              }
+            }
+          }
         }
 
-        // NAVIGATION ET INITIALISATION
+        // 1. Initialisation des icônes Lucide
         function initApp() {
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
-        function showScreen(screenId) {
+        // 2. Fonction de base appelée par ton bouton "chat-aube" et tes images
+        function navigateTo(screenId) {
             const screens = document.querySelectorAll('.main-container > div');
             screens.forEach(screen => screen.classList.add('hidden'));
 
             const target = document.getElementById(screenId);
             if (target) {
                 target.classList.remove('hidden');
-                window.scrollTo(0, 0);
+                window.scrollTo(0, 0); // Confort tablette
             }
         }
 
-        // Navigation arrière simple
-        function goBack() { showScreen('screen-home'); }
+        // 3. Fonction appelée par tes boutons "Bloc A", "Bloc B", etc.
+        function showBlocDetails(blocLetter) {
+            // Reconstruit l'ID que tu as mis sur ta section (ex: screen-blocA-details)
+            navigateTo('screen-bloc' + blocLetter + '-details');
+        }
 
+        // 4. Fonction appelée par tes images "A1", "A2", etc.
+        function showSubBlocDetails(subBlocId) {
+            // Reconstruit l'ID (ex: screen-blocA1-levels)
+            navigateTo('screen-bloc' + subBlocId + '-levels');
+        }
+
+        // 5. Fonction appelée par tes boutons "Rez-de-chaussée", "Sous-sol"
+        function showRoomProfiles(levelName) {
+            // À remplir plus tard avec la logique de l'écran des salles
+            console.log("Niveau cliqué :", levelName);
+        }
+
+        // 6. Fonction de retour arrière
+        function goBack() {
+            // Dans ton code, ton écran d'accueil s'appelle 'screen-blocA'
+            navigateTo('screen-blocA');
+        }
+
+        // 7. Menu et Paramètres
+        function toggleMenu() {
+            console.log("Clic sur le menu");
+            // Logique d'ouverture de ton menu latéral
+        }
+
+        function promptForPassword() {
+            console.log("Clic sur le bouton paramètre");
+            // Logique du mot de passe à venir
+        }
+
+        // Lancement au chargement
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </head>
@@ -2027,6 +2070,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
