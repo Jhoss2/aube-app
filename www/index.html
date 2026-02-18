@@ -54,19 +54,21 @@
         .hidden { display: none !important; }
   </style>
 
-  <script>
+    <script>
     // 1. CONFIGURATION TAILWIND
     tailwind.config = {
       theme: { extend: { colors: { 'aube-red': '#b91c1c', 'aube-blue': '#1e3a8a' } } }
     }
 
-    // 2. MOTEUR DE NAVIGATION AVEC HISTORIQUE
-    let navigationHistory = ['screen-blocA']; // On commence sur l'ID réel de ton accueil
+    // 2. MOTEUR DE NAVIGATION UNIVERSEL
+    let navigationHistory = ['screen-blocA']; 
 
     function showScreen(screenId, saveHistory = true) {
         console.log("Navigation vers :", screenId);
-        const screens = document.querySelectorAll('.main-container > div');
-        screens.forEach(s => s.classList.add('hidden'));
+        
+        // Cible absolument toutes les sections qui sont des écrans
+        const allScreens = document.querySelectorAll('.main-container > div');
+        allScreens.forEach(s => s.classList.add('hidden'));
 
         const target = document.getElementById(screenId);
         if (target) {
@@ -75,15 +77,26 @@
                 navigationHistory.push(screenId);
             }
             window.scrollTo(0, 0);
+            // Relancer les icônes si un nouvel écran apparaît
+            if (window.lucide) { window.lucide.createIcons(); }
         } else {
-            console.error("Écran introuvable : " + screenId);
+            console.error("Écran introuvable dans le HTML :", screenId);
         }
     }
 
-    // Fonctions liées à tes boutons onclick
-    function showBlocDetails(letter) { showScreen('screen-bloc' + letter + '-details'); }
-    function showSubBlocDetails(id) { showScreen('screen-bloc' + id + '-levels'); }
-    function navigateTo(id) { showScreen(id); }
+    // FONCTIONS D'ACCÈS AUX BLOCS ET SUBDIVISIONS
+    function showBlocDetails(letter) { 
+        // Tente l'ID formaté par Manus ou l'original
+        showScreen('screen-bloc' + letter + '-details'); 
+    }
+
+    function showSubBlocDetails(id) { 
+        showScreen('screen-bloc' + id + '-levels'); 
+    }
+
+    function navigateTo(id) { 
+        showScreen(id); 
+    }
     
     function goBack() {
         if (navigationHistory.length > 1) {
@@ -94,28 +107,37 @@
         }
     }
 
-    // 3. FONCTIONS TECHNIQUES MANQUANTES
-    function toggleMenu() {
-        // Si tu as un menu latéral, ajoute ici son ID
-        alert("Menu bientôt disponible !");
+    // GESTION DU MENU ET DES PARAMÈTRES
+    function toggleMenu(isOpen) {
+        const sideMenu = document.getElementById('side-menu');
+        const overlay = document.getElementById('menu-overlay');
+        if (sideMenu && overlay) {
+            if (isOpen) {
+                sideMenu.style.transform = 'translateX(0)';
+                overlay.classList.remove('hidden');
+            } else {
+                sideMenu.style.transform = 'translateX(-100%)';
+                overlay.classList.add('hidden');
+            }
+        }
     }
 
     function promptForPassword() {
-        const pass = prompt("Code administrateur requis :");
-        if (pass === "1234") { navigateTo('screen-admin'); }
+        const pass = prompt("Entrez le code administrateur :");
+        if (pass === "1234") { // Change le code si nécessaire
+            showScreen('screen-settings');
+        } else {
+            alert("Code incorrect");
+        }
     }
 
-    // 4. INITIALISATION
+    // 3. INITIALISATION
     document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) { window.lucide.createIcons(); }
-        // On force l'affichage du premier écran réel
+        // On démarre sur ton accueil réel
         showScreen('screen-blocA', false);
     });
-
-    // Prépare les fonctions pour db.js (pour éviter les erreurs console)
-    async function saveRoom() { console.log("Sauvegarde salle..."); alert("Fonction de sauvegarde en cours d'activation"); }
-    async function saveMateriel() { console.log("Sauvegarde matériel..."); }
-  </script>
+    </script>
   </head>
 <body class="bg-gray-200">
 
@@ -783,6 +805,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
