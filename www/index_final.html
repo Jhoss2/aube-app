@@ -1,0 +1,3801 @@
+<!DOCTYPE html>
+<html lang="fr">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="#fde7f3" name="theme-color"/>
+  <meta content="default-src 'self' data: gap: https://cdn.tailwindcss.com https://unpkg.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content:;" http-equiv="Content-Security-Policy"/>
+  <title>
+   U-AUBEN INVENTORY
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <script src="https://unpkg.com/lucide@latest">
+  </script>
+  <script src="js/marked.min.js">
+  </script>
+  <script src="js/db.js">
+  </script>
+  <style>
+   /* Police système propre pour tablette (évite les erreurs de dossiers fonts manquants) */
+
+        body { 
+
+            font-family: system-ui, -apple-system, sans-serif; 
+
+            -webkit-tap-highlight-color: transparent; 
+
+            margin: 0; 
+
+            background-color: #fde7f3;
+
+            min-height: 100vh;
+
+        }
+
+        
+
+        /* Structure de l'application */
+
+        .main-container {
+
+            width: 100%; 
+
+            min-height: 100vh;
+
+            display: flex; 
+
+            flex-direction: column;
+
+            background-color: #fde7f3;
+
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+
+            background-size: 20px 20px;
+
+            position: relative; 
+
+            overflow-x: hidden;
+
+        }
+
+
+
+        /* Classes utilitaires personnalisées */
+
+        .font-algerian { font-family: 'serif'; font-weight: bold; }
+
+        .font-monotype-corsiva { font-family: 'cursive'; }
+
+
+
+        /* Correction pour les boutons tactiles sur tablette */
+
+        button {
+
+            touch-action: manipulation;
+
+            cursor: pointer;
+
+        }
+
+
+
+        /* Sécurité : cache les éléments par défaut avant le chargement de Tailwind */
+
+        .hidden { display: none !important; }
+  </style>
+  <script>
+   // Configuration de Tailwind pour tes couleurs personnalisées
+
+        tailwind.config = {
+
+          theme: {
+
+            extend: {
+
+              colors: {
+
+                'aube-red': '#b91c1c',
+
+                'aube-blue': '#1e3a8a',
+
+              }
+
+            }
+
+          }
+
+        }
+  </script>
+ </head>
+ <body class="bg-gray-200">
+  <div class="main-container" id="main-app-container">
+   <!-- Chaque "écran" est un div que nous allons montrer/cacher -->
+   <!-- Écran: Accueil -->
+   <div class="flex flex-col h-full" id="screen-blocA">
+    <!-- Header -->
+    <div class="flex-shrink-0 px-4 pt-4 z-10">
+     <div class="bg-red-700 text-white rounded-full flex justify-between items-center p-3 shadow-md" style="background-color: #b91c1c;">
+      <button class="text-white" onclick="toggleMenu()">
+       <i data-lucide="menu">
+       </i>
+      </button>
+      <h1 class="font-semibold text-sm">
+      </h1>
+      <button class="text-white" onclick="promptForPassword()">
+       <i data-lucide="sliders-horizontal">
+       </i>
+      </button>
+     </div>
+    </div>
+    <!-- Main Content (scrollable) -->
+    <!-- MODIFICATION: pb-nav supprimé -->
+    <div class="flex-grow overflow-y-auto px-4">
+     <div class="relative my-4">
+      <input class="w-full bg-white rounded-full pl-10 pr-12 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner" id="search-input" placeholder="Que cherchez vous aujourd’hui ?" type="search"/>
+      <i class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" data-lucide="search">
+      </i>
+      <button class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800" onclick="navigateTo('screen-chat-aube')">
+       <i data-lucide="bot">
+       </i>
+      </button>
+      <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg z-20 hidden overflow-hidden" id="search-suggestions">
+      </div>
+     </div>
+     <div class="bg-blue-900 rounded-2xl p-2 flex items-center space-x-2 text-center mb-4 shadow-lg overflow-x-auto no-scrollbar" style="background-color: #1e3a8a;">
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('A')">
+       Bloc A
+      </button>
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('B')">
+       Bloc B
+      </button>
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('C')">
+       Bloc C
+      </button>
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('D')">
+       Bloc D
+      </button>
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('E')">
+       Bloc E
+      </button>
+      <button class="text-white py-2 px-4 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" onclick="showBlocDetails('F')">
+       Bloc F
+      </button>
+     </div>
+     <div class="bg-white rounded-3xl shadow-lg overflow-hidden mb-4">
+      <img alt="Bâtiment Universitaire" class="w-full h-auto object-cover" id="main-building-image" src="https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9"/>
+     </div>
+     <div class="text-center">
+      <div class="bg-blue-900 text-white w-auto inline-block px-6 font-semibold py-3 rounded-2xl shadow-md text-center font-algerian" style="background-color: #1e3a8a;">
+       UNIVERSITE AUBE NOUVELLE
+      </div>
+     </div>
+     <!-- MODIFICATION: Spacer pour la barre de nav (UNIQUEMENT sur cet écran) -->
+     <div class="h-24">
+     </div>
+    </div>
+    <!-- Bottom Navigation (DÉPLACÉ hors de cet écran) -->
+   </div>
+   <!-- Écran: Détails du Bloc (Dynamique) -->
+   <div class="hidden flex-col h-full" id="screen-blocA-details">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian" id="bloc-details-title">
+     Bloc A
+    </div>
+    <!-- MODIFICATION: pb-nav supprimé -->
+    <div class="main-content space-y-4">
+     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <img alt="Vue aérienne Bloc A" class="w-full h-auto object-cover cursor-pointer" id="bloc-details-main-image" onclick="navigateTo('screen-image-zoom')" src="https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+Bloc+A"/>
+      <p class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva" id="bloc-details-main-image-title">
+       · Bloc A vu de dessus ·
+      </p>
+     </div>
+     <p class="text-center font-algerian text-blue-900 text-xl" id="sub-bloc-title-1">
+      A1
+     </p>
+     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <img alt="Salles de classe" class="w-full h-auto object-cover cursor-pointer" id="sub-bloc-image-1" onclick="showSubBlocDetails('A1')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Salles+de+Classe"/>
+      <p class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva" id="sub-bloc-image-title-1">
+       · Salles de classe ·
+      </p>
+     </div>
+     <p class="text-center font-algerian text-blue-900 text-xl" id="sub-bloc-title-2">
+      A2
+     </p>
+     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <img alt="Bureaux" class="w-full h-auto object-cover cursor-pointer" id="sub-bloc-image-2" onclick="showSubBlocDetails('A2')" src="https://placehold.co/400x220/3b82f6/ffffff?text=Bureaux"/>
+      <p class="text-center text-gray-600 text-sm p-2 font-monotype-corsiva" id="sub-bloc-image-title-2">
+       · Bureaux ·
+      </p>
+     </div>
+    </div>
+   </div>
+   <!-- Écran: Zoom Image (Dynamique) -->
+   <div class="hidden flex-col h-full bg-black" id="screen-image-zoom">
+    <button class="absolute top-4 left-4 z-10 text-white bg-black/50 rounded-full p-2" onclick="goBack()">
+     <i data-lucide="arrow-left">
+     </i>
+    </button>
+    <div class="flex-grow flex items-center justify-center">
+     <img alt="Vue aérienne Bloc A Zoom" class="w-full h-auto object-contain" id="zoom-image-src" src="https://placehold.co/400x600/6b7280/ffffff?text=Vue+A%C3%A9rienne+Zoom"/>
+    </div>
+   </div>
+   <!-- Écran: Niveaux de Subdivision (Dynamique) -->
+   <div class="hidden flex-col h-full" id="screen-blocA1-levels">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian" id="levels-title">
+     Bloc A1
+    </div>
+    <!-- MODIFICATION: pb-nav supprimé -->
+    <div class="main-content">
+     <div class="bg-white text-blue-900 font-semibold text-center py-3 rounded-full shadow-md mb-6 font-monotype-corsiva text-lg">
+      · NIVEAUX DE SUBDIVISION ·
+     </div>
+     <div class="space-y-3">
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Sous-sol')">
+       · Sous-sol ·
+      </button>
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Rez-de-chaussée')">
+       · Rez-de-chaussée ·
+      </button>
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Premier Niveau')">
+       · Premier Niveau ·
+      </button>
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Deuxième Niveau')">
+       · Deuxième Niveau ·
+      </button>
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Troisième Niveau')">
+       · Troisième Niveau ·
+      </button>
+      <button class="nav-btn w-full font-monotype-corsiva text-lg" onclick="showRoomProfiles('Quatrième Niveau')">
+       · Quatrième Niveau ·
+      </button>
+     </div>
+    </div>
+   </div>
+   <!-- Écran: Profils de Salles (Dynamique) -->
+   <!-- MODIFICATION: pb-nav remplacé par pb-24 (pour le bouton +) -->
+   <div class="hidden flex-col min-h-full pb-24" id="screen-sous-sol">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian" id="room-profiles-title">
+     Sous-sol
+    </div>
+    <div class="flex-grow overflow-y-auto">
+     <h3 class="text-lg font-monotype-corsiva text-gray-800 font-semibold px-6 mt-4 mb-2" id="room-profiles-header">
+      Profils des salles
+     </h3>
+     <div class="overflow-x-auto no-scrollbar pb-4">
+      <div class="flex space-x-4 px-6" id="room-profiles-container">
+       <div class="flex-shrink-0 text-center w-24">
+        <div class="w-24 h-24 bg-gray-200 rounded-2xl shadow-md flex items-center justify-center text-gray-500 text-xs p-2">
+         Aucune salle ajoutée
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+    <!-- Bouton + (fixe, mais pas la barre de nav) -->
+    <button class="fixed bottom-6 right-6 w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg z-30" onclick="navigateTo('screen-addRoom')">
+     <i class="w-8 h-8" data-lucide="plus">
+     </i>
+    </button>
+   </div>
+   <!-- Écran: Options de la Salle (Détails) -->
+   <div class="hidden flex-col h-full" id="screen-room-details">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800" id="room-details-title">
+      Laboratoire
+     </h1>
+     <div>
+     </div>
+     <!-- Espace réservé -->
+    </div>
+    <div class="header-btn font-algerian" id="room-details-header">
+     Détails du Laboratoire
+    </div>
+    <!-- MODIFICATION: pb-nav supprimé -->
+    <div class="main-content flex flex-col justify-center items-center space-y-6 flex-grow">
+     <button class="nav-btn w-3/4 text-lg mx-auto" id="room-details-show-btn" onclick="showRoomContents(currentSalleId)">
+      Afficher la salle
+     </button>
+     <button class="nav-btn w-3/4 text-lg mx-auto" id="room-details-add-btn" onclick="showCategoryList(currentSalleId)">
+      Ajouter du matériel
+     </button>
+    </div>
+   </div>
+   <!-- Écran: Contenu de la Salle (Profil) -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-room-contents">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800" id="room-contents-header">
+      Contenu de: Laboratoire
+     </h1>
+     <div>
+     </div>
+    </div>
+    <!-- MODIFICATION: pb-nav supprimé -->
+    <div class="main-content overflow-y-auto space-y-4" id="room-contents-container">
+     <p class="text-center text-gray-500 mt-10">
+      Aucun matériel n'a été ajouté à cette salle.
+     </p>
+    </div>
+   </div>
+   <!-- Écran: Ajouter une salle -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-addRoom">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian">
+     Ajouter une salle
+    </div>
+    <div class="main-content space-y-6">
+     <div class="bg-blue-900 rounded-2xl p-4 flex flex-col items-center justify-center h-48 text-white shadow-lg">
+      <label class="cursor-pointer text-center" for="room-images-upload">
+       <i class="w-16 h-16 mb-2 mx-auto" data-lucide="camera">
+       </i>
+       <p class="font-medium">
+        Insérer des images de la salle
+       </p>
+      </label>
+      <input accept="image/*" class="hidden" id="room-images-upload" onchange="previewRoomPhoto(event)" type="file"/>
+     </div>
+     <img alt="Aperçu" class="hidden w-full h-auto rounded-lg mt-4 object-cover" id="room-photo-preview" src=""/>
+     <div class="space-y-4">
+      <div class="flex items-center space-x-3">
+       <div class="bg-red-700 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">
+        Nom
+       </div>
+       <input class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="add-room-nom" placeholder="Nom de la salle" type="text"/>
+      </div>
+      <div class="flex items-center space-x-3">
+       <div class="bg-blue-900 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">
+        Emplacement
+       </div>
+       <input class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="add-room-emplacement" placeholder="Ex: A1, D1, E2..." type="text"/>
+      </div>
+      <div class="flex items-center space-x-3" id="add-room-niveau-row">
+       <div class="bg-red-700 text-white text-sm font-semibold rounded-full px-4 py-2 w-28 text-center">
+        Niveau
+       </div>
+       <input class="flex-grow bg-white rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="add-room-niveau" placeholder="Ex: Sous-sol, Premier Niveau..." type="text"/>
+      </div>
+     </div>
+     <!-- MODIFICATION: Appel async -->
+     <button class="nav-btn w-full mt-8" onclick="saveRoom()">
+      Enregistrer la salle
+     </button>
+    </div>
+   </div>
+   <!-- Écran: Catégories de Matériaux -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-categories">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian">
+     Catégories de Matériaux
+    </div>
+    <div class="main-content flex flex-col">
+     <div class="relative mb-6">
+      <input class="w-full bg-white rounded-full pl-10 pr-12 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="category-search-input" placeholder="Rechercher une catégorie..." type="search"/>
+      <i class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" data-lucide="search">
+      </i>
+      <button class="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2 hover:bg-blue-700" onclick="navigateTo('screen-add-category')">
+       <i class="w-5 h-5" data-lucide="plus">
+       </i>
+      </button>
+     </div>
+     <div class="border-b border-gray-300 mb-4">
+     </div>
+     <div class="flex-grow overflow-y-auto space-y-3" id="category-list-container">
+      <!-- Les catégories seront injectées ici -->
+     </div>
+    </div>
+   </div>
+   <!-- Écran: Ajouter un Formulaire de Catégorie -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-add-category">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800">
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="header-btn font-algerian">
+     Ajouter une Catégorie
+    </div>
+    <div class="main-content space-y-6">
+     <input class="w-full bg-white rounded-full px-4 py-3 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="add-category-name" placeholder="Nom de la nouvelle catégorie" type="text"/>
+     <button class="nav-btn w-full" onclick="saveCategory()">
+      Enregistrer
+     </button>
+    </div>
+   </div>
+   <!-- Écran: Ajouter du Matériel (Formulaire) -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-add-materiel">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800" id="add-materiel-header">
+      Ajouter: Extincteur
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="main-content overflow-y-auto space-y-4">
+     <div class="bg-white p-4 rounded-lg shadow">
+      <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50" for="materiel-photo-camera">
+       <i class="w-12 h-12 text-gray-400" data-lucide="camera">
+       </i>
+       <span class="text-gray-500">
+        Prendre une photo
+       </span>
+       <input accept="image/*" capture="environment" class="hidden" id="materiel-photo-camera" onchange="previewMaterielPhoto(event)" type="file"/>
+      </label>
+      <p class="text-center text-gray-500 my-2">
+       ou
+      </p>
+      <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50" for="materiel-photo-gallery">
+       <i class="w-10 h-10 text-gray-400" data-lucide="image">
+       </i>
+       <span class="text-gray-500">
+        Choisir de la gallerie
+       </span>
+       <input accept="image/*" class="hidden" id="materiel-photo-gallery" onchange="previewMaterielPhoto(event)" type="file"/>
+      </label>
+      <img alt="Aperçu" class="hidden w-full h-auto rounded-lg mt-4 object-cover" id="materiel-photo-preview" src=""/>
+      <!-- MODIFICATION: Bouton pour supprimer la photo -->
+      <button class="hidden w-full mt-2 text-sm text-red-600 hover:text-red-800" id="materiel-remove-photo-btn" onclick="removeMaterielPhoto()">
+       Supprimer la photo
+      </button>
+     </div>
+     <div class="bg-white p-4 rounded-lg shadow space-y-4">
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-nom">
+        Nom du matériel
+       </label>
+       <input class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-nom" type="text"/>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-marque">
+        Marque
+       </label>
+       <input class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-marque" type="text"/>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-couleur">
+        Couleur
+       </label>
+       <input class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-couleur" type="text"/>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-etat">
+        État
+       </label>
+       <select class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-etat">
+        <option>
+         Neuf
+        </option>
+        <option>
+         Bon
+        </option>
+        <option>
+         Usé
+        </option>
+        <option>
+         Défectueux
+        </option>
+       </select>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-date-acq">
+        Date d'acquisition
+       </label>
+       <input class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-date-acq" type="date"/>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-date-ren">
+        Date de renouvellement conseillée
+       </label>
+       <input class="mt-1 w-full bg-gray-50 rounded-full px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-date-ren" type="date"/>
+      </div>
+      <div>
+       <label class="text-sm font-medium text-gray-700" for="materiel-infos">
+        Informations supplémentaires
+       </label>
+       <textarea class="mt-1 w-full bg-gray-50 rounded-2xl px-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500" id="materiel-infos" rows="3"></textarea>
+      </div>
+     </div>
+     <!-- MODIFICATION: Appel async -->
+     <button class="nav-btn w-full !bg-red-700 hover:!bg-red-800" onclick="saveMateriel()">
+      Enregistrer le matériel
+     </button>
+    </div>
+   </div>
+   <!-- Écran: Notifications (DEVIENT ÉCRAN D'ALERTES) -->
+   <!-- MODIFICATION: pb-nav supprimé -->
+   <div class="hidden flex-col h-full bg-gray-100" id="screen-alerts">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800 font-algerian">
+      Alertes &amp; Avertissements
+     </h1>
+     <div class="w-6">
+     </div>
+     <!-- Spacer -->
+    </div>
+    <div class="flex-grow overflow-y-auto p-4 space-y-3" id="alerts-container">
+     <!-- Les alertes seront injectées ici -->
+     <p class="text-center text-gray-500 mt-10">
+      Aucune alerte pour le moment.
+     </p>
+    </div>
+   </div>
+   <!-- Écran: Chat "Aube" -->
+   <div class="hidden flex-col h-full bg-gray-200" id="screen-chat-aube">
+    <div class="flex-shrink-0 p-3 flex items-center bg-white shadow-md">
+     <button class="text-gray-600 mr-2" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white mr-3 flex-shrink-0">
+      <i data-lucide="bot">
+      </i>
+     </div>
+     <h1 class="font-bold text-lg text-gray-800">
+      Aube
+     </h1>
+     <div class="flex-grow">
+     </div>
+     <button class="text-gray-600 ml-2">
+      <i data-lucide="more-vertical">
+      </i>
+     </button>
+    </div>
+    <div class="flex-grow overflow-y-auto p-4 space-y-3" id="aube-chat-messages">
+     <div class="p-3 rounded-lg max-w-xs shadow" style="background-color: #F8BBD0; margin-right: auto;">
+      <p>
+       Bonjour ! Je suis Aube, votre assistant. Comment puis-je vous aider ?
+      </p>
+     </div>
+    </div>
+    <div class="flex-shrink-0 p-2 bg-white flex items-center">
+     <input class="flex-grow bg-gray-100 rounded-full px-4 py-2 border-2 border-transparent focus:outline-none focus:border-blue-500" id="aube-chat-input" placeholder="Envoyer un message à Aube..." type="text"/>
+     <button class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center ml-2 flex-shrink-0" id="aube-chat-send-btn">
+      <i class="w-5 h-5" data-lucide="send">
+      </i>
+     </button>
+    </div>
+   </div>
+   <!-- NOUVEL Écran: Notes (Style amélioré) -->
+   <!-- MODIFICATION: pb-nav supprimé -->
+   <div class="hidden flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-100" id="screen-notes">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-xl text-gray-800 font-algerian">
+      Notes
+     </h1>
+     <button class="text-blue-600" onclick="createNewNote()">
+      <i class="w-7 h-7" data-lucide="plus-circle">
+      </i>
+     </button>
+    </div>
+    <div class="p-4 flex-shrink-0">
+     <div class="relative">
+      <input class="w-full bg-white rounded-full pl-10 pr-4 py-2 border-2 border-gray-200 focus:outline-none focus:border-blue-500 shadow-inner" id="note-search-input" placeholder="Rechercher une note..." type="search"/>
+      <i class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" data-lucide="search">
+      </i>
+     </div>
+    </div>
+    <div class="main-content overflow-y-auto p-4 pt-0 space-y-4" id="notes-list-container">
+     <!-- MODIFICATION: pt-0 -->
+     <!-- Les notes seront injectées ici -->
+     <p class="text-center text-gray-500 mt-10" id="no-notes-placeholder">
+      Aucune note. Cliquez sur '+' pour en créer une.
+     </p>
+    </div>
+   </div>
+   <!-- NOUVEL Écran: Éditeur de Note (Style amélioré) -->
+   <div class="hidden flex-col h-full bg-gradient-to-br from-white to-gray-50" id="screen-note-editor">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-md">
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <div>
+      <button class="text-red-500 mr-4 p-2 rounded-full hover:bg-red-100" onclick="deleteCurrentNote()">
+       <i data-lucide="trash-2">
+       </i>
+      </button>
+      <button class="text-blue-600 p-2 rounded-full hover:bg-blue-100" onclick="saveCurrentNote()">
+       <i data-lucide="check-circle">
+       </i>
+      </button>
+     </div>
+    </div>
+    <div class="flex-grow flex flex-col p-4">
+     <input class="text-2xl font-bold w-full p-2 focus:outline-none mb-4 border-b-2 border-gray-100 pb-4 bg-transparent" id="note-editor-title" placeholder="Titre de la note..." type="text"/>
+     <textarea class="flex-grow w-full p-2 focus:outline-none text-lg resize-none bg-transparent" id="note-editor-content" placeholder="Commencez à écrire..."></textarea>
+    </div>
+   </div>
+   <!-- Écran: Paramètres -->
+   <div class="hidden flex-col h-full bg-gray-50" id="screen-settings">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center border-b">
+     <h1 class="font-bold text-xl text-gray-800 font-algerian">
+      Paramètres
+     </h1>
+     <button class="text-gray-600" onclick="goBack()">
+      <i data-lucide="x">
+      </i>
+     </button>
+    </div>
+    <div class="main-content text-gray-700 space-y-6 overflow-y-auto">
+     <details class="bg-white rounded-lg shadow" open="">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Général
+      </summary>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Changer l'image de l'université
+       </label>
+       <input accept="image/*" class="input-file-style" id="main-building-image-upload" type="file">
+       </input>
+      </div>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Changer l'arrière-plan de l'accueil
+       </label>
+       <input accept="image/*" class="input-file-style" id="main-bg-upload" type="file">
+       </input>
+      </div>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Changer l'icône de l'application
+       </label>
+       <input accept="image/*" class="input-file-style" id="app-icon-upload" type="file">
+       </input>
+      </div>
+     </details>
+     <details class="bg-white rounded-lg shadow">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Menu Latéral
+      </summary>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Changer l'arrière-plan du menu
+       </label>
+       <input accept="image/*" class="input-file-style" id="menu-bg-upload" type="file">
+       </input>
+      </div>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Changer le logo du menu
+       </label>
+       <input accept="image/*" class="input-file-style" id="menu-logo-upload" type="file">
+       </input>
+      </div>
+     </details>
+     <details class="bg-white rounded-lg shadow">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Personnalisation des Blocs
+      </summary>
+      <!-- Blocs A, B, C -->
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc A
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (A)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-A" type="file">
+        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+         Image Sous-Bloc (A1)
+        </label>
+        <input accept="image/*" class="input-file-style" id="setting-img-A1" type="file">
+         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+          Image Sous-Bloc (A2)
+         </label>
+         <input accept="image/*" class="input-file-style" id="setting-img-A2" type="file">
+         </input>
+        </input>
+       </input>
+      </div>
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc B
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (B)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-B" type="file">
+        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+         Image Sous-Bloc (B1)
+        </label>
+        <input accept="image/*" class="input-file-style" id="setting-img-B1" type="file">
+         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+          Image Sous-Bloc (B2)
+         </label>
+         <input accept="image/*" class="input-file-style" id="setting-img-B2" type="file">
+         </input>
+        </input>
+       </input>
+      </div>
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc C
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (C)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-C" type="file">
+        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+         Image Sous-Bloc (C1)
+        </label>
+        <input accept="image/*" class="input-file-style" id="setting-img-C1" type="file">
+         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+          Image Sous-Bloc (C2)
+         </label>
+         <input accept="image/*" class="input-file-style" id="setting-img-C2" type="file">
+         </input>
+        </input>
+       </input>
+      </div>
+      <!-- Bloc D -->
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc D
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (D)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-D" type="file">
+        <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+         Image Sous-Bloc (D1)
+        </label>
+        <input accept="image/*" class="input-file-style" id="setting-img-D1" type="file">
+         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+          Image Sous-Bloc (D2)
+         </label>
+         <input accept="image/*" class="input-file-style" id="setting-img-D2" type="file">
+         </input>
+        </input>
+       </input>
+      </div>
+      <!-- Bloc E -->
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc E
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (E)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-E" type="file"/>
+       <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+        Image Sous-Bloc (E1 - Toilettes)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-E1" type="file"/>
+       <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">
+        Image Sous-Bloc (E2 - Jardins)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-E2" type="file"/>
+      </div>
+      <!-- Bloc F -->
+      <div class="p-4 border-t">
+       <h4 class="font-semibold text-lg mb-2">
+        Bloc F
+       </h4>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Image Vue Aérienne (F)
+       </label>
+       <input accept="image/*" class="input-file-style" id="setting-img-bloc-F" type="file"/>
+      </div>
+     </details>
+     <details class="bg-white rounded-lg shadow">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Base de Connaissances Aube
+      </summary>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2" for="aube-kb">
+        Informations pour le bot
+       </label>
+       <textarea class="w-full p-2 border border-gray-300 rounded-lg" id="aube-kb" placeholder="Glissez des informations ici..." rows="4"></textarea>
+       <button class="mt-2 w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700" onclick="saveAubeKb()">
+        Sauvegarder
+       </button>
+      </div>
+     </details>
+     <details class="bg-white rounded-lg shadow">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Documents
+      </summary>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Charger le guide d'utilisation (PDF)
+       </label>
+       <input accept=".pdf" class="input-file-style" id="guide-pdf-upload" type="file"/>
+      </div>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Charger "A propos du développeur" (PDF)
+       </label>
+       <input accept=".pdf" class="input-file-style" id="dev-pdf-upload" type="file"/>
+      </div>
+     </details>
+     <details class="bg-white rounded-lg shadow">
+      <summary class="p-4 font-semibold cursor-pointer">
+       Données
+      </summary>
+      <div class="p-4 border-t">
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        Données essentielles
+       </label>
+       <button class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700" id="download-data">
+        Télécharger les données (.csv)
+       </button>
+      </div>
+     </details>
+    </div>
+   </div>
+   <!-- Écran: Visionneuse PDF - Guide -->
+   <div class="hidden flex-col h-full" id="screen-guide">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="toggleMenu()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-lg text-gray-800">
+      Guide d'utilisation
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="flex-grow flex items-center justify-center">
+     <embed height="100%" id="guide-pdf-viewer" src="" type="application/pdf" width="100%"/>
+     <p class="text-gray-500" id="guide-pdf-placeholder">
+      Aucun guide n'a été chargé.
+     </p>
+    </div>
+   </div>
+   <!-- Écran: Visionneuse PDF - Dev -->
+   <div class="hidden flex-col h-full" id="screen-about-dev">
+    <div class="flex-shrink-0 p-4 flex justify-between items-center bg-white shadow-sm">
+     <button class="text-gray-600" onclick="toggleMenu()">
+      <i data-lucide="arrow-left">
+      </i>
+     </button>
+     <h1 class="font-bold text-lg text-gray-800">
+      A propos du développeur
+     </h1>
+     <div>
+     </div>
+    </div>
+    <div class="flex-grow flex items-center justify-center">
+     <embed height="100%" id="dev-pdf-viewer" src="" type="application/pdf" width="100%"/>
+     <p class="text-gray-500" id="dev-pdf-placeholder">
+      Aucun document n'a été chargé.
+     </p>
+    </div>
+   </div>
+   <!-- MODIFICATION: Barre de navigation DÉPLACÉE ICI, à l'extérieur des écrans -->
+   <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] z-20" id="bottom-nav-bar">
+    <div class="bg-blue-900 text-white rounded-full flex justify-around items-center h-16 shadow-lg" style="background-color: #1e3a8a;">
+     <button class="p-4 opacity-70 hover:opacity-100 transition-opacity relative" onclick="navigateTo('screen-alerts')">
+      <i data-lucide="bell">
+      </i>
+      <span class="absolute top-3 right-3 w-3 h-3 bg-red-500 rounded-full border-2 border-blue-900 hidden" id="notification-dot">
+      </span>
+     </button>
+     <!-- MODIFICATION: Ajout d'ID et gestion de l'opacité -->
+     <button class="p-4 opacity-100" id="nav-home-btn" onclick="navigateTo('screen-blocA')">
+      <i data-lucide="home">
+      </i>
+     </button>
+     <button class="p-4 opacity-70 hover:opacity-100 transition-opacity" id="nav-notes-btn" onclick="navigateTo('screen-notes')">
+      <i data-lucide="file-text">
+      </i>
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- Fin de main-app-container -->
+  <!-- Menu Latéral -->
+  <div class="fixed inset-0 z-40 transform -translate-x-full transition-transform duration-300" id="menu-container">
+   <div class="absolute inset-0" id="menu-background">
+   </div>
+   <div class="relative w-72 h-full text-white p-6 flex flex-col shadow-2xl" id="side-menu">
+    <div class="flex justify-between items-center border-b pb-2 mb-8">
+     <h2 class="text-xl font-bold font-algerian">
+      U-AUBEN Supplies Tracker
+     </h2>
+     <button class="text-white" onclick="toggleMenu()">
+      <i data-lucide="x">
+      </i>
+     </button>
+    </div>
+    <nav class="space-y-4 flex flex-col flex-grow text-lg font-monotype-corsiva">
+     <a class="hover:bg-white/10 p-2 rounded-md text-center" href="#" onclick="loadAndShowPdf('guidePdfUrl', 'screen-guide', 'guide-pdf-viewer', 'guide-pdf-placeholder')">
+      · Guide d’utilisation de l’application ·
+     </a>
+     <a class="hover:bg-white/10 p-2 rounded-md text-center" href="#" onclick="loadAndShowPdf('devPdfUrl', 'screen-about-dev', 'dev-pdf-viewer', 'dev-pdf-placeholder')">
+      · A propos du développeur ·
+     </a>
+     <a class="hover:bg-white/10 p-2 rounded-md text-center" href="#" onclick="document.getElementById('download-data').click()">
+      · Données essentielles ·
+     </a>
+     <div class="flex-grow">
+     </div>
+     <div class="text-center text-gray-300 p-2">
+      · Version 1.1.1 ·
+     </div>
+     <div class="text-center p-4">
+      <img class="mx-auto w-16 h-16 rounded-full" id="menu-logo-image" src="https://placehold.co/80x80/ffffff/7f1d1d?text=Logo"/>
+     </div>
+    </nav>
+   </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 z-30 hidden" id="menu-overlay" onclick="toggleMenu()">
+  </div>
+  <!-- Password Modal -->
+  <div class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center" id="password-modal">
+   <div class="bg-white rounded-lg shadow-xl p-6 w-80">
+    <h3 class="text-lg font-bold mb-4 text-center">
+     Accès administrateur
+    </h3>
+    <p class="text-sm text-gray-600 mb-4 text-center">
+     Veuillez entrer le mot de passe pour accéder aux paramètres.
+    </p>
+    <input class="w-full border-2 border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:border-blue-500" id="password-input" type="password"/>
+    <p class="text-red-500 text-xs text-center mb-4 hidden" id="password-error">
+     Mot de passe incorrect.
+    </p>
+    <div class="flex justify-between">
+     <button class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400" onclick="hidePasswordPrompt()">
+      Annuler
+     </button>
+     <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700" onclick="checkPassword()">
+      Valider
+     </button>
+    </div>
+   </div>
+  </div>
+  <script src="js/db.js">
+  </script>
+  <script>
+   // Variables Globales de Navigation et UI
+
+    let screens = document.querySelectorAll('.main-container > div');
+
+    let menuContainer = document.getElementById('menu-container');
+
+    let overlay = document.getElementById('menu-overlay');
+
+    let currentScreen = 'screen-blocA';
+
+    let navigationHistory = ['screen-blocA']; 
+
+    let inventoryDB = null;
+
+    
+
+    let currentBlocId = null;
+
+    let currentSubBlocId = null;
+
+    let currentNiveau = null;
+
+    let currentSalleId = null;
+
+    let currentCategorie = null;
+
+    let currentMaterielPhoto = null; // Stocke le Data URL de l'aperçu/nouvelle photo
+
+    let currentRoomPhoto = null; // Stocke le Data URL de l'aperçu/nouvelle photo
+
+    let currentNoteId = null; 
+
+    let currentEditingMaterielId = null; 
+
+
+
+    let appData = {};
+
+    const defaultData = {
+
+        general: {
+
+            mainBuildingImage: 'https://placehold.co/400x220/3b82f6/ffffff?text=Universit%C3%A9',
+
+            mainBgUrl: null,
+
+            appIconUrl: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>',
+
+            menuBgUrl: 'https://placehold.co/420x900/1e3a8a/ffffff?text=Arri%C3%A8re-plan',
+
+            menuLogoUrl: 'https://placehold.co/80x80/ffffff/7f1d1d?text=Logo'
+
+        },
+
+        blocs: {
+
+            A: {
+
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+A',
+
+                subBlocs: [
+
+                    { id: 'A1', title: 'A1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/3b82f6/ffffff?text=Salles+A1' },
+
+                    { id: 'A2', title: 'A2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/3b82f6/ffffff?text=Bureaux+A2' }
+
+                ]
+
+            },
+
+            B: {
+
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+B',
+
+                subBlocs: [
+
+                    { id: 'B1', title: 'B1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/16a34a/ffffff?text=Salles+B1' },
+
+                    { id: 'B2', title: 'B2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/16a34a/ffffff?text=Bureaux+B2' }
+
+                ]
+
+            },
+
+            C: { 
+
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+C', 
+
+                subBlocs: [
+
+                    { id: 'C1', title: 'C1', imageTitle: '· Salles de classe ·', image: 'https://placehold.co/400x220/f59e0b/ffffff?text=Salles+C1' },
+
+                    { id: 'C2', title: 'C2', imageTitle: '· Bureaux ·', image: 'https://placehold.co/400x220/f59e0b/ffffff?text=Bureaux+C2' }
+
+                ] 
+
+            },
+
+            D: { 
+
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+D', 
+
+                subBlocs: [
+
+                    { id: 'D1', title: 'Box Sécurité', imageTitle: '· Box Sécurité ·', image: 'https://placehold.co/400x220/c026d3/ffffff?text=Box+D1' },
+
+                    { id: 'D2', title: 'Parking', imageTitle: '· Parking ·', image: 'https://placehold.co/400x220/64748b/ffffff?text=Parking+D2' }
+
+                ] 
+
+            },
+
+            E: { 
+
+                mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+E', 
+
+                subBlocs: [
+
+                    { id: 'E1', title: 'Toilettes', imageTitle: '· Toilettes ·', image: 'https://placehold.co/400x220/ea580c/ffffff?text=Toilettes+E1' },
+
+                    { id: 'E2', title: 'Jardins', imageTitle: '· Jardins ·', image: 'https://placehold.co/400x220/22c55e/ffffff?text=Jardins+E2' }
+
+                ] 
+
+            },
+
+            F: { mainImage: 'https://placehold.co/400x220/6b7280/ffffff?text=Vue+A%C3%A9rienne+F', subBlocs: [] }
+
+        },
+
+        // MODIFICATION: Les photos sont remplacées par photoId
+
+        salles: [], // ex: { id, nom, emplacement, niveau, photoId }
+
+        defaultCategories: [
+
+            "Ampoules", "Armoires", "Balais", "Baies de brassage", "Bouilloires", "Bureaux", "Câbles (HDMI, VGA, ...)",
+
+            "Cafetières", "Canapés", "Chaises", "Claviers", "Climatiseurs", "Coussins", "Disques durs externes", "Extincteurs",
+
+            "Fauteuils", "Horloges", "Imprimantes", "Lampes/Néons", "Micro-ondes", "Multiprises", "Ordinateurs (fixes)",
+
+            "Ordinateurs (portables)", "Papier toilette", "Photocopieurs", "Plantes (décoratives)", "Post-it", "Poubelles",
+
+            "Prises électriques", "Produits d'entretien", "Rallonges", "Rideaux", "Routeurs Wi-Fi", "Réfrigérateurs",
+
+            "Scanners", "Serpillères", "Savon", "Souris", "Tables", "Tableaux (blancs)", "Tableaux (craie)", "Tapis",
+
+            "Téléphones (fixes)", "Unités centrales", "Vaisselle", "Ventilateurs", "Vidéoprojecteurs", "Écrans", "Éponges", "Étagères"
+
+        ],
+
+        customCategories: [],
+
+        materiel: [], // ex: { id, salleId, categorie, nom, photoId, ... }
+
+        notes: [], // ex: { id, title, content, date }
+
+        alerts: [], // ex: { id, title, message, date, read, materielId }
+
+        aube: {
+
+            kb: "Je suis Aube, un assistant IA. Je suis ici pour aider à gérer l'inventaire et répondre aux questions sur l'application.",
+
+            hasNewNotification: false // Initialisé à false
+
+        }
+
+    };
+
+
+
+    function saveData() {
+
+        // Ne sauvegarde QUE les métadonnées, pas les images
+
+        localStorage.setItem('logisticsAppData', JSON.stringify(appData));
+
+    }
+
+
+
+    function loadData() {
+
+        const savedData = localStorage.getItem('logisticsAppData');
+
+        if (savedData) {
+
+            appData = JSON.parse(savedData);
+
+            // Fusionner les données par défaut pour les nouvelles clés
+
+            appData.general = {...defaultData.general, ...appData.general};
+
+            appData.blocs = {...defaultData.blocs, ...appData.blocs};
+
+            appData.salles = appData.salles || defaultData.salles;
+
+            appData.defaultCategories = appData.defaultCategories || defaultData.defaultCategories;
+
+            appData.customCategories = appData.customCategories || defaultData.customCategories;
+
+            appData.materiel = appData.materiel || defaultData.materiel;
+
+            appData.notes = appData.notes || defaultData.notes;
+
+            appData.alerts = appData.alerts || defaultData.alerts; 
+
+            appData.aube = {...defaultData.aube, ...appData.aube};
+
+
+
+        } else {
+
+            appData = JSON.parse(JSON.stringify(defaultData)); // Copie profonde
+
+        }
+
+        
+
+        // Appliquer les données générales chargées
+
+        document.getElementById('main-building-image').src = appData.general.mainBuildingImage;
+
+        
+
+        // MODIFICATION: Logique de l'arrière-plan corrigée
+
+        const container = document.getElementById('main-app-container');
+
+        if(appData.general.mainBgUrl) {
+
+            container.style.backgroundImage = `url(${appData.general.mainBgUrl})`;
+
+            container.style.backgroundSize = 'cover';
+
+            container.style.backgroundPosition = 'center';
+
+            container.style.backgroundRepeat = 'no-repeat';
+
+        } else {
+
+            container.style.backgroundImage = `radial-gradient(#e5e7eb 0.5px, transparent 0.5px)`;
+
+            container.style.backgroundSize = '15px 15px';
+
+            container.style.backgroundPosition = 'center';
+
+            container.style.backgroundRepeat = 'repeat'; // Le pattern doit se répéter
+
+        }
+
+        
+
+        document.getElementById('app-favicon').href = appData.general.appIconUrl;
+
+        document.getElementById('menu-background').style.backgroundImage = `url(${appData.general.menuBgUrl})`;
+
+        document.getElementById('menu-logo-image').src = appData.general.menuLogoUrl;
+
+        
+
+        // Appliquer les données Aube KB
+
+        if(document.getElementById('aube-kb')) {
+
+            document.getElementById('aube-kb').value = appData.aube.kb;
+
+        }
+
+
+
+        // Mettre à jour le point de notification
+
+        updateNotificationDot();
+
+        // Charger les notes
+
+        loadNotesList();
+
+    }
+
+    
+
+    // Système de navigation
+
+    function navigateTo(screenId) {
+
+        if (screenId === currentScreen) return; // Ne rien faire si on est déjà sur l'écran
+
+        
+
+        // Cacher l'ancien écran
+
+        document.getElementById(currentScreen).classList.add('hidden');
+
+        document.getElementById(currentScreen).classList.remove('flex');
+
+        
+
+        // Afficher le nouvel écran
+
+        document.getElementById(screenId).classList.remove('hidden');
+
+        document.getElementById(screenId).classList.add('flex');
+
+        
+
+        // MODIFICATION: Logique de navigation "Noyau"
+
+        // Si on navigue vers un écran "racine" depuis la barre de nav, on réinitialise l'historique
+
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(screenId)) {
+
+             navigationHistory = [screenId];
+
+        } else {
+
+             navigationHistory.push(screenId);
+
+        }
+
+        currentScreen = screenId;
+
+        
+
+        // MODIFICATION: Logique de la barre de nav persistante
+
+        const bottomNav = document.getElementById('bottom-nav-bar');
+
+        // La barre est visible sur les écrans "racine"
+
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(screenId)) {
+
+            bottomNav.classList.remove('hidden');
+
+        } else {
+
+            bottomNav.classList.add('hidden');
+
+        }
+
+
+
+        // Mettre à jour l'état actif des boutons
+
+        const homeBtn = document.getElementById('nav-home-btn');
+
+        const notesBtn = document.getElementById('nav-notes-btn');
+
+        
+
+        if (homeBtn) {
+
+            homeBtn.classList.toggle('opacity-100', screenId === 'screen-blocA');
+
+            homeBtn.classList.toggle('opacity-70', screenId !== 'screen-blocA');
+
+        }
+
+        if (notesBtn) {
+
+            notesBtn.classList.toggle('opacity-100', screenId === 'screen-notes');
+
+            notesBtn.classList.toggle('opacity-70', screenId !== 'screen-notes');
+
+        }
+
+
+
+        // Cas spécial: Si on va aux notifs, marquer comme lues
+
+        if (screenId === 'screen-alerts') { 
+
+            loadAlerts(); // Charger les alertes
+
+            // La logique de "lecture" est maintenant dans loadAlerts()
+
+        }
+
+        
+
+        // Fermer le menu si ouvert
+
+        if(!menuContainer.classList.contains('-translate-x-full')) {
+
+            toggleMenu();
+
+        }
+
+    }
+
+    
+
+    function goBack() {
+
+        if (navigationHistory.length <= 1) return; // Ne pas revenir de l'écran d'accueil
+
+        
+
+        const oldScreen = navigationHistory.pop();
+
+        const newScreen = navigationHistory[navigationHistory.length - 1];
+
+        
+
+        document.getElementById(oldScreen).classList.add('hidden');
+
+        document.getElementById(oldScreen).classList.remove('flex');
+
+        
+
+        document.getElementById(newScreen).classList.remove('hidden');
+
+        document.getElementById(newScreen).classList.add('flex');
+
+        
+
+        currentScreen = newScreen;
+
+        
+
+        // MODIFICATION: Mettre à jour la barre de nav au retour
+
+        const bottomNav = document.getElementById('bottom-nav-bar');
+
+        if (['screen-blocA', 'screen-notes', 'screen-alerts'].includes(newScreen)) {
+
+            bottomNav.classList.remove('hidden');
+
+        } else {
+
+            bottomNav.classList.add('hidden');
+
+        }
+
+        
+
+        const homeBtn = document.getElementById('nav-home-btn');
+
+        const notesBtn = document.getElementById('nav-notes-btn');
+
+        if (homeBtn) {
+
+            homeBtn.classList.toggle('opacity-100', newScreen === 'screen-blocA');
+
+            homeBtn.classList.toggle('opacity-70', newScreen !== 'screen-blocA');
+
+        }
+
+        if (notesBtn) {
+
+            notesBtn.classList.toggle('opacity-100', newScreen === 'screen-notes');
+
+            notesBtn.classList.toggle('opacity-70', newScreen !== 'screen-notes');
+
+        }
+
+        
+
+        // --- FIX: Recharger les données sur l'écran précédent ---
+
+        if (newScreen === 'screen-notes') {
+
+            loadNotesList();
+
+        }
+
+        if (newScreen === 'screen-sous-sol') {
+
+            const isProfilDirect = ['D1', 'D2', 'E2'].includes(currentSubBlocId);
+
+            const title = isProfilDirect ? 'Profil' : 'Profils des salles';
+
+            showRoomProfiles(currentNiveau, title, false); // Rafraîchir SANS naviguer
+
+        }
+
+        if (newScreen === 'screen-categories') {
+
+            showCategoryList(currentSalleId, false); // Rafraîchir SANS naviguer
+
+        }
+
+        if (newScreen === 'screen-room-details') {
+
+            showRoomDetails(currentSalleId, false); // Rafraîchir SANS naviguer
+
+        }
+
+        if (newScreen === 'screen-room-contents') {
+
+            showRoomContents(currentSalleId, false); // Rafraîchir SANS naviguer
+
+        }
+
+    }
+
+    
+
+    function updateNotificationDot() {
+
+        const dot = document.getElementById('notification-dot');
+
+        // Vérifier s'il y a des alertes non lues
+
+        const hasUnreadAlerts = appData.alerts.some(a => !a.read);
+
+        appData.aube.hasNewNotification = hasUnreadAlerts; // Synchroniser
+
+        
+
+        if (appData.aube.hasNewNotification) {
+
+            dot.classList.remove('hidden');
+
+        } else {
+
+            dot.classList.add('hidden');
+
+        }
+
+    }
+
+
+
+    function showBlocDetails(blocId) {
+
+        currentBlocId = blocId;
+
+        const blocData = appData.blocs[blocId];
+
+        
+
+        document.getElementById('bloc-details-title').innerText = `Bloc ${blocId}`;
+
+        document.getElementById('bloc-details-main-image').src = blocData.mainImage;
+
+        document.getElementById('bloc-details-main-image').onclick = () => {
+
+            document.getElementById('zoom-image-src').src = blocData.mainImage;
+
+            navigateTo('screen-image-zoom');
+
+        };
+
+        document.getElementById('bloc-details-main-image-title').innerText = `· Bloc ${blocId} vu de dessus ·`;
+
+
+
+        const subBloc1 = blocData.subBlocs[0];
+
+        if (subBloc1) {
+
+            document.getElementById('sub-bloc-title-1').innerText = subBloc1.title;
+
+            document.getElementById('sub-bloc-image-1').src = subBloc1.image;
+
+            document.getElementById('sub-bloc-image-title-1').innerText = subBloc1.imageTitle;
+
+            document.getElementById('sub-bloc-image-1').onclick = () => showSubBlocDetails(subBloc1.id);
+
+            document.getElementById('sub-bloc-title-1').classList.remove('hidden');
+
+            document.getElementById('sub-bloc-image-1').parentElement.classList.remove('hidden');
+
+        } else {
+
+            document.getElementById('sub-bloc-title-1').classList.add('hidden');
+
+            document.getElementById('sub-bloc-image-1').parentElement.classList.add('hidden');
+
+        }
+
+
+
+        const subBloc2 = blocData.subBlocs[1];
+
+         if (subBloc2) {
+
+            document.getElementById('sub-bloc-title-2').innerText = subBloc2.title;
+
+            document.getElementById('sub-bloc-image-2').src = subBloc2.image;
+
+            document.getElementById('sub-bloc-image-title-2').innerText = subBloc2.imageTitle;
+
+            document.getElementById('sub-bloc-image-2').onclick = () => showSubBlocDetails(subBloc2.id);
+
+            document.getElementById('sub-bloc-title-2').classList.remove('hidden');
+
+            document.getElementById('sub-bloc-image-2').parentElement.classList.remove('hidden');
+
+        } else {
+
+            document.getElementById('sub-bloc-title-2').classList.add('hidden');
+
+            document.getElementById('sub-bloc-image-2').parentElement.classList.add('hidden');
+
+        }
+
+        
+
+        navigateTo('screen-blocA-details');
+
+    }
+
+
+
+    function showSubBlocDetails(subBlocId) {
+
+        currentSubBlocId = subBlocId;
+
+        document.getElementById('levels-title').innerText = `Bloc ${subBlocId}`;
+
+        
+
+        if (subBlocId === 'D1') {
+
+            currentSubBlocId = 'D1'; 
+
+            showRoomProfiles('Box Sécurité', 'Profil');
+
+        } else if (subBlocId === 'D2') {
+
+            currentSubBlocId = 'D2'; 
+
+            showRoomProfiles('Parking', 'Profil');
+
+        } else if (subBlocId === 'E2') {
+
+            currentSubBlocId = 'E2'; 
+
+            showRoomProfiles('Jardins', 'Profil');
+
+        } else {
+
+            navigateTo('screen-blocA1-levels');
+
+        }
+
+    }
+
+
+
+    function showRoomProfiles(niveau, title = 'Profils des salles', navigate = true) {
+
+        currentNiveau = niveau;
+
+        document.getElementById('room-profiles-title').innerText = niveau;
+
+        document.getElementById('room-profiles-header').innerText = title;
+
+
+
+        const container = document.getElementById('room-profiles-container');
+
+        container.innerHTML = '';
+
+        
+
+        const filteredSalles = appData.salles.filter(salle => 
+
+            salle.emplacement === currentSubBlocId && salle.niveau === currentNiveau
+
+        );
+
+        
+
+        if (filteredSalles.length === 0) {
+
+            container.innerHTML = `<div class="flex-shrink-0 text-center w-24"><div class="w-24 h-24 bg-gray-200 rounded-2xl shadow-md flex items-center justify-center text-gray-500 text-xs p-2">Aucune salle ajoutée</div></div>`;
+
+        } else {
+
+            filteredSalles.forEach(salle => {
+
+                const photoPlaceholder = 'https://placehold.co/96x96/b91c1c/ffffff?text=' + salle.nom.charAt(0);
+
+                const salleHtml = `
+
+                    <div onclick="showRoomDetails('${salle.id}')" class="flex-shrink-0 text-center w-24 cursor-pointer">
+
+                        <img src="${photoPlaceholder}" id="salle-img-${salle.id}" alt="${salle.nom}" class="w-24 h-24 bg-red-700 rounded-2xl shadow-md object-cover">
+
+                        <p class="mt-2 text-sm font-semibold text-gray-700">${salle.nom}</p>
+
+                    </div>`;
+
+                container.innerHTML += salleHtml;
+
+                
+
+                // Charger l'image depuis IndexedDB
+
+                if (salle.photoId) {
+
+                    loadAndSetImage(`salle-img-${salle.id}`, salle.photoId, photoPlaceholder);
+
+                }
+
+            });
+
+        }
+
+        
+
+        if (navigate) navigateTo('screen-sous-sol');
+
+    }
+
+    
+
+    function showRoomDetails(salleId, navigate = true) {
+
+        currentSalleId = salleId;
+
+        const salle = appData.salles.find(s => s.id === salleId);
+
+        if (!salle) return;
+
+        
+
+        document.getElementById('room-details-title').innerText = salle.nom;
+
+        document.getElementById('room-details-header').innerText = `Détails de ${salle.nom}`;
+
+        if (navigate) navigateTo('screen-room-details');
+
+    }
+
+    
+
+    function showRoomContents(salleId, navigate = true) {
+
+        currentSalleId = salleId;
+
+        const salle = appData.salles.find(s => s.id === salleId);
+
+        if (!salle) return;
+
+
+
+        document.getElementById('room-contents-header').innerText = `Contenu de: ${salle.nom}`;
+
+        const container = document.getElementById('room-contents-container');
+
+        container.innerHTML = '';
+
+
+
+        const items = appData.materiel.filter(m => m.salleId === salleId);
+
+        
+
+        if (items.length === 0) {
+
+            container.innerHTML = `<p class="text-center text-gray-500 mt-10">Aucun matériel n'a été ajouté à cette salle.</p>`;
+
+        } else {
+
+            items.forEach(item => {
+
+                const photoPlaceholder = 'https://placehold.co/400x200/e0e0e0/a0a0a0?text=Pas+d\'image';
+
+                const itemHtml = `
+
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden my-4">
+
+                        <img src="${photoPlaceholder}" id="mat-img-${item.id}" class="w-full h-48 object-cover">
+
+                        <div class="p-4">
+
+                            <div class="flex justify-between items-center mb-2">
+
+                                <h3 class="font-bold text-xl">${item.nom} <span class="text-sm font-normal text-gray-600">(${item.categorie})</span></h3>
+
+                                <div class="flex space-x-2">
+
+                                    <button onclick="editMateriel('${item.id}')" class="text-blue-600 hover:text-blue-800 p-1"><i data-lucide="edit" class="w-5 h-5"></i></button>
+
+                                    <button onclick="deleteMateriel('${item.id}')" class="text-red-600 hover:text-red-800 p-1"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+
+                                </div>
+
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+
+                                <p class="text-gray-700"><span class="font-semibold">Marque:</span> ${item.marque || 'N/A'}</p>
+
+                                <p class="text-gray-700"><span class="font-semibold">Couleur:</span> ${item.couleur || 'N/A'}</p>
+
+                                <p class="text-gray-700"><span class="font-semibold">État:</span> <span class="font-bold ${item.etat === 'Neuf' ? 'text-green-600' : (item.etat === 'Défectueux' ? 'text-red-600' : 'text-yellow-600')}">${item.etat || 'N/A'}</span></p>
+
+                                <p class="text-gray-700"><span class="font-semibold">Acquis le:</span> ${item.dateAcq || 'N/A'}</p>
+
+                                <p class="text-gray-700 col-span-2"><span class="font-semibold">Renouveler le:</span> <span class="font-bold text-red-700">${item.dateRen || 'N/A'}</span></p>
+
+                                <p class="text-gray-700 col-span-2 mt-2"><span class="font-semibold">Infos:</span> ${item.infos || 'Aucune'}</p>
+
+                            </div>
+
+                        </div>
+
+                    </div>`;
+
+                container.innerHTML += itemHtml;
+
+
+
+                // Charger l'image depuis IndexedDB
+
+                if (item.photoId) {
+
+                    loadAndSetImage(`mat-img-${item.id}`, item.photoId, photoPlaceholder);
+
+                }
+
+            });
+
+            lucide.createIcons();
+
+        }
+
+        if (navigate) navigateTo('screen-room-contents');
+
+    }
+
+
+
+    function showCategoryList(salleId, navigate = true) {
+
+        currentSalleId = salleId;
+
+        const container = document.getElementById('category-list-container');
+
+        container.innerHTML = '';
+
+        
+
+        const searchInput = document.getElementById('category-search-input');
+
+        const query = searchInput.value.toLowerCase();
+
+        
+
+        const allCategories = [...appData.defaultCategories, ...appData.customCategories].sort();
+
+        
+
+        const filteredCategories = allCategories.filter(cat => cat.toLowerCase().includes(query));
+
+
+
+        if (filteredCategories.length === 0) {
+
+            container.innerHTML = `<p class="text-center text-gray-500">Aucune catégorie trouvée.</p>`;
+
+        } else {
+
+            filteredCategories.forEach(cat => {
+
+                container.innerHTML += `<div onclick="showAddMaterielForm('${cat}')" class="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-50"><h4 class="font-semibold text-gray-800">${cat}</h4></div>`;
+
+            });
+
+        }
+
+        if (navigate) navigateTo('screen-categories');
+
+    }
+
+
+
+    function saveCategory() {
+
+        const nameInput = document.getElementById('add-category-name');
+
+        const name = nameInput.value.trim();
+
+        if (name) {
+
+            const allCategories = [...appData.defaultCategories, ...appData.customCategories];
+
+            if (!allCategories.find(cat => cat.toLowerCase() === name.toLowerCase())) {
+
+                appData.customCategories.push(name);
+
+                saveData();
+
+            }
+
+            nameInput.value = '';
+
+            showCategoryList(currentSalleId); // Navigue en arrière
+
+        }
+
+    }
+
+
+
+    function showAddMaterielForm(categorie) {
+
+        currentEditingMaterielId = null; // S'assurer qu'on est en mode ajout
+
+        currentCategorie = categorie;
+
+        currentMaterielPhoto = null; // Réinitialiser la photo
+
+        document.getElementById('add-materiel-header').innerText = `Ajouter: ${categorie}`;
+
+        // Vider le formulaire
+
+        document.getElementById('materiel-nom').value = '';
+
+        document.getElementById('materiel-marque').value = '';
+
+        document.getElementById('materiel-couleur').value = '';
+
+        document.getElementById('materiel-etat').value = 'Neuf';
+
+        document.getElementById('materiel-date-acq').value = '';
+
+        document.getElementById('materiel-date-ren').value = '';
+
+        document.getElementById('materiel-infos').value = '';
+
+        document.getElementById('materiel-photo-preview').classList.add('hidden');
+
+        document.getElementById('materiel-remove-photo-btn').classList.add('hidden');
+
+        document.getElementById('materiel-photo-camera').value = null;
+
+        document.getElementById('materiel-photo-gallery').value = null;
+
+        navigateTo('screen-add-materiel');
+
+    }
+
+    
+
+    function previewMaterielPhoto(event) {
+
+        const file = event.target.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = e => {
+
+            currentMaterielPhoto = e.target.result; // Ceci est un Data URL
+
+            const preview = document.getElementById('materiel-photo-preview');
+
+            preview.src = currentMaterielPhoto;
+
+            preview.classList.remove('hidden');
+
+            document.getElementById('materiel-remove-photo-btn').classList.remove('hidden');
+
+        };
+
+        reader.readAsDataURL(file);
+
+    }
+
+
+
+    // MODIFICATION: Nouvelle fonction pour supprimer la photo
+
+    function removeMaterielPhoto() {
+
+        currentMaterielPhoto = null; // Marquer pour suppression
+
+        const preview = document.getElementById('materiel-photo-preview');
+
+        preview.src = '';
+
+        preview.classList.add('hidden');
+
+        document.getElementById('materiel-remove-photo-btn').classList.add('hidden');
+
+        document.getElementById('materiel-photo-camera').value = null;
+
+        document.getElementById('materiel-photo-gallery').value = null;
+
+    }
+
+    
+
+    async function saveMateriel() {
+
+        const nom = document.getElementById('materiel-nom').value;
+
+        const marque = document.getElementById('materiel-marque').value;
+
+        const couleur = document.getElementById('materiel-couleur').value;
+
+        const etat = document.getElementById('materiel-etat').value;
+
+        const dateAcq = document.getElementById('materiel-date-acq').value;
+
+        const dateRen = document.getElementById('materiel-date-ren').value;
+
+        const infos = document.getElementById('materiel-infos').value;
+
+        // currentMaterielPhoto est soit un Data URL (nouvelle/modifiée), soit null (supprimée), soit undefined (pas touchée en édition)
+
+
+
+        if (!nom) {
+
+            console.error("Veuillez au moins entrer un nom pour le matériel.");
+
+            return;
+
+        }
+
+
+
+        if (currentEditingMaterielId) {
+
+            // Mode ÉDITION
+
+            const itemToUpdate = appData.materiel.find(m => m.id === currentEditingMaterielId);
+
+            if (itemToUpdate) {
+
+                itemToUpdate.nom = nom;
+
+                itemToUpdate.marque = marque;
+
+                itemToUpdate.couleur = couleur;
+
+                itemToUpdate.etat = etat;
+
+                itemToUpdate.dateAcq = dateAcq;
+
+                itemToUpdate.dateRen = dateRen;
+
+                itemToUpdate.infos = infos;
+
+                itemToUpdate.categorie = currentCategorie; 
+
+                
+
+                if (currentMaterielPhoto) { // Photo nouvelle ou modifiée (c'est un Data URL)
+
+                    itemToUpdate.photoId = itemToUpdate.photoId || `img-mat-${new Date().getTime()}`;
+
+                    await saveFileToDB(itemToUpdate.photoId, currentMaterielPhoto);
+
+                } else if (currentMaterielPhoto === null) { // Photo marquée pour suppression
+
+                    if(itemToUpdate.photoId) { await deleteFileFromDB(itemToUpdate.photoId); }
+
+                    itemToUpdate.photoId = null;
+
+                }
+
+                // Si currentMaterielPhoto === undefined, on ne touche pas à itemToUpdate.photoId
+
+            }
+
+            currentEditingMaterielId = null; 
+
+            saveData();
+
+            checkMaterielExpiration(); 
+
+            showRoomContents(currentSalleId); // Revenir à la liste
+
+        } else {
+
+            // Mode AJOUT
+
+            const newItem = {
+
+                id: `mat-${new Date().getTime()}`,
+
+                salleId: currentSalleId,
+
+                categorie: currentCategorie,
+
+                nom: nom,
+
+                marque: marque,
+
+                couleur: couleur,
+
+                etat: etat,
+
+                dateAcq: dateAcq,
+
+                dateRen: dateRen,
+
+                infos: infos,
+
+                photoId: null // Initialiser à null
+
+            };
+
+
+
+            if (currentMaterielPhoto) {
+
+                newItem.photoId = `img-mat-${new Date().getTime()}`;
+
+                await saveFileToDB(newItem.photoId, currentMaterielPhoto);
+
+            }
+
+            
+
+            appData.materiel.push(newItem);
+
+            saveData();
+
+            checkMaterielExpiration(); 
+
+            navigateTo('screen-room-details'); // Revenir à l'écran "Afficher/Ajouter"
+
+        }
+
+    }
+
+
+
+    async function editMateriel(itemId) {
+
+        const item = appData.materiel.find(m => m.id === itemId);
+
+        if (!item) return;
+
+
+
+        currentEditingMaterielId = itemId;
+
+        currentCategorie = item.categorie;
+
+        currentMaterielPhoto = undefined; // undefined = "pas touché"
+
+
+
+        document.getElementById('add-materiel-header').innerText = `Modifier: ${item.categorie}`;
+
+        
+
+        document.getElementById('materiel-nom').value = item.nom || '';
+
+        document.getElementById('materiel-marque').value = item.marque || '';
+
+        document.getElementById('materiel-couleur').value = item.couleur || '';
+
+        document.getElementById('materiel-etat').value = item.etat || 'Neuf';
+
+        document.getElementById('materiel-date-acq').value = item.dateAcq || '';
+
+        document.getElementById('materiel-date-ren').value = item.dateRen || '';
+
+        document.getElementById('materiel-infos').value = item.infos || '';
+
+
+
+        const preview = document.getElementById('materiel-photo-preview');
+
+        const removeBtn = document.getElementById('materiel-remove-photo-btn');
+
+        if (item.photoId) {
+
+            const dataUrl = await loadFileFromDB(item.photoId);
+
+            if(dataUrl) { 
+
+                preview.src = dataUrl; 
+
+                preview.classList.remove('hidden');
+
+                removeBtn.classList.remove('hidden');
+
+            } else {
+
+                preview.src = '';
+
+                preview.classList.add('hidden');
+
+                removeBtn.classList.add('hidden');
+
+            }
+
+        } else {
+
+            preview.src = '';
+
+            preview.classList.add('hidden');
+
+            removeBtn.classList.add('hidden');
+
+        }
+
+        document.getElementById('materiel-photo-camera').value = null;
+
+        document.getElementById('materiel-photo-gallery').value = null;
+
+
+
+        navigateTo('screen-add-materiel');
+
+    }
+
+
+
+    async function deleteMateriel(itemId) {
+
+        // Idéalement, utiliser un modal de confirmation personnalisé
+
+        const item = appData.materiel.find(m => m.id === itemId);
+
+        
+
+        // Supprimer l'image de IndexedDB si elle existe
+
+        if (item && item.photoId) {
+
+            await deleteFileFromDB(item.photoId);
+
+        }
+
+
+
+        appData.materiel = appData.materiel.filter(m => m.id !== itemId);
+
+        // Supprimer aussi l'alerte associée s'il y en a une
+
+        appData.alerts = appData.alerts.filter(a => a.materielId !== itemId);
+
+        saveData();
+
+        checkMaterielExpiration(); // Re-vérifier (au cas où on supprime la dernière alerte)
+
+        showRoomContents(currentSalleId, false); // Rafraîchir la liste SANS naviguer
+
+    }
+
+
+
+
+
+    // Gère l'aperçu photo pour la SALLE
+
+    function previewRoomPhoto(event) {
+
+        const file = event.target.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = e => {
+
+            currentRoomPhoto = e.target.result; // Data URL
+
+            const preview = document.getElementById('room-photo-preview');
+
+            preview.src = currentRoomPhoto;
+
+            preview.classList.remove('hidden');
+
+        };
+
+        reader.readAsDataURL(file);
+
+    }
+
+    
+
+    async function saveRoom() {
+
+        const nom = document.getElementById('add-room-nom').value;
+
+        const emplacement = document.getElementById('add-room-emplacement').value.toUpperCase();
+
+        const niveau = document.getElementById('add-room-niveau').value;
+
+        
+
+        if (!nom || !emplacement || !niveau) {
+
+            console.error("Veuillez remplir tous les champs.");
+
+            return;
+
+        }
+
+        
+
+        const newSalle = {
+
+            id: `salle-${new Date().getTime()}`,
+
+            nom: nom,
+
+            emplacement: emplacement,
+
+            niveau: niveau,
+
+            photoId: null // Initialiser
+
+        };
+
+
+
+        if (currentRoomPhoto) {
+
+            const photoId = `img-salle-${new Date().getTime()}`;
+
+            await saveFileToDB(photoId, currentRoomPhoto);
+
+            newSalle.photoId = photoId;
+
+        }
+
+        
+
+        appData.salles.push(newSalle);
+
+        saveData();
+
+        
+
+        // Vider le formulaire
+
+        document.getElementById('add-room-nom').value = '';
+
+        document.getElementById('add-room-emplacement').value = '';
+
+        document.getElementById('add-room-niveau').value = '';
+
+        document.getElementById('room-photo-preview').classList.add('hidden');
+
+        document.getElementById('room-images-upload').value = null;
+
+        currentRoomPhoto = null;
+
+        
+
+        // Mettre à jour les contextes pour le retour
+
+        currentSubBlocId = newSalle.emplacement;
+
+        currentNiveau = newSalle.niveau;
+
+        
+
+        goBack(); 
+
+    }
+
+    
+
+    function toggleMenu() {
+
+        menuContainer.classList.toggle('-translate-x-full');
+
+        overlay.classList.toggle('hidden');
+
+    }
+
+
+
+    // --- Admin Password ---
+
+    const passwordModal = document.getElementById('password-modal');
+
+    const passwordInput = document.getElementById('password-input');
+
+    const passwordError = document.getElementById('password-error');
+
+    const correctPassword = "U-AUBEN 1992";
+
+    function promptForPassword() {
+
+        passwordInput.value = "";
+
+        passwordError.classList.add('hidden');
+
+        passwordModal.classList.remove('hidden');
+
+        passwordModal.classList.add('flex');
+
+    }
+
+    function hidePasswordPrompt() {
+
+        passwordModal.classList.add('hidden');
+
+        passwordModal.classList.remove('flex');
+
+    }
+
+    function checkPassword() {
+
+        if (passwordInput.value === correctPassword) {
+
+            hidePasswordPrompt();
+
+            navigateTo('screen-settings'); 
+
+        } else {
+
+            passwordError.classList.remove('hidden');
+
+        }
+
+    }
+
+
+
+    // --- Search Suggestions ---
+
+    const searchInput = document.getElementById('search-input');
+
+    const suggestionsContainer = document.getElementById('search-suggestions');
+
+    searchInput.addEventListener('input', () => {
+
+        const query = searchInput.value.toLowerCase();
+
+        suggestionsContainer.innerHTML = '';
+
+        if (query.length === 0) {
+
+            suggestionsContainer.classList.add('hidden'); return;
+
+        }
+
+        const filteredSalles = appData.salles.filter(s => s.nom.toLowerCase().includes(query));
+
+        if (filteredSalles.length > 0) {
+
+            suggestionsContainer.classList.remove('hidden');
+
+            filteredSalles.forEach(salle => {
+
+                const suggestionEl = document.createElement('div');
+
+                suggestionEl.textContent = `${salle.nom} (Bloc ${salle.emplacement}, ${salle.niveau})`;
+
+                suggestionEl.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+
+                suggestionEl.onclick = () => { 
+
+                    searchInput.value = salle.nom; 
+
+                    suggestionsContainer.classList.add('hidden');
+
+                    currentBlocId = salle.emplacement.substring(0, 1);
+
+                    currentSubBlocId = salle.emplacement;
+
+                    currentNiveau = salle.niveau;
+
+                    showRoomDetails(salle.id);
+
+                };
+
+                suggestionsContainer.appendChild(suggestionEl);
+
+            });
+
+        } else { suggestionsContainer.classList.add('hidden'); }
+
+    });
+
+    document.addEventListener('click', (event) => { if (!searchInput.contains(event.target)) { suggestionsContainer.classList.add('hidden'); } });
+
+    
+
+    // --- Chatbot Aube (MAJ AVEC GEMINI) ---
+
+    let aubeHistory = []; 
+
+
+
+    function appendAubeMessage(content, type = 'bot') {
+
+        const messagesContainer = document.getElementById('aube-chat-messages');
+
+        const bubble = document.createElement('div');
+
+        
+
+        if (type === 'user') {
+
+            bubble.className = "p-3 rounded-lg max-w-xs ml-auto bg-white shadow";
+
+            bubble.textContent = content; 
+
+        } else {
+
+            bubble.className = "p-3 rounded-lg max-w-xs shadow aube-bubble";
+
+            bubble.style.backgroundColor = "#F8BBD0"; 
+
+            bubble.style.marginRight = "auto";
+
+            bubble.innerHTML = marked.parse(content); 
+
+        }
+
+        messagesContainer.appendChild(bubble);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        return bubble; 
+
+    }
+
+
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+
+    async function callGeminiAPI(prompt, systemPrompt) {
+
+        const API_KEY = ""; 
+
+        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+
+        
+
+        const historyForAPI = aubeHistory.map(msg => ({
+
+            role: msg.type === 'user' ? 'user' : 'model',
+
+            parts: [{ text: msg.content }]
+
+        }));
+
+
+
+        const payload = {
+
+            contents: [...historyForAPI, { role: 'user', parts: [{ text: prompt }] }],
+
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+
+        };
+
+
+
+        let response;
+
+        let error;
+
+        for (let i = 0; i < 3; i++) { 
+
+            try {
+
+                response = await fetch(apiUrl, {
+
+                    method: 'POST',
+
+                    headers: { 'Content-Type': 'application/json' },
+
+                    body: JSON.stringify(payload)
+
+                });
+
+                if (response.ok) {
+
+                    error = null;
+
+                    break; 
+
+                }
+
+                error = response;
+
+            } catch (e) {
+
+                error = e;
+
+            }
+
+            await sleep(1000 * (i + 1)); 
+
+        }
+
+
+
+        if (error) {
+
+            console.error("Erreur Gemini (fetch):", error);
+
+            throw new Error(`Échec de la connexion API après 3 tentatives. Statut: ${error.status || 'FETCH_FAILED'}`);
+
+        }
+
+
+
+        const data = await response.json();
+
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+
+             console.error("Erreur Gemini (réponse invalide):", data);
+
+             throw new Error("Réponse invalide de l'API Gemini.");
+
+        }
+
+        
+
+        const text = data.candidates[0].content.parts[0].text;
+
+        return text;
+
+    }
+
+
+
+    async function sendAubeMessage() { 
+
+        const input = document.getElementById('aube-chat-input');
+
+        const sendBtn = document.getElementById('aube-chat-send-btn');
+
+        const msg = input.value.trim();
+
+        if (msg === '') return;
+
+        
+
+        appendAubeMessage(msg, 'user');
+
+        aubeHistory.push({ type: 'user', content: msg }); 
+
+        input.value = '';
+
+        sendBtn.disabled = true; 
+
+
+
+        const loaderBubble = appendAubeMessage("Aube réfléchit...", 'bot');
+
+        loaderBubble.classList.add('animate-pulse');
+
+
+
+        try {
+
+            const systemPrompt = `Tu es Aube, une assistante IA pour une application de gestion logistique d'université.
+
+            Ton rôle est de guider les utilisateurs. Sois amicale et professionnelle.
+
+            Ne réponds qu'aux questions relatives à l'application, à la logistique, ou à la gestion de matériel.
+
+            NE JAMAIS révéler le mot de passe administrateur ("U-AUBEN 1992").
+
+            Voici des informations que l'administrateur t'a données (contexte) : "${appData.aube.kb || "Aucune information spécifique."}"
+
+            Réponds en Markdown simple (listes à puces, gras, italique).`;
+
+
+
+            const response = await callGeminiAPI(msg, systemPrompt);
+
+            
+
+            loaderBubble.remove(); 
+
+            appendAubeMessage(response, 'bot');
+
+            aubeHistory.push({ type: 'bot', content: response }); 
+
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            loaderBubble.remove(); 
+
+            appendAubeMessage("Désolée, je n'arrive pas à me connecter au réseau pour répondre. Veuillez réessayer plus tard.", 'bot');
+
+        } finally {
+
+            sendBtn.disabled = false; 
+
+        }
+
+    }
+
+        
+
+    function saveAubeKb() {
+
+        appData.aube.kb = document.getElementById('aube-kb').value;
+
+        saveData();
+
+        console.log('Base de connaissances Aube sauvegardée !');
+
+    }
+
+    
+
+    // --- App de Notes ---
+
+    
+
+    function deleteNoteFromList(noteId, event) {
+
+        event.stopPropagation(); // Empêche d'ouvrir l'éditeur en cliquant sur la poubelle
+
+        appData.notes = appData.notes.filter(n => n.id !== noteId);
+
+        saveData();
+
+        loadNotesList(); // Rafraîchir la liste
+
+    }
+
+
+
+    function loadNotesList() {
+
+        const container = document.getElementById('notes-list-container');
+
+        const placeholder = document.getElementById('no-notes-placeholder');
+
+        const searchInput = document.getElementById('note-search-input');
+
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+
+
+
+        if (!container || !placeholder) {
+
+            console.error("loadNotesList: Impossible de trouver les éléments 'notes-list-container' or 'no-notes-placeholder'.");
+
+            return; 
+
+        }
+
+
+
+        container.innerHTML = ''; // Vider la liste
+
+        
+
+        const filteredNotes = appData.notes.filter(note => 
+
+            note.title.toLowerCase().includes(query) || 
+
+            note.content.toLowerCase().includes(query)
+
+        );
+
+        
+
+        if (filteredNotes.length === 0) {
+
+            if (appData.notes.length === 0) {
+
+                placeholder.textContent = "Aucune note. Cliquez sur '+' pour en créer une.";
+
+            } else {
+
+                placeholder.textContent = "Aucune note ne correspond à votre recherche.";
+
+            }
+
+            placeholder.classList.remove('hidden');
+
+        } else {
+
+            placeholder.classList.add('hidden');
+
+            filteredNotes.sort((a, b) => new Date(b.date) - new Date(a.date)); // Trier par date
+
+            filteredNotes.forEach(note => {
+
+                const preview = note.content.substring(0, 100) + (note.content.length > 100 ? '...' : '');
+
+                
+
+                const noteHtml = `
+
+                    <div class="bg-gradient-to-br from-white to-yellow-50 p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200">
+
+                        <div onclick="openNoteEditor('${note.id}')" class="cursor-pointer">
+
+                            <h4 class="font-monotype-corsiva text-2xl text-gray-800 truncate">${note.title || 'Note sans titre'}</h4>
+
+                            <p class="text-sm text-gray-600 mt-1 truncate">${preview}</p>
+
+                        </div>
+
+                        <div class="flex justify-between items-center mt-2">
+
+                            <span class="text-xs text-gray-400">${new Date(note.date).toLocaleString('fr-FR')}</span>
+
+                            <button onclick="deleteNoteFromList('${note.id}', event)" class="text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-100">
+
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                container.innerHTML += noteHtml;
+
+            });
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+    
+
+    function createNewNote() {
+
+        currentNoteId = null; // C'est une nouvelle note
+
+        document.getElementById('note-editor-title').value = '';
+
+        document.getElementById('note-editor-content').value = '';
+
+        navigateTo('screen-note-editor');
+
+    }
+
+    
+
+    function openNoteEditor(noteId) {
+
+        const note = appData.notes.find(n => n.id === noteId);
+
+        if (!note) return;
+
+        
+
+        currentNoteId = noteId;
+
+        document.getElementById('note-editor-title').value = note.title;
+
+        document.getElementById('note-editor-content').value = note.content;
+
+        navigateTo('screen-note-editor');
+
+    }
+
+    
+
+    function saveCurrentNote() {
+
+        const title = document.getElementById('note-editor-title').value;
+
+        const content = document.getElementById('note-editor-content').value;
+
+        
+
+        if (currentNoteId) {
+
+            // Mettre à jour la note existante
+
+            const note = appData.notes.find(n => n.id === currentNoteId);
+
+            note.title = title;
+
+            note.content = content;
+
+            note.date = new Date().toISOString();
+
+        } else {
+
+            // Créer une nouvelle note
+
+            const newNote = {
+
+                id: `note-${new Date().getTime()}`,
+
+                title: title,
+
+                content: content,
+
+                date: new Date().toISOString()
+
+            };
+
+            appData.notes.push(newNote);
+
+        }
+
+        
+
+        saveData();
+
+        goBack(); // Retourne à la liste des notes (et loadNotesList sera appelé)
+
+    }
+
+    
+
+    function deleteCurrentNote() {
+
+        if (!currentNoteId) {
+
+            goBack(); 
+
+            return;
+
+        }
+
+        
+
+        appData.notes = appData.notes.filter(n => n.id !== currentNoteId);
+
+        saveData();
+
+        currentNoteId = null;
+
+        goBack(); 
+
+    }
+
+
+
+
+
+    // --- NOUVELLES FONCTIONS D'ALERTE (Logique modifiée) ---
+
+    
+
+    function checkMaterielExpiration() {
+
+        const now = new Date();
+
+        now.setHours(0, 0, 0, 0); 
+
+        
+
+        const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        let notificationTriggered = false;
+
+
+
+        appData.materiel.forEach(item => {
+
+            if (item.dateRen) {
+
+                const expirationDate = new Date(item.dateRen);
+
+                expirationDate.setHours(0, 0, 0, 0); 
+
+                
+
+                // Si la date est aujourd'hui ou dans la semaine à venir
+
+                if (expirationDate <= oneWeekFromNow && expirationDate >= now) {
+
+                    const existingAlert = appData.alerts.find(a => a.materielId === item.id);
+
+                    if (!existingAlert) {
+
+                        const salle = appData.salles.find(s => s.id === item.salleId);
+
+                        const newAlert = {
+
+                            id: `alert-mat-${item.id}`, 
+
+                            title: 'Avertissement de renouvellement',
+
+                            message: `Le matériel "${item.nom}" (Salle: ${salle ? salle.nom : 'Inconnue'}) doit être renouvelé le ${item.dateRen}.`,
+
+                            date: new Date().toISOString(),
+
+                            read: false,
+
+                            materielId: item.id 
+
+                        };
+
+                        appData.alerts.push(newAlert);
+
+                        notificationTriggered = true;
+
+                    }
+
+                }
+
+            }
+
+        });
+
+
+
+        if (notificationTriggered) {
+
+            appData.aube.hasNewNotification = true;
+
+            updateNotificationDot();
+
+            saveData(); 
+
+        } else {
+
+            // S'il n'y a pas eu de nouvelle alerte, on vérifie si des alertes existent
+
+            updateNotificationDot(); 
+
+        }
+
+    }
+
+
+
+    async function deleteAlert(alertId) {
+
+        appData.alerts = appData.alerts.filter(a => a.id !== alertId);
+
+        saveData();
+
+        updateNotificationDot(); // Mettre à jour le point au cas où c'était la dernière
+
+        loadAlerts(); // Recharger la liste
+
+    }
+
+
+
+    function loadAlerts() {
+
+        const container = document.getElementById('alerts-container');
+
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        
+
+        let hasUnread = false;
+
+        appData.alerts.forEach(alert => {
+
+            if (!alert.read) {
+
+                alert.read = true;
+
+                hasUnread = true;
+
+            }
+
+        });
+
+        
+
+        if(hasUnread) {
+
+             appData.aube.hasNewNotification = false; 
+
+             updateNotificationDot();
+
+             saveData(); 
+
+        }
+
+
+
+        const alerts = appData.alerts.sort((a, b) => new Date(b.date) - new Date(a.date)); 
+
+        
+
+        if (alerts.length === 0) {
+
+            container.innerHTML = '<p class="text-center text-gray-500 mt-10">Aucune alerte pour le moment.</p>';
+
+            return;
+
+        }
+
+        
+
+        alerts.forEach(alert => {
+
+            // Les alertes sont toujours "lues" (bordure rouge) car elles sont critiques
+
+            const alertHtml = `
+
+            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+
+                <div class="flex justify-between items-center mb-2">
+
+                    <h4 class="font-bold text-red-700">${alert.title}</h4>
+
+                    <button onclick="deleteAlert('${alert.id}')" class="text-gray-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+
+                </div>
+
+                <p class="text-gray-700 text-sm mb-2">${alert.message}</p>
+
+                <span class="text-xs text-gray-500">${new Date(alert.date).toLocaleString('fr-FR')}</span>
+
+            </div>
+
+            `;
+
+            container.innerHTML += alertHtml;
+
+        });
+
+        
+
+        lucide.createIcons();
+
+    }
+
+    // --- FIN DES NOUVELLES FONCTIONS D'ALERTE ---
+
+
+
+
+
+    // --- IndexedDB Helpers (MODIFIÉ POUR LES DATA URLS) ---
+
+    const dbPromise = new Promise((resolve, reject) => {
+
+        const request = indexedDB.open('logisticsAppDB', 1);
+
+        request.onerror = () => reject("Error opening DB");
+
+        request.onsuccess = () => resolve(request.result);
+
+        request.onupgradeneeded = event => {
+
+            const db = event.target.result;
+
+            if (!db.objectStoreNames.contains('files')) { db.createObjectStore('files'); }
+
+        };
+
+    });
+
+
+
+    async function saveFileToDB(key, dataUrl) { // Sauvegarde un Data URL (string)
+
+        const db = await dbPromise;
+
+        return new Promise((resolve, reject) => {
+
+            const transaction = db.transaction('files', 'readwrite');
+
+            const store = transaction.objectStore('files');
+
+            const request = store.put(dataUrl, key); // Stocke le string
+
+            request.onsuccess = () => resolve();
+
+            request.onerror = () => reject(request.error);
+
+        });
+
+    }
+
+
+
+    async function loadFileFromDB(key) { // Charge un Data URL (string)
+
+        const db = await dbPromise;
+
+        return new Promise((resolve, reject) => {
+
+            const transaction = db.transaction('files', 'readonly');
+
+            const store = transaction.objectStore('files');
+
+            const request = store.get(key);
+
+            request.onsuccess = () => resolve(request.result); // Renvoie le string
+
+            request.onerror = () => reject(request.error);
+
+        });
+
+    }
+
+    
+
+    async function deleteFileFromDB(key) {
+
+        const db = await dbPromise;
+
+        return new Promise((resolve, reject) => {
+
+            const transaction = db.transaction('files', 'readwrite');
+
+            const store = transaction.objectStore('files');
+
+            const request = store.delete(key);
+
+            request.onsuccess = () => resolve();
+
+            request.onerror = () => reject(request.error);
+
+        });
+
+    }
+
+
+
+    // --- Nouvelle fonction Helper pour charger les images ---
+
+    async function loadAndSetImage(imgId, photoId, placeholderSrc) {
+
+        const imgElement = document.getElementById(imgId);
+
+        if (!imgElement) return;
+
+        try {
+
+            const dataUrl = await loadFileFromDB(photoId);
+
+            if (dataUrl) {
+
+                imgElement.src = dataUrl;
+
+            } else if (placeholderSrc) {
+
+                imgElement.src = placeholderSrc;
+
+            }
+
+        } catch (error) {
+
+            console.error("Error loading image from DB:", error);
+
+            if (placeholderSrc) {
+
+                imgElement.src = placeholderSrc;
+
+            }
+
+        }
+
+    }
+
+
+
+
+
+    // --- File and Data Handling ---
+
+    function setupFileUpload(inputId, updateFunction) {
+
+        const inputElement = document.getElementById(inputId);
+
+        if (!inputElement) return;
+
+        
+
+        inputElement.addEventListener('change', (event) => {
+
+            const file = event.target.files[0];
+
+            if (file) {
+
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+
+                    const dataUrl = e.target.result;
+
+                    try {
+
+                        updateFunction(dataUrl);
+
+                    } catch (error) {
+
+                         console.error("Erreur de sauvegarde:", error);
+
+                         console.error("Le fichier est trop grand pour être sauvegardé.");
+
+                    }
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+
+        });
+
+    }
+
+    
+
+    function setupTextInput(inputId, updateFunction) {
+
+        const inputElement = document.getElementById(inputId);
+
+        if (!inputElement) return;
+
+        inputElement.addEventListener('change', (event) => {
+
+            updateFunction(event.target.value);
+
+            saveData();
+
+        });
+
+    }
+
+
+
+    async function setupPdfUpload(inputId, storageKey) {
+
+        const inputElement = document.getElementById(inputId);
+
+        if (!inputElement) return;
+
+        inputElement.addEventListener('change', async (event) => {
+
+            const file = event.target.files[0];
+
+            if (file) {
+
+                try {
+
+                    // Les PDFs sont des Blobs, mais pour rester cohérent, on va aussi les lire en Data URL
+
+                    const reader = new FileReader();
+
+                    reader.onload = async (e) => {
+
+                        await saveFileToDB(storageKey, e.target.result); // Sauvegarde le Data URL du PDF
+
+                         console.log("Document PDF sauvegardé."); 
+
+                    };
+
+                    reader.readAsDataURL(file);
+
+                } catch (error) { console.error("Error saving PDF to DB:", error); console.error("Erreur lors de la sauvegarde du PDF."); }
+
+            }
+
+        });
+
+    }
+
+    
+
+    async function loadAndShowPdf(storageKey, screenId, viewerId, placeholderId) {
+
+        const viewer = document.getElementById(viewerId);
+
+        const placeholder = document.getElementById(placeholderId);
+
+        try {
+
+            const dataUrl = await loadFileFromDB(storageKey); // Charge le Data URL
+
+            if (dataUrl) {
+
+                viewer.src = dataUrl;
+
+                viewer.classList.remove('hidden');
+
+                placeholder.classList.add('hidden');
+
+            } else {
+
+                viewer.classList.add('hidden');
+
+                placeholder.classList.remove('hidden');
+
+            }
+
+        } catch (error) {
+
+            console.error("Error loading PDF from DB:", error);
+
+            viewer.classList.add('hidden');
+
+            placeholder.classList.remove('hidden');
+
+            placeholder.textContent = "Erreur lors du chargement du PDF.";
+
+        }
+
+        navigateTo(screenId);
+
+    }
+
+    
+
+    const downloadDataBtn = document.getElementById('download-data');
+
+    if(downloadDataBtn) {
+
+        downloadDataBtn.addEventListener('click', () => {
+
+            let csvContent = "data:text/csv;charset=utf-8,Type,Nom,Emplacement,Niveau,Categorie,Marque,Couleur,Etat,DateAcq,DateRen\n";
+
+            appData.salles.forEach(salle => {
+
+                csvContent += `Salle,${salle.nom},${salle.emplacement},${salle.niveau},,,,,,\n`;
+
+            });
+
+            appData.materiel.forEach(item => {
+
+                csvContent += `Materiel,${item.nom},,${item.salleId},${item.categorie},${item.marque},${item.couleur},${item.etat},${item.dateAcq},${item.dateRen}\n`;
+
+            });
+
+            
+
+            const encodedUri = encodeURI(csvContent);
+
+            const link = document.createElement("a");
+
+            link.setAttribute("href", encodedUri);
+
+            link.setAttribute("download", "donnees_completes.csv");
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            document.body.removeChild(link);
+
+        });
+
+    }
+
+    
+
+    function initializeApp() {
+
+        loadData();
+
+        checkMaterielExpiration(); // Vérifier les expirations au démarrage
+
+        
+
+        // Setup généraux
+
+        setupFileUpload('main-building-image-upload', (url) => { appData.general.mainBuildingImage = url; document.getElementById('main-building-image').src = url; saveData(); });
+
+        
+
+        setupFileUpload('main-bg-upload', (url) => { 
+
+            appData.general.mainBgUrl = url; 
+
+            const container = document.getElementById('main-app-container');
+
+            container.style.backgroundImage = `url(${url})`;
+
+            container.style.backgroundSize = 'cover';
+
+            container.style.backgroundPosition = 'center';
+
+            container.style.backgroundRepeat = 'no-repeat';
+
+            saveData(); 
+
+        });
+
+
+
+        setupFileUpload('app-icon-upload', (url) => { appData.general.appIconUrl = url; document.getElementById('app-favicon').href = url; saveData(); });
+
+        setupFileUpload('menu-bg-upload', (url) => { appData.general.menuBgUrl = url; document.getElementById('menu-background').style.backgroundImage = `url(${url})`; saveData(); });
+
+        setupFileUpload('menu-logo-upload', (url) => { appData.general.menuLogoUrl = url; document.getElementById('menu-logo-image').src = url; saveData(); });
+
+        
+
+        setupPdfUpload('guide-pdf-upload', 'guidePdfUrl');
+
+        setupPdfUpload('dev-pdf-upload', 'devPdfUrl');
+
+
+
+        // Setup Blocs Images
+
+        ['A', 'B', 'C', 'D', 'E', 'F'].forEach(blocId => {
+
+            setupFileUpload(`setting-img-bloc-${blocId}`, (url) => { appData.blocs[blocId].mainImage = url; saveData(); });
+
+        });
+
+
+
+        // Setup Sous-Blocs Images
+
+        ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2', 'E1', 'E2'].forEach(subId => {
+
+            const blocId = subId.charAt(0);
+
+            const subIndex = parseInt(subId.charAt(1)) - 1;
+
+            if (appData.blocs[blocId] && appData.blocs[blocId].subBlocs[subIndex]) {
+
+                setupFileUpload(`setting-img-${subId}`, (url) => { appData.blocs[blocId].subBlocs[subIndex].image = url; saveData(); });
+
+            }
+
+        });
+
+        
+
+        document.getElementById('add-room-emplacement').addEventListener('input', (e) => {
+
+            const niveauRow = document.getElementById('add-room-niveau-row');
+
+            const niveauInput = document.getElementById('add-room-niveau');
+
+            const val = e.target.value.toUpperCase();
+
+            
+
+            if (val === 'D1') {
+
+                niveauInput.value = 'Box Sécurité';
+
+                niveauRow.classList.add('hidden');
+
+            } else if (val === 'D2') {
+
+                niveauInput.value = 'Parking';
+
+                niveauRow.classList.add('hidden');
+
+            } else if (val === 'E2') {
+
+                niveauInput.value = 'Jardins';
+
+                niveauRow.classList.add('hidden');
+
+            } else {
+
+                if (niveauRow.classList.contains('hidden')) {
+
+                    niveauInput.value = '';
+
+                }
+
+                niveauRow.classList.remove('hidden');
+
+            }
+
+        });
+
+        
+
+        document.getElementById('aube-chat-send-btn').addEventListener('click', sendAubeMessage);
+
+        
+
+        document.getElementById('category-search-input').addEventListener('input', () => {
+
+            showCategoryList(currentSalleId, false); // Rafraîchir SANS naviguer
+
+        });
+
+
+
+        const noteSearchInput = document.getElementById('note-search-input');
+
+        if (noteSearchInput) {
+
+            noteSearchInput.addEventListener('input', loadNotesList);
+
+        }
+
+
+
+        lucide.createIcons();
+
+    }
+
+    
+
+// Variable globale pour manipuler la base de données
+
+    let inventoryDB = null;
+
+/**
+
+     * 1. INITIALISATION DES ICÔNES
+
+     * Cette fonction transforme vos balises <i> en icônes visibles.
+
+     */
+
+    function initIcons() {
+
+        if (typeof lucide !== 'undefined') {
+
+            lucide.createIcons();
+
+            console.log("Icônes Lucide générées avec succès.");
+
+        } else {
+
+            console.error("Erreur : La bibliothèque Lucide est introuvable (vérifiez le lien CDN).");
+
+        }
+
+    }
+
+
+
+    /**
+
+     * 2. SYSTÈME DE NAVIGATION (showScreen)
+
+     * @param {string} screenId - L'ID de la section à afficher (ex: 'screen-blocA')
+
+     */
+
+    function showScreen(screenId) {
+
+        // Sélectionne toutes les sections de contenu (enfants directs de main-container)
+
+        const allScreens = document.querySelectorAll('.main-container > div');
+
+        
+
+        allScreens.forEach(screen => {
+
+            // On cache absolument tout le monde
+
+            screen.classList.add('hidden');
+
+        });
+
+
+
+        // On affiche uniquement la section demandée
+
+        const targetScreen = document.getElementById(screenId);
+
+        if (targetScreen) {
+
+            targetScreen.classList.remove('hidden');
+
+            console.log("Affichage de la section : " + screenId);
+
+            
+
+            // Force la tablette à remonter en haut de l'écran
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } else {
+
+            console.warn("Attention : Aucune section trouvée avec l'ID '" + screenId + "'");
+
+        }
+
+
+
+        // Fermeture automatique du menu latéral pour libérer l'espace
+
+        toggleMenu(false);
+
+    }
+
+
+
+    /**
+
+     * 3. GESTION DU MENU LATÉRAL
+
+     * @param {boolean} isOpen - true pour ouvrir, false pour fermer
+
+     */
+
+    function toggleMenu(isOpen) {
+
+        const sideMenu = document.getElementById('side-menu');
+
+        const overlay = document.getElementById('menu-overlay');
+
+
+
+        if (sideMenu && overlay) {
+
+            if (isOpen) {
+
+                sideMenu.style.transform = 'translateX(0)';
+
+                overlay.classList.remove('hidden');
+
+            } else {
+
+                sideMenu.style.transform = 'translateX(-100%)';
+
+                overlay.classList.add('hidden');
+
+            }
+
+        }
+
+    }
+
+
+
+    // Lancement automatique dès que la tablette a fini de charger le HTML
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        initIcons();
+
+        // Optionnel : Afficher l'écran d'accueil par défaut au démarrage
+
+        // showScreen('screen-home'); 
+
+    });
+  </script>
+  <style>
+   .input-file-style {
+
+    @apply block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100;
+
+}
+
+details > summary { list-style: none; }
+
+details > summary::-webkit-details-marker { display: none; }
+
+details > summary::after {
+
+    content: '+';
+
+    float: right;
+
+    font-size: 1.5em;
+
+    line-height: 1;
+
+    font-weight: bold;
+
+    color: #3b82f6; /* blue-500 */
+
+}
+
+details[open] > summary::after { content: '−'; }
+
+#aube-chat-messages {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.75rem; /* space-y-3 */
+
+}
+  </style>
+ </body>
+</html>
