@@ -55,59 +55,66 @@
   </style>
 
   <script>
-    // 1. Configuration Tailwind
+    // 1. CONFIGURATION TAILWIND
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'aube-red': '#b91c1c',
-            'aube-blue': '#1e3a8a',
-          }
-        }
-      }
+      theme: { extend: { colors: { 'aube-red': '#b91c1c', 'aube-blue': '#1e3a8a' } } }
     }
 
-    // 2. MOTEUR DE NAVIGATION (Indispensable pour tes boutons)
-    function showScreen(screenId) {
-        // Cache toutes les sections de premier niveau dans le container
+    // 2. MOTEUR DE NAVIGATION AVEC HISTORIQUE
+    let navigationHistory = ['screen-blocA']; // On commence sur l'ID réel de ton accueil
+
+    function showScreen(screenId, saveHistory = true) {
+        console.log("Navigation vers :", screenId);
         const screens = document.querySelectorAll('.main-container > div');
         screens.forEach(s => s.classList.add('hidden'));
-        
-        // Affiche l'écran demandé
+
         const target = document.getElementById(screenId);
         if (target) {
             target.classList.remove('hidden');
+            if (saveHistory && navigationHistory[navigationHistory.length - 1] !== screenId) {
+                navigationHistory.push(screenId);
+            }
             window.scrollTo(0, 0);
         } else {
             console.error("Écran introuvable : " + screenId);
         }
     }
 
-    // 3. Tes fonctions appelées par tes onclick="xxx"
-    function showBlocDetails(blocLetter) {
-        showScreen('screen-bloc' + blocLetter + '-details');
-    }
-
-    function showSubBlocDetails(subId) {
-        showScreen('screen-bloc' + subId + '-levels');
-    }
-
-    function navigateTo(screenId) {
-        showScreen(screenId);
-    }
-
+    // Fonctions liées à tes boutons onclick
+    function showBlocDetails(letter) { showScreen('screen-bloc' + letter + '-details'); }
+    function showSubBlocDetails(id) { showScreen('screen-bloc' + id + '-levels'); }
+    function navigateTo(id) { showScreen(id); }
+    
     function goBack() {
-        showScreen('screen-home'); // Vérifie bien que ton accueil a l'ID 'screen-home'
-    }
-
-    // 4. Initialisation Lucide
-    function initIcons() {
-        if (window.lucide) {
-            window.lucide.createIcons();
+        if (navigationHistory.length > 1) {
+            navigationHistory.pop();
+            showScreen(navigationHistory[navigationHistory.length - 1], false);
+        } else {
+            showScreen('screen-blocA', false);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', initIcons);
+    // 3. FONCTIONS TECHNIQUES MANQUANTES
+    function toggleMenu() {
+        // Si tu as un menu latéral, ajoute ici son ID
+        alert("Menu bientôt disponible !");
+    }
+
+    function promptForPassword() {
+        const pass = prompt("Code administrateur requis :");
+        if (pass === "1234") { navigateTo('screen-admin'); }
+    }
+
+    // 4. INITIALISATION
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) { window.lucide.createIcons(); }
+        // On force l'affichage du premier écran réel
+        showScreen('screen-blocA', false);
+    });
+
+    // Prépare les fonctions pour db.js (pour éviter les erreurs console)
+    async function saveRoom() { console.log("Sauvegarde salle..."); alert("Fonction de sauvegarde en cours d'activation"); }
+    async function saveMateriel() { console.log("Sauvegarde matériel..."); }
   </script>
   </head>
 <body class="bg-gray-200">
@@ -776,6 +783,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
