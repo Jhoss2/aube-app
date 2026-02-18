@@ -4,18 +4,19 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
   <meta content="#fde7f3" name="theme-color"/>
-  <meta content="default-src 'self' data: gap: https://cdn.tailwindcss.com https://unpkg.com https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content:;" http-equiv="Content-Security-Policy"/>
+  
+  <meta content="default-src 'self' data: gap: 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src *; img-src 'self' data: content: https://placehold.co;" http-equiv="Content-Security-Policy"/>
+  
   <title>
    U-AUBEN INVENTORY
   </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <script src="https://unpkg.com/lucide@latest">
-  </script>
-  <script src="js/marked.min.js">
-  </script>
-  <script src="js/db.js">
-  </script>
+
+  <script src="js/tailwind.js"></script>
+  <script src="js/lucide.min.js"></script>
+  
+  <script src="js/marked.min.js"></script>
+  <script src="js/db.js"></script>
+
   <style>
    /* Police système propre pour tablette (évite les erreurs de dossiers fonts manquants) */
 
@@ -107,6 +108,15 @@
           }
 
         }
+
+        // Fonction pour lancer les icônes en mode local
+        function initIcons() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initIcons);
   </script>
  </head>
  <body class="bg-gray-200">
