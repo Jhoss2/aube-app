@@ -1,53 +1,79 @@
 <!DOCTYPE html>
-<html lang="fr"> 
-<head>
+<html lang="fr">
+  <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
   <meta content="#fde7f3" name="theme-color"/>
   
   <meta content="default-src 'self' data: gap: 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; media-src *; img-src 'self' data: content: https://placehold.co;" http-equiv="Content-Security-Policy"/>
   
-  <title>U-AUBEN INVENTORY</title>
+  <title>
+   U-AUBEN INVENTORY
+  </title>
 
   <script src="js/tailwind.js"></script>
   <script src="js/lucide.min.js"></script>
+  
   <script src="js/marked.min.js"></script>
   <script src="js/db.js"></script>
 
   <style>
-    body { 
-        font-family: system-ui, -apple-system, sans-serif; 
-        -webkit-tap-highlight-color: transparent; 
-        margin: 0; 
-        background-color: #fde7f3;
-        min-height: 100vh;
-    }
-    .main-container {
-        width: 100%; min-height: 100vh; display: flex; flex-direction: column;
-        background-color: #fde7f3;
-        background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
-        background-size: 20px 20px;
-        position: relative; overflow-x: hidden;
-    }
-    .font-algerian { font-family: 'serif'; font-weight: bold; }
-    .font-monotype-corsiva { font-family: 'cursive'; }
-    button { touch-action: manipulation; cursor: pointer; }
-    .hidden { display: none !important; }
+   /* Police système propre pour tablette (évite les erreurs de dossiers fonts manquants) */
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            margin: 0; 
+            background-color: #fde7f3;
+            min-height: 100vh;
+        }
+
+        /* Structure de l'application */
+        .main-container {
+            width: 100%; 
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column;
+            background-color: #fde7f3;
+            background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            position: relative; 
+            overflow-x: hidden;
+        }
+
+        /* Classes utilitaires personnalisées */
+        .font-algerian { font-family: 'serif'; font-weight: bold; }
+        .font-monotype-corsiva { font-family: 'cursive'; }
+
+        /* Correction pour les boutons tactiles sur tablette */
+        button {
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        /* Sécurité : cache les éléments par défaut avant le chargement de Tailwind */
+        .hidden { display: none !important; }
   </style>
 
   <script>
-    // 1. CONFIGURATION TAILWIND
+    // 1. Configuration Tailwind
     tailwind.config = {
-      theme: { extend: { colors: { 'aube-red': '#b91c1c', 'aube-blue': '#1e3a8a' } } }
+      theme: {
+        extend: {
+          colors: {
+            'aube-red': '#b91c1c',
+            'aube-blue': '#1e3a8a',
+          }
+        }
+      }
     }
 
-    // 2. LE MOTEUR DE NAVIGATION (Ce qui manquait !)
+    // 2. MOTEUR DE NAVIGATION (Indispensable pour tes boutons)
     function showScreen(screenId) {
-        // Cache tous les écrans
+        // Cache toutes les sections de premier niveau dans le container
         const screens = document.querySelectorAll('.main-container > div');
         screens.forEach(s => s.classList.add('hidden'));
         
-        // Affiche l'écran cible
+        // Affiche l'écran demandé
         const target = document.getElementById(screenId);
         if (target) {
             target.classList.remove('hidden');
@@ -57,20 +83,33 @@
         }
     }
 
-    // Liens vers tes boutons
-    function showBlocDetails(letter) { showScreen('screen-bloc' + letter + '-details'); }
-    function showSubBlocDetails(id) { showScreen('screen-bloc' + id + '-levels'); }
-    function navigateTo(id) { showScreen(id); }
-    function goBack() { showScreen('screen-accueil'); }
+    // 3. Tes fonctions appelées par tes onclick="xxx"
+    function showBlocDetails(blocLetter) {
+        showScreen('screen-bloc' + blocLetter + '-details');
+    }
 
-    // 3. INITIALISATION
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.lucide) { window.lucide.createIcons(); }
-        // On s'assure que l'accueil est visible au départ
-        showScreen('screen-accueil');
-    });
+    function showSubBlocDetails(subId) {
+        showScreen('screen-bloc' + subId + '-levels');
+    }
+
+    function navigateTo(screenId) {
+        showScreen(screenId);
+    }
+
+    function goBack() {
+        showScreen('screen-home'); // Vérifie bien que ton accueil a l'ID 'screen-home'
+    }
+
+    // 4. Initialisation Lucide
+    function initIcons() {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initIcons);
   </script>
-</head>
+  </head>
 <body class="bg-gray-200">
 
     <div id="main-app-container" class="main-container">
@@ -2044,6 +2083,7 @@ details[open] > summary::after { content: '−'; }
 </body>
 
 </html>
+
 
 
 
